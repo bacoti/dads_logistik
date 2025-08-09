@@ -15,12 +15,15 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-
-                    @if(Auth::user()->role->value == 'admin')
-                    <x-nav-link :href="route('admin.projects.index')" :active="request()->routeIs('admin.projects.*')">
-                        {{ __('Manajemen Proyek') }}
+                    {{-- MENU UNTUK USER BIASA --}}
+                    @if(Auth::user()->role->value == 'user')
+                    <x-nav-link :href="route('user.transactions.index')" :active="request()->routeIs('user.transactions.*')">
+                        {{ __('Riwayat Transaksi') }}
                     </x-nav-link>
-                     {{-- MENU UNTUK ADMIN --}}
+                    @endif
+
+                    {{-- MENU UNTUK ADMIN --}}
+
                     @if(Auth::user()->role->value == 'admin')
                     <x-nav-link :href="route('admin.projects.index')" :active="request()->routeIs('admin.projects.*')">
                         {{ __('Proyek') }}
@@ -37,9 +40,11 @@
                     <x-nav-link :href="route('admin.transactions.index')" :active="request()->routeIs('admin.transactions.*')">
                         {{ __('Validasi Transaksi') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.index')">
+                        {{ __('Laporan') }}
+                    </x-nav-link>
                     @endif
                     {{-- AKHIR MENU ADMIN --}}
-                    @endif
 
                 </div>
             </div>

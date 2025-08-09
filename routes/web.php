@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use App\Http\Controllers\Admin\VendorController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\TransactionController;
 use Illuminate\Support\Facades\Auth;
@@ -41,31 +42,33 @@ Route::middleware('auth')->group(function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
-        // Resourceful routes untuk semua Master Data
         Route::resource('projects', ProjectController::class);
         Route::resource('vendors', VendorController::class);
         Route::resource('locations', LocationController::class);
         Route::resource('materials', MaterialController::class);
 
-        // Rute untuk manajemen transaksi oleh admin
         Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
         Route::get('/transactions/{transaction}', [AdminTransactionController::class, 'show'])->name('transactions.show');
         Route::patch('/transactions/{transaction}/approve', [AdminTransactionController::class, 'approve'])->name('transactions.approve');
         Route::patch('/transactions/{transaction}/reject', [AdminTransactionController::class, 'reject'])->name('transactions.reject');
+
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+        Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
     });
 
     // =====================================================
     // GRUP RUTE UNTUK USER BIASA
     // =====================================================
     Route::middleware(['role:user'])->prefix('user')->name('user.')->group(function () {
-        // Rute untuk dashboard user (pemilihan form)
+
         Route::get('/dashboard', [TransactionController::class, 'dashboard'])->name('dashboard');
 
-        // Rute untuk menampilkan form transaksi berdasarkan jenisnya
         Route::get('/transactions/create/{type}', [TransactionController::class, 'create'])->name('transactions.create');
 
-        // Rute untuk menyimpan data transaksi baru
         Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+        Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+        Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
     });
 });
 

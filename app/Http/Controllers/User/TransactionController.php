@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class TransactionController extends Controller
 {
@@ -112,5 +113,27 @@ class TransactionController extends Controller
             // Log::error('Transaction store error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat menyimpan transaksi. Silakan coba lagi.')->withInput();
         }
+    }
+
+    public function index()
+    {
+        $transactions = Transaction::where('user_id', Auth::id())
+            ->with('project')
+            ->latest()
+            ->paginate(15);
+
+        return view('user.transactions.index', compact('transactions'));
+    }
+
+    public function show(Transaction $transaction)
+    {
+        // Pastikan user hanya bisa melihat transaksinya sendiri
+        if (Auth::id() !== $transaction->user_id) {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES.');
+        }
+
+        $transaction->load(['project', 'location', 'vendor', 'items.material', 'approver']);
+
+        return view('user.transactions.show', compact('transaction'));
     }
 }
