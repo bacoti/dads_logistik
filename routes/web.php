@@ -7,6 +7,10 @@ use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MaterialController;
 
+use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
+
+use App\Http\Controllers\User\TransactionController;
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,8 +23,8 @@ Route::get('/dashboard', function () {
     if ($role == 'admin') {
         return redirect()->route('admin.dashboard');
     } elseif ($role == 'user') {
-        // Nanti kita arahkan ke dashboard user
-        return view('dashboard'); // Untuk sementara biarkan ke sini
+        // Arahkan ke dashboard user yang baru kita buat
+        return redirect()->route('user.dashboard');
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -36,17 +40,28 @@ Route::middleware('auth')->group(function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
-        // Resourceful route untuk Projects
-        Route::resource('projects', ProjectController::class);
-        Route::resource('vendors', VendorController::class);
-        Route::resource('locations', LocationController::class);
-        Route::resource('materials', MaterialController::class);
+        // Rute untuk manajemen transaksi oleh admin
+        Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
+        Route::get('/transactions/{transaction}', [AdminTransactionController::class, 'show'])->name('transactions.show');
+        Route::patch('/transactions/{transaction}/approve', [AdminTransactionController::class, 'approve'])->name('transactions.approve');
+        Route::patch('/transactions/{transaction}/reject', [AdminTransactionController::class, 'reject'])->name('transactions.reject');
     });
 
     // Grup untuk User Biasa
     Route::middleware(['role:user'])->prefix('user')->name('user.')->group(function () {
-        // Rute untuk form input material akan ada di sini
+        // Rute untuk dashboard user (pemilihan form)
+        Route::get('/dashboard', [TransactionController::class, 'dashboard'])->name('dashboard');
+
+        // Rute untuk menampilkan form transaksi berdasarkan jenisnya
+        Route::get('/transactions/create/{type}', [TransactionController::class, 'create'])->name('transactions.create');
+
+        // Rute untuk menyimpan data transaksi baru
+        Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+
+        // Rute untuk riwayat transaksi (akan kita bangun nanti)
+        // Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     });
+
 });
 
 require __DIR__.'/auth.php';

@@ -34,6 +34,9 @@
                     <x-nav-link :href="route('admin.materials.index')" :active="request()->routeIs('admin.materials.*')">
                         {{ __('Material') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.transactions.index')" :active="request()->routeIs('admin.transactions.*')">
+                        {{ __('Validasi Transaksi') }}
+                    </x-nav-link>
                     @endif
                     {{-- AKHIR MENU ADMIN --}}
                     @endif
