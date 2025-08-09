@@ -20,7 +20,22 @@
                     <x-nav-link :href="route('admin.projects.index')" :active="request()->routeIs('admin.projects.*')">
                         {{ __('Manajemen Proyek') }}
                     </x-nav-link>
-                    {{-- Anda bisa menambahkan link master data lain di sini --}}
+                     {{-- MENU UNTUK ADMIN --}}
+                    @if(Auth::user()->role->value == 'admin')
+                    <x-nav-link :href="route('admin.projects.index')" :active="request()->routeIs('admin.projects.*')">
+                        {{ __('Proyek') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.vendors.index')" :active="request()->routeIs('admin.vendors.*')">
+                        {{ __('Vendor') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.locations.index')" :active="request()->routeIs('admin.locations.*')">
+                        {{ __('Lokasi') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.materials.index')" :active="request()->routeIs('admin.materials.*')">
+                        {{ __('Material') }}
+                    </x-nav-link>
+                    @endif
+                    {{-- AKHIR MENU ADMIN --}}
                     @endif
 
                 </div>
@@ -78,23 +93,6 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-
-            {{-- MENU UNTUK ADMIN --}}
-            @if(Auth::user()->role->value == 'admin')
-            <x-nav-link :href="route('admin.projects.index')" :active="request()->routeIs('admin.projects.*')">
-                {{ __('Proyek') }}
-            </x-nav-link>
-            <x-nav-link :href="route('admin.vendors.index')" :active="request()->routeIs('admin.vendors.*')">
-                {{ __('Vendor') }}
-            </x-nav-link>
-            <x-nav-link :href="route('admin.locations.index')" :active="request()->routeIs('admin.locations.*')">
-                {{ __('Lokasi') }}
-            </x-nav-link>
-            <x-nav-link :href="route('admin.materials.index')" :active="request()->routeIs('admin.materials.*')">
-                {{ __('Material') }}
-            </x-nav-link>
-            @endif
-            {{-- AKHIR MENU ADMIN --}}
         </div>
 
         <!-- Responsive Settings Options -->
