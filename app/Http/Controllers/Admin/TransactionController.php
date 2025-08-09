@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Notification;
 
 class TransactionController extends Controller
 {
@@ -69,6 +70,12 @@ class TransactionController extends Controller
                 $transaction->approved_by = Auth::id();
                 $transaction->approved_at = now();
                 $transaction->save();
+
+                Notification::create([
+                    'user_id' => $transaction->user_id,
+                    'message' => "Pengajuan transaksi #{$transaction->id} telah disetujui.",
+                    'url' => route('user.transactions.show', $transaction->id),
+                ]);
             });
 
             return redirect()->route('admin.transactions.index')->with('success', 'Transaksi berhasil disetujui.');
@@ -95,6 +102,13 @@ class TransactionController extends Controller
         $transaction->approved_by = Auth::id(); // Admin yang menolak
         // $transaction->rejection_reason = $request->rejection_reason;
         $transaction->save();
+
+        // BUAT NOTIFIKASI UNTUK USER
+        Notification::create([
+            'user_id' => $transaction->user_id,
+            'message' => "Pengajuan transaksi #{$transaction->id} telah ditolak.",
+            'url' => route('user.transactions.show', $transaction->id),
+        ]);
 
         return redirect()->route('admin.transactions.index')->with('success', 'Transaksi berhasil ditolak.');
     }
