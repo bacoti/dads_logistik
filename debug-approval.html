@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Debug Admin PO Material Approval</title>
+        <script
+            src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+            defer
+        ></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 p-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-2xl font-bold mb-6">
+                Debug Admin PO Material Approval
+            </h1>
+
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 class="text-lg font-semibold mb-4">
+                    Test Route Generation
+                </h2>
+                <div id="route-test" class="space-y-2">
+                    <p>Loading route test...</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold mb-4">Test Buttons</h2>
+                <div class="flex space-x-4">
+                    <button
+                        onclick="testChangeStatus('123', 'approved')"
+                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    >
+                        Test Approve (ID: 123)
+                    </button>
+                    <button
+                        onclick="testChangeStatus('456', 'rejected')"
+                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    >
+                        Test Reject (ID: 456)
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 mt-6">
+                <h2 class="text-lg font-semibold mb-4">Console Log</h2>
+                <div
+                    id="console-log"
+                    class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-y-auto"
+                >
+                    <!-- Console output will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Override console.log to also display in page
+            const originalLog = console.log;
+            const logElement = document.getElementById("console-log");
+
+            console.log = function (...args) {
+                originalLog.apply(console, args);
+                const logEntry = document.createElement("div");
+                logEntry.textContent =
+                    new Date().toLocaleTimeString() + ": " + args.join(" ");
+                logElement.appendChild(logEntry);
+                logElement.scrollTop = logElement.scrollHeight;
+            };
+
+            // CSRF Token (normally from Laravel)
+            const csrfToken = "test-csrf-token";
+
+            // Test route generation
+            document.addEventListener("DOMContentLoaded", function () {
+                const routeTest = document.getElementById("route-test");
+                const baseUrl = window.location.origin;
+                const testRoute =
+                    baseUrl + "/admin/po-materials/123/update-status";
+
+                routeTest.innerHTML = `
+                <p><strong>Base URL:</strong> ${baseUrl}</p>
+                <p><strong>Test Route:</strong> ${testRoute}</p>
+                <p><strong>CSRF Token:</strong> ${csrfToken}</p>
+            `;
+
+                console.log("Debug page loaded");
+                console.log("Base URL:", baseUrl);
+                console.log("Test route:", testRoute);
+            });
+
+            function testChangeStatus(poMaterialId, status) {
+                console.log(
+                    "testChangeStatus called with:",
+                    poMaterialId,
+                    status
+                );
+                const statusText =
+                    status === "approved" ? "menyetujui" : "menolak";
+
+                console.log("Status text:", statusText);
+
+                if (
+                    confirm(
+                        `Test: Apakah Anda yakin ingin ${statusText} PO Material ini?`
+                    )
+                ) {
+                    console.log("User confirmed action");
+
+                    // Test route building
+                    const baseUrl = window.location.origin;
+                    const formAction = `${baseUrl}/admin/po-materials/${poMaterialId}/update-status`;
+                    console.log("Form action URL:", formAction);
+
+                    // Test form creation
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = formAction;
+
+                    console.log("Form created:", form);
+                    console.log("Form method:", form.method);
+                    console.log("Form action:", form.action);
+
+                    const csrfTokenInput = document.createElement("input");
+                    csrfTokenInput.type = "hidden";
+                    csrfTokenInput.name = "_token";
+                    csrfTokenInput.value = csrfToken;
+
+                    const methodInput = document.createElement("input");
+                    methodInput.type = "hidden";
+                    methodInput.name = "_method";
+                    methodInput.value = "PATCH";
+
+                    const statusInput = document.createElement("input");
+                    statusInput.type = "hidden";
+                    statusInput.name = "status";
+                    statusInput.value = status;
+
+                    form.appendChild(csrfTokenInput);
+                    form.appendChild(methodInput);
+                    form.appendChild(statusInput);
+
+                    console.log("Form inputs added");
+                    console.log("Form HTML:", form.outerHTML);
+
+                    // Add optional notes field
+                    const notes = prompt(
+                        `Test: Tambahkan catatan untuk ${statusText} PO Material ini (opsional):`
+                    );
+                    if (notes && notes.trim() !== "") {
+                        const notesInput = document.createElement("input");
+                        notesInput.type = "hidden";
+                        notesInput.name = "notes";
+                        notesInput.value = notes.trim();
+                        form.appendChild(notesInput);
+                        console.log("Added notes:", notes.trim());
+                    }
+
+                    console.log(
+                        "Ready to submit form (TEST MODE - NOT SUBMITTING)"
+                    );
+                    console.log("In production, would call: form.submit()");
+
+                    // Uncomment next line to actually submit (WARNING: will cause error in test environment)
+                    // form.submit();
+                } else {
+                    console.log("User cancelled action");
+                }
+            }
+        </script>
+    </body>
+</html>

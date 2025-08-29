@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Debug PO Approval Function</title>
+        <script>
+            // Debug version of changeStatus function
+            function debugChangeStatus(poMaterialId, status) {
+                console.log("=== DEBUG PO APPROVAL ===");
+                console.log("Called with:", { poMaterialId, status });
+
+                if (!poMaterialId || !status) {
+                    console.error("Missing parameters!");
+                    alert("Error: Missing parameters");
+                    return false;
+                }
+
+                const statusText =
+                    status === "approved" ? "menyetujui" : "menolak";
+                console.log("Status text:", statusText);
+
+                // Test route building
+                const baseUrl = window.location.origin;
+                const routeUrl = `${baseUrl}/admin/po-materials/${poMaterialId}/update-status`;
+                console.log("Route URL:", routeUrl);
+
+                // Test form creation
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = routeUrl;
+
+                // Test CSRF token
+                const csrfToken = document.createElement("input");
+                csrfToken.type = "hidden";
+                csrfToken.name = "_token";
+                csrfToken.value = "test-csrf-token";
+
+                // Test method input
+                const methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                methodInput.value = "PATCH";
+
+                // Test status input
+                const statusInput = document.createElement("input");
+                statusInput.type = "hidden";
+                statusInput.name = "status";
+                statusInput.value = status;
+
+                form.appendChild(csrfToken);
+                form.appendChild(methodInput);
+                form.appendChild(statusInput);
+
+                console.log("Form elements:");
+                console.log("- Action:", form.action);
+                console.log("- Method:", form.method);
+                console.log("- Children count:", form.children.length);
+
+                // Don't actually submit, just log
+                console.log(
+                    "Form ready to submit (not submitting in debug mode)"
+                );
+                console.log("=== END DEBUG ===");
+
+                return false;
+            }
+
+            // Test function
+            function testApproval() {
+                debugChangeStatus("1", "approved");
+            }
+
+            function testRejection() {
+                debugChangeStatus("1", "rejected");
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Debug PO Approval</h1>
+        <button onclick="testApproval()">Test Approval</button>
+        <button onclick="testRejection()">Test Rejection</button>
+
+        <div style="margin-top: 20px">
+            <h2>Check Browser Console</h2>
+            <p>
+                Open browser console (F12) and click the buttons above to see
+                debug logs.
+            </p>
+        </div>
+    </body>
+</html>
