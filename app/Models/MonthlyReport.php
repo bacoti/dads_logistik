@@ -60,7 +60,31 @@ class MonthlyReport extends Model
 
     public function getFormattedPeriodAttribute(): string
     {
-        $date = \Carbon\Carbon::createFromFormat('Y-m', $this->report_period);
-        return $date->format('F Y');
+        try {
+            // Handle null or empty report_period
+            if (empty($this->report_period)) {
+                return 'Unknown Period';
+            }
+
+            // Try different date formats
+            $formats = ['Y-m', 'Y-m-d', 'Y-m-d H:i:s', 'd/m/Y', 'm/Y'];
+
+            foreach ($formats as $format) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat($format, $this->report_period);
+                    return $date->format('F Y');
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+
+            // If all formats fail, try Carbon parse
+            $date = \Carbon\Carbon::parse($this->report_period);
+            return $date->format('F Y');
+
+        } catch (\Exception $e) {
+            // Return raw value if all else fails
+            return $this->report_period ?? 'Invalid Period';
+        }
     }
 }

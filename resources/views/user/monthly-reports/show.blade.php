@@ -11,9 +11,9 @@
         >
         <x-slot name="action">
             <div class="flex items-center space-x-3">
-                @if($report->status === 'pending')
+                @if($monthlyReport->status === 'pending')
                     <x-button 
-                        href="{{ route('user.monthly-reports.edit', $report) }}"
+                        href="{{ route('user.monthly-reports.edit', $monthlyReport) }}"
                         :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\'></path></svg>'"
                         class="bg-indigo-500 hover:bg-indigo-600 text-white">
                         Edit Laporan
@@ -62,12 +62,12 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <h2 class="text-2xl font-bold text-white">{{ $report->formatted_period }}</h2>
+                                        <h2 class="text-2xl font-bold text-white">{{ $monthlyReport->formatted_period }}</h2>
                                         <p class="text-red-100">Laporan Bulanan</p>
                                     </div>
                                 </div>
-                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $report->status_badge }}">
-                                    {{ ucfirst($report->status) }}
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $monthlyReport->status_badge }}">
+                                    {{ ucfirst($monthlyReport->status) }}
                                 </span>
                             </div>
                         </div>
@@ -89,7 +89,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-medium text-gray-600">Tanggal Laporan</p>
-                                                <p class="text-lg font-semibold text-gray-900">{{ $report->report_date->format('d M Y') }}</p>
+                                                <p class="text-lg font-semibold text-gray-900">{{ $monthlyReport->report_date->format('d M Y') }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -103,7 +103,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-medium text-gray-600">Periode</p>
-                                                <p class="text-lg font-semibold text-gray-900">{{ $report->report_period }}</p>
+                                                <p class="text-lg font-semibold text-gray-900">{{ $monthlyReport->report_period }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -125,9 +125,9 @@
                                                 </svg>
                                             </div>
                                             <div class="flex-1">
-                                                <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ $report->project->name }}</h4>
+                                                <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ $monthlyReport->project->name }}</h4>
                                                 <p class="text-gray-600 mb-1">
-                                                    <span class="font-medium">Sub Proyek:</span> {{ $report->subProject->name }}
+                                                    <span class="font-medium">Sub Proyek:</span> {{ $monthlyReport->subProject->name }}
                                                 </p>
                                                 <div class="flex items-start mt-3">
                                                     <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +135,7 @@
                                                     </svg>
                                                     <div>
                                                         <p class="text-sm font-medium text-gray-700">Lokasi Proyek</p>
-                                                        <p class="text-gray-600 mt-1">{{ $report->project_location }}</p>
+                                                        <p class="text-gray-600 mt-1">{{ $monthlyReport->project_location }}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -145,20 +145,20 @@
                             </div>
 
                             <!-- Notes Section -->
-                            @if($report->notes)
+                            @if($monthlyReport->notes)
                                 <div>
                                     <x-section-header 
                                         title="Catatan Laporan"
                                         :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\'></path></svg>'" />
                                     
                                     <div class="mt-6 bg-gray-50 rounded-xl p-6">
-                                        <p class="text-gray-700 leading-relaxed">{{ $report->notes }}</p>
+                                        <p class="text-gray-700 leading-relaxed">{{ $monthlyReport->notes }}</p>
                                     </div>
                                 </div>
                             @endif
 
                             <!-- File Information -->
-                            @if($report->excel_file_path)
+                            @if($monthlyReport->excel_file_path)
                                 <div>
                                     <x-section-header 
                                         title="File Excel"
@@ -174,10 +174,10 @@
                                                 </div>
                                                 <div>
                                                     <p class="font-medium text-green-800">File Excel Tersedia</p>
-                                                    <p class="text-sm text-green-600">{{ basename($report->excel_file_path) }}</p>
+                                                    <p class="text-sm text-green-600">{{ basename($monthlyReport->excel_file_path) }}</p>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('user.monthly-reports.download', $report) }}" 
+                                            <a href="{{ route('user.monthly-reports.download', $monthlyReport) }}" 
                                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -202,31 +202,31 @@
                             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div class="flex items-center">
                                     <div class="w-3 h-3 rounded-full {{ 
-                                        $report->status === 'pending' ? 'bg-yellow-400' : 
-                                        ($report->status === 'reviewed' ? 'bg-blue-400' :
-                                        ($report->status === 'approved' ? 'bg-green-400' : 'bg-red-400'))
+                                        $monthlyReport->status === 'pending' ? 'bg-yellow-400' : 
+                                        ($monthlyReport->status === 'reviewed' ? 'bg-blue-400' :
+                                        ($monthlyReport->status === 'approved' ? 'bg-green-400' : 'bg-red-400'))
                                     }} mr-3"></div>
-                                    <span class="font-medium text-gray-700">{{ ucfirst($report->status) }}</span>
+                                    <span class="font-medium text-gray-700">{{ ucfirst($monthlyReport->status) }}</span>
                                 </div>
                                 <span class="text-sm text-gray-500">Current</span>
                             </div>
 
-                            @if($report->reviewed_at)
+                            @if($monthlyReport->reviewed_at)
                                 <div class="border-t pt-4">
                                     <p class="text-sm font-medium text-gray-600 mb-2">Direview pada:</p>
-                                    <p class="text-sm text-gray-900">{{ $report->reviewed_at->format('d M Y H:i') }}</p>
+                                    <p class="text-sm text-gray-900">{{ $monthlyReport->reviewed_at->format('d M Y H:i') }}</p>
                                     
-                                    @if($report->reviewer)
-                                        <p class="text-sm text-gray-600 mt-1">oleh {{ $report->reviewer->name }}</p>
+                                    @if($monthlyReport->reviewer)
+                                        <p class="text-sm text-gray-600 mt-1">oleh {{ $monthlyReport->reviewer->name }}</p>
                                     @endif
                                 </div>
                             @endif
 
-                            @if($report->admin_notes)
+                            @if($monthlyReport->admin_notes)
                                 <div class="border-t pt-4">
                                     <p class="text-sm font-medium text-gray-600 mb-2">Catatan Admin:</p>
                                     <div class="bg-blue-50 p-3 rounded-lg">
-                                        <p class="text-sm text-blue-800">{{ $report->admin_notes }}</p>
+                                        <p class="text-sm text-blue-800">{{ $monthlyReport->admin_notes }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -238,18 +238,18 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
                         
                         <div class="space-y-3">
-                            @if($report->status === 'pending')
+                            @if($monthlyReport->status === 'pending')
                                 <x-button 
-                                    href="{{ route('user.monthly-reports.edit', $report) }}"
+                                    href="{{ route('user.monthly-reports.edit', $monthlyReport) }}"
                                     :icon="'<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\'></path></svg>'"
                                     class="w-full justify-center bg-indigo-500 hover:bg-indigo-600 text-white">
                                     Edit Laporan
                                 </x-button>
                             @endif
 
-                            @if($report->excel_file_path)
+                            @if($monthlyReport->excel_file_path)
                                 <x-button 
-                                    href="{{ route('user.monthly-reports.download', $report) }}"
+                                    href="{{ route('user.monthly-reports.download', $monthlyReport) }}"
                                     :icon="'<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\'></path></svg>'"
                                     class="w-full justify-center bg-green-500 hover:bg-green-600 text-white">
                                     Download Excel
@@ -279,11 +279,11 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-900">Laporan Dibuat</p>
-                                    <p class="text-xs text-gray-500">{{ $report->created_at->format('d M Y H:i') }}</p>
+                                    <p class="text-xs text-gray-500">{{ $monthlyReport->created_at->format('d M Y H:i') }}</p>
                                 </div>
                             </div>
 
-                            @if($report->reviewed_at)
+                            @if($monthlyReport->reviewed_at)
                                 <div class="flex items-start">
                                     <div class="bg-blue-100 rounded-full p-2 mr-4">
                                         <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Direview Admin</p>
-                                        <p class="text-xs text-gray-500">{{ $report->reviewed_at->format('d M Y H:i') }}</p>
+                                        <p class="text-xs text-gray-500">{{ $monthlyReport->reviewed_at->format('d M Y H:i') }}</p>
                                     </div>
                                 </div>
                             @endif

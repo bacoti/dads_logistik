@@ -113,8 +113,12 @@
 
         <!-- Help Text -->
         <div class="text-center mt-6">
-            <p class="text-sm text-gray-500">
-                Belum memiliki akun? Hubungi administrator untuk mendapatkan akses.
+            <p class="text-sm text-gray-600">
+                Belum memiliki akun?
+                <a href="{{ route('register') }}"
+                   class="text-red-600 hover:text-red-800 font-semibold">
+                    Daftar sekarang
+                </a>
             </p>
         </div>
     </form>
