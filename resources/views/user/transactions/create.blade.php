@@ -249,30 +249,102 @@
                         </div>
 
                         <!-- Upload Bukti & Keterangan -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <!-- Upload Bukti -->
-                            <div>
-                                <label for="proof_path" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Upload Bukti (PDF, JPG, PNG)
-                                </label>
-                                <input type="file" name="proof_path" id="proof_path" accept=".pdf,.jpg,.jpeg,.png"
-                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                @error('proof_path')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-6 border-b border-gray-200 pb-2">
+                                Upload Dokumen & Keterangan
+                            </h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <!-- Upload Bukti -->
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <label for="proof_path" class="block text-sm font-semibold text-gray-800">
+                                                Upload Bukti Transaksi
+                                            </label>
+                                            <p class="text-xs text-gray-600">PDF, JPG, PNG (Max: 2MB)</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="relative">
+                                        <input type="file" name="proof_path" id="proof_path" accept=".pdf,.jpg,.jpeg,.png"
+                                               class="w-full px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-sm
+                                                      file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 
+                                                      file:text-sm file:font-medium file:bg-blue-600 file:text-white
+                                                      hover:file:bg-blue-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+                                                      transition-all duration-200"
+                                               onchange="updateFileName(this)">
+                                        
+                                        <div id="file-info" class="hidden mt-3 p-3 bg-white border border-blue-200 rounded-lg">
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <span class="text-sm text-gray-700" id="selected-file-name"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    @error('proof_path')
+                                        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <p class="text-sm text-red-600">{{ $message }}</p>
+                                            </div>
+                                        </div>
+                                    @enderror
+                                </div>
 
-                            <!-- Keterangan -->
-                            <div>
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Keterangan Umum
-                                </label>
-                                <textarea name="notes" id="notes" rows="4"
-                                          class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                          placeholder="Tambahkan keterangan atau catatan tambahan...">{{ old('notes') }}</textarea>
-                                @error('notes')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                <!-- Keterangan -->
+                                <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <label for="notes" class="block text-sm font-semibold text-gray-800">
+                                                Keterangan & Catatan
+                                            </label>
+                                            <p class="text-xs text-gray-600">Tambahkan informasi tambahan jika diperlukan</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <textarea name="notes" id="notes" rows="6"
+                                              class="w-full px-4 py-3 border-2 border-green-200 rounded-lg text-sm
+                                                     focus:border-green-500 focus:ring-2 focus:ring-green-200
+                                                     resize-none transition-all duration-200"
+                                              placeholder="Contoh:&#10;- Kondisi barang: Baik&#10;- Catatan khusus: -&#10;- Keterangan tambahan: Material diterima sesuai spesifikasi..."
+                                              oninput="updateCharCount(this)">{{ old('notes') }}</textarea>
+                                    
+                                    <div class="flex justify-between items-center mt-2">
+                                        <span class="text-xs text-gray-500" id="char-count">0 karakter</span>
+                                        <div class="flex items-center text-xs text-gray-500">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            Opsional
+                                        </div>
+                                    </div>
+                                    
+                                    @error('notes')
+                                        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <p class="text-sm text-red-600">{{ $message }}</p>
+                                            </div>
+                                        </div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
@@ -386,5 +458,43 @@
                 }
             }
         }
+
+        // File upload functionality
+        function updateFileName(input) {
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('selected-file-name');
+            
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+                fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+                fileInfo.classList.remove('hidden');
+            } else {
+                fileInfo.classList.add('hidden');
+            }
+        }
+
+        // Character count functionality
+        function updateCharCount(textarea) {
+            const charCount = document.getElementById('char-count');
+            const length = textarea.value.length;
+            charCount.textContent = length + ' karakter';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Initialize character count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const notesTextarea = document.getElementById('notes');
+            if (notesTextarea) {
+                updateCharCount(notesTextarea);
+            }
+        });
     </script>
 </x-app-layout>
