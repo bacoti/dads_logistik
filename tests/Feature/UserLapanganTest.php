@@ -103,6 +103,13 @@ class UserLapanganTest extends TestCase
         // Create required master data
         $project = Project::factory()->create();
         $subProject = SubProject::factory()->create(['project_id' => $project->id]);
+        
+        // Create material with proper category relationship
+        $category = \App\Models\Category::factory()->create(['sub_project_id' => $subProject->id]);
+        $material = \App\Models\Material::factory()->create([
+            'sub_project_id' => $subProject->id,
+            'category_id' => $category->id
+        ]);
 
         $transactionData = [
             'type' => 'penerimaan',
@@ -112,14 +119,22 @@ class UserLapanganTest extends TestCase
             'sub_project_id' => $subProject->id,
             'location' => 'Test Location',
             'materials' => [
-                ['material_id' => 1, 'quantity' => 10]
+                ['material_id' => $material->id, 'quantity' => 10]
             ]
         ];
 
         $response = $this->actingAs($this->user)
                         ->post('/user/transactions', $transactionData);
 
-        // Should redirect on success (with proper master data setup)
-        $response->assertRedirect();
+        // Should redirect on success
+        $response->assertRedirect('/user/dashboard');
+        
+        // Verify transaction was created
+        $this->assertDatabaseHas('transactions', [
+            'user_id' => $this->user->id,
+            'type' => 'penerimaan',
+            'vendor_name' => 'Test Vendor',
+            'location' => 'Test Location'
+        ]);
     }
 }
