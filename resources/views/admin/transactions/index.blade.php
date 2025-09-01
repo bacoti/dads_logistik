@@ -476,9 +476,12 @@
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
                                                     <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
-                                                        <span class="text-blue-700 font-bold text-sm">#{{ substr($transaction->id, -3) }}</span>
+                                                        <span class="text-blue-700 font-bold text-sm">#{{ $transaction->id }}</span>
                                                     </div>
-                                                    <span class="text-sm font-mono font-medium text-gray-900">#{{ $transaction->id }}</span>
+                                                    <div>
+                                                        <span class="text-sm font-mono font-medium text-gray-900">TRX-{{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                                        <div class="text-xs text-gray-500">ID: {{ $transaction->id }}</div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
@@ -616,10 +619,10 @@
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="flex items-center">
                                             <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
-                                                <span class="text-blue-700 font-bold text-sm">#{{ substr($transaction->id, -3) }}</span>
+                                                <span class="text-blue-700 font-bold text-sm">#{{ $transaction->id }}</span>
                                             </div>
                                             <div>
-                                                <div class="text-sm font-mono font-bold text-gray-900">#{{ $transaction->id }}</div>
+                                                <div class="text-sm font-mono font-bold text-gray-900">TRX-{{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</div>
                                                 <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y, H:i') }}</div>
                                             </div>
                                         </div>

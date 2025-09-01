@@ -58,6 +58,11 @@ class TransactionController extends Controller
         $sortBy = $request->get('sort_by', 'transaction_date');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
+        
+        // Add secondary sort by ID for consistent ordering
+        if ($sortBy !== 'id') {
+            $query->orderBy('id', 'desc');
+        }
 
         $transactions = $query->paginate(15)->withQueryString();
 
