@@ -51,15 +51,16 @@ class LossReport extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function getStatusBadgeAttribute()
+    public function getStatusBadgeAttribute(): string
     {
-        $badges = [
-            'pending' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu Review</span>',
-            'reviewed' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Sedang Ditinjau</span>',
-            'completed' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Selesai</span>',
-        ];
-
-        return $badges[$this->status] ?? $badges['pending'];
+        return match($this->status) {
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'reviewed' => 'bg-blue-100 text-blue-800',
+            'approved' => 'bg-green-100 text-green-800',
+            'completed' => 'bg-green-100 text-green-800',
+            'rejected' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
     }
 
     public function getSupportingDocumentUrlAttribute()

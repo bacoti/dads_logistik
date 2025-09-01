@@ -52,12 +52,12 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <h2 class="text-2xl font-bold text-white">{{ $report->formatted_period }}</h2>
-                                        <p class="text-blue-100">Laporan dari {{ $report->user->name }}</p>
+                                        <h2 class="text-2xl font-bold text-white">{{ $monthlyReport->formatted_period }}</h2>
+                                        <p class="text-blue-100">Laporan dari {{ $monthlyReport->user->name }}</p>
                                     </div>
                                 </div>
-                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $report->status_badge }}">
-                                    {{ ucfirst($report->status) }}
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $monthlyReport->status_badge }}">
+                                    {{ ucfirst($monthlyReport->status) }}
                                 </span>
                             </div>
                         </div>
@@ -77,11 +77,11 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <h4 class="text-xl font-semibold text-blue-900">{{ $report->user->name }}</h4>
-                                            <p class="text-blue-700 text-sm">{{ $report->user->email }}</p>
+                                            <h4 class="text-xl font-semibold text-blue-900">{{ $monthlyReport->user->name }}</h4>
+                                            <p class="text-blue-700 text-sm">{{ $monthlyReport->user->email }}</p>
                                             <div class="flex items-center mt-2">
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $report->user->role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' }}">
-                                                    {{ ucfirst($report->user->role) }}
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $monthlyReport->user->role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' }}">
+                                                    {{ ucfirst($monthlyReport->user->role) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -105,7 +105,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-medium text-gray-600">Tanggal Laporan</p>
-                                                <p class="text-lg font-semibold text-gray-900">{{ $report->report_date->format('d M Y') }}</p>
+                                                <p class="text-lg font-semibold text-gray-900">{{ $monthlyReport->report_date->format('d M Y') }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -119,7 +119,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-medium text-gray-600">Periode</p>
-                                                <p class="text-lg font-semibold text-gray-900">{{ $report->report_period }}</p>
+                                                <p class="text-lg font-semibold text-gray-900">{{ $monthlyReport->report_period }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -141,9 +141,9 @@
                                                 </svg>
                                             </div>
                                             <div class="flex-1">
-                                                <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ $report->project->name }}</h4>
+                                                <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ $monthlyReport->project->name }}</h4>
                                                 <p class="text-gray-600 mb-1">
-                                                    <span class="font-medium">Sub Proyek:</span> {{ $report->subProject->name }}
+                                                    <span class="font-medium">Sub Proyek:</span> {{ $monthlyReport->subProject->name }}
                                                 </p>
                                                 <div class="flex items-start mt-3">
                                                     <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +151,7 @@
                                                     </svg>
                                                     <div>
                                                         <p class="text-sm font-medium text-gray-700">Lokasi Proyek</p>
-                                                        <p class="text-gray-600 mt-1">{{ $report->project_location }}</p>
+                                                        <p class="text-gray-600 mt-1">{{ $monthlyReport->project_location }}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -161,20 +161,20 @@
                             </div>
 
                             <!-- Notes Section -->
-                            @if($report->notes)
+                            @if($monthlyReport->notes)
                                 <div>
                                     <x-section-header 
                                         title="Catatan Laporan"
                                         :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\'></path></svg>'" />
                                     
                                     <div class="mt-6 bg-gray-50 rounded-xl p-6">
-                                        <p class="text-gray-700 leading-relaxed">{{ $report->notes }}</p>
+                                        <p class="text-gray-700 leading-relaxed">{{ $monthlyReport->notes }}</p>
                                     </div>
                                 </div>
                             @endif
 
                             <!-- File Information -->
-                            @if($report->excel_file_path)
+                            @if($monthlyReport->excel_file_path)
                                 <div>
                                     <x-section-header 
                                         title="File Excel"
@@ -190,10 +190,10 @@
                                                 </div>
                                                 <div>
                                                     <p class="font-medium text-green-800">File Excel Tersedia</p>
-                                                    <p class="text-sm text-green-600">{{ basename($report->excel_file_path) }}</p>
+                                                    <p class="text-sm text-green-600">{{ basename($monthlyReport->excel_file_path) }}</p>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('admin.monthly-reports.download', $report) }}" 
+                                            <a href="{{ route('admin.monthly-reports.download', $monthlyReport) }}" 
                                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -206,17 +206,17 @@
                             @endif
 
                             <!-- Admin Review Section -->
-                            @if($report->admin_notes)
+                            @if($monthlyReport->admin_notes)
                                 <div>
                                     <x-section-header 
                                         title="Catatan Admin Sebelumnya"
                                         :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z\'></path></svg>'" />
                                     
                                     <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
-                                        <p class="text-blue-800">{{ $report->admin_notes }}</p>
-                                        @if($report->reviewer)
+                                        <p class="text-blue-800">{{ $monthlyReport->admin_notes }}</p>
+                                        @if($monthlyReport->reviewer)
                                             <p class="text-sm text-blue-600 mt-2">
-                                                Oleh: {{ $report->reviewer->name }} - {{ $report->reviewed_at->format('d M Y H:i') }}
+                                                Oleh: {{ $monthlyReport->reviewer->name }} - {{ $monthlyReport->reviewed_at->format('d M Y H:i') }}
                                             </p>
                                         @endif
                                     </div>
@@ -232,7 +232,7 @@
                     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Review Laporan</h3>
                         
-                        <form action="{{ route('admin.monthly-reports.update-status', $report) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('admin.monthly-reports.update-status', $monthlyReport) }}" method="POST" class="space-y-4">
                             @csrf
                             @method('PATCH')
                             
@@ -248,7 +248,7 @@
                                         'approved' => 'Approved',
                                         'rejected' => 'Rejected'
                                     ]"
-                                    :value="$report->status"
+                                    :value="$monthlyReport->status"
                                     required />
                             </div>
 
@@ -258,7 +258,7 @@
                                     type="textarea"
                                     label="Catatan Admin"
                                     name="admin_notes"
-                                    :value="old('admin_notes', $report->admin_notes)"
+                                    :value="old('admin_notes', $monthlyReport->admin_notes)"
                                     placeholder="Tulis catatan review, feedback, atau alasan penolakan..."
                                     rows="4"
                                     help="Catatan akan dilihat oleh user yang membuat laporan" />
@@ -279,9 +279,9 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
                         
                         <div class="space-y-3">
-                            @if($report->excel_file_path)
+                            @if($monthlyReport->excel_file_path)
                                 <x-button 
-                                    href="{{ route('admin.monthly-reports.download', $report) }}"
+                                    href="{{ route('admin.monthly-reports.download', $monthlyReport) }}"
                                     :icon="'<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\'></path></svg>'"
                                     class="w-full justify-center bg-green-500 hover:bg-green-600 text-white">
                                     Download Excel
@@ -289,8 +289,8 @@
                             @endif
 
                             <!-- Quick Approve -->
-                            @if($report->status !== 'approved')
-                                <form action="{{ route('admin.monthly-reports.update-status', $report) }}" method="POST" class="inline-block w-full">
+                            @if($monthlyReport->status !== 'approved')
+                                <form action="{{ route('admin.monthly-reports.update-status', $monthlyReport) }}" method="POST" class="inline-block w-full">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status" value="approved">
@@ -305,7 +305,7 @@
                             @endif
 
                             <!-- Quick Reject -->
-                            @if($report->status !== 'rejected')
+                            @if($monthlyReport->status !== 'rejected')
                                 <x-button 
                                     variant="secondary"
                                     onclick="quickReject()"
@@ -330,12 +330,12 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-900">Laporan Dibuat</p>
-                                    <p class="text-xs text-gray-500">{{ $report->created_at->format('d M Y H:i') }}</p>
-                                    <p class="text-xs text-gray-600">oleh {{ $report->user->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $monthlyReport->created_at->format('d M Y H:i') }}</p>
+                                    <p class="text-xs text-gray-600">oleh {{ $monthlyReport->user->name }}</p>
                                 </div>
                             </div>
 
-                            @if($report->reviewed_at)
+                            @if($monthlyReport->reviewed_at)
                                 <div class="flex items-start">
                                     <div class="bg-indigo-100 rounded-full p-2 mr-4">
                                         <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -344,15 +344,15 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Direview Admin</p>
-                                        <p class="text-xs text-gray-500">{{ $report->reviewed_at->format('d M Y H:i') }}</p>
-                                        @if($report->reviewer)
-                                            <p class="text-xs text-gray-600">oleh {{ $report->reviewer->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ $monthlyReport->reviewed_at->format('d M Y H:i') }}</p>
+                                        @if($monthlyReport->reviewer)
+                                            <p class="text-xs text-gray-600">oleh {{ $monthlyReport->reviewer->name }}</p>
                                         @endif
                                     </div>
                                 </div>
                             @endif
 
-                            @if($report->updated_at > $report->created_at)
+                            @if($monthlyReport->updated_at > $monthlyReport->created_at)
                                 <div class="flex items-start">
                                     <div class="bg-gray-100 rounded-full p-2 mr-4">
                                         <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +361,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Last Updated</p>
-                                        <p class="text-xs text-gray-500">{{ $report->updated_at->format('d M Y H:i') }}</p>
+                                        <p class="text-xs text-gray-500">{{ $monthlyReport->updated_at->format('d M Y H:i') }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -376,25 +376,25 @@
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Status:</span>
                                 <span class="font-medium {{ 
-                                    $report->status === 'pending' ? 'text-yellow-600' : 
-                                    ($report->status === 'reviewed' ? 'text-blue-600' :
-                                    ($report->status === 'approved' ? 'text-green-600' : 'text-red-600'))
+                                    $monthlyReport->status === 'pending' ? 'text-yellow-600' : 
+                                    ($monthlyReport->status === 'reviewed' ? 'text-blue-600' :
+                                    ($monthlyReport->status === 'approved' ? 'text-green-600' : 'text-red-600'))
                                 }}">
-                                    {{ ucfirst($report->status) }}
+                                    {{ ucfirst($monthlyReport->status) }}
                                 </span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">User:</span>
-                                <span class="font-medium text-gray-900">{{ $report->user->name }}</span>
+                                <span class="font-medium text-gray-900">{{ $monthlyReport->user->name }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Periode:</span>
-                                <span class="font-medium text-gray-900">{{ $report->report_period }}</span>
+                                <span class="font-medium text-gray-900">{{ $monthlyReport->report_period }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">File Excel:</span>
-                                <span class="font-medium {{ $report->excel_file_path ? 'text-green-600' : 'text-red-600' }}">
-                                    {{ $report->excel_file_path ? 'Tersedia' : 'Tidak Ada' }}
+                                <span class="font-medium {{ $monthlyReport->excel_file_path ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ $monthlyReport->excel_file_path ? 'Tersedia' : 'Tidak Ada' }}
                                 </span>
                             </div>
                         </div>
@@ -418,7 +418,7 @@
 
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '{{ route("admin.monthly-reports.update-status", $report) }}';
+            form.action = '{{ route("admin.monthly-reports.update-status", $monthlyReport) }}';
             
             // CSRF token
             const csrfInput = document.createElement('input');

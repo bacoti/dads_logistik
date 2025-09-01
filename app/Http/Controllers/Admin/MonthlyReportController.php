@@ -83,6 +83,58 @@ class MonthlyReportController extends Controller
         return view('admin.monthly-reports.show', compact('monthlyReport'));
     }
 
+    public function edit(MonthlyReport $monthlyReport)
+    {
+        $projects = Project::with('subProjects')->get();
+        $users = User::where('role', 'user')->get();
+
+        return view('admin.monthly-reports.edit', compact('monthlyReport', 'projects', 'users'));
+    }
+
+    public function update(Request $request, MonthlyReport $monthlyReport)
+    {
+        $validated = $request->validate([
+            'report_date' => 'required|date',
+            'report_period' => 'required|string',
+            'project_id' => 'required|exists:projects,id',
+            'sub_project_id' => 'required|exists:sub_projects,id',
+            'project_location' => 'required|string|max:255',
+            'notes' => 'nullable|string',
+            'excel_file' => 'nullable|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        // Handle file upload
+        if ($request->hasFile('excel_file')) {
+            // Delete old file if exists
+            if ($monthlyReport->excel_file_path) {
+                \Storage::disk('public')->delete($monthlyReport->excel_file_path);
+            }
+
+            $file = $request->file('excel_file');
+            $filename = 'monthly_report_' . $monthlyReport->user_id . '_' . $validated['report_period'] . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('monthly-reports', $filename, 'public');
+            $validated['excel_file_path'] = $path;
+        }
+
+        $monthlyReport->update($validated);
+
+        return redirect()->route('admin.monthly-reports.index')
+            ->with('success', 'Laporan bulanan berhasil diperbarui.');
+    }
+
+    public function destroy(MonthlyReport $monthlyReport)
+    {
+        // Delete file if exists
+        if ($monthlyReport->excel_file_path) {
+            \Storage::disk('public')->delete($monthlyReport->excel_file_path);
+        }
+
+        $monthlyReport->delete();
+
+        return redirect()->route('admin.monthly-reports.index')
+            ->with('success', 'Laporan bulanan berhasil dihapus.');
+    }
+
     public function updateStatus(Request $request, MonthlyReport $monthlyReport)
     {
         $validated = $request->validate([
@@ -92,7 +144,7 @@ class MonthlyReportController extends Controller
 
         $monthlyReport->update([
             'status' => $validated['status'],
-            'admin_notes' => $validated['admin_notes'],
+            'admin_notes' => $validated['admin_notes'] ?? null,
             'reviewed_at' => now(),
             'reviewed_by' => Auth::id()
         ]);

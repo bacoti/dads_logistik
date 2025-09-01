@@ -28,15 +28,15 @@ Route::middleware('auth')->group(function () {
     // Rute untuk Admin
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-        
+
         // Material Quantity Summary for Admin
         Route::get('/material-quantity-detail', [\App\Http\Controllers\Admin\DashboardController::class, 'materialQuantityDetail'])->name('material-quantity-detail');
-        
+
         // Analytics Dashboard Routes
         Route::get('/analytics', [\App\Http\Controllers\Admin\DashboardController::class, 'analyticsDashboard'])->name('analytics.dashboard');
         Route::get('/analytics-data', [\App\Http\Controllers\Admin\DashboardController::class, 'getAnalyticsDataJson'])->name('analytics.data');
         Route::post('/export-analytics', [\App\Http\Controllers\Admin\DashboardController::class, 'exportAnalytics'])->name('export.analytics');
-        
+
         // Export Routes
         Route::get('/export/transactions', [\App\Http\Controllers\Admin\DashboardController::class, 'exportTransactions'])->name('export.transactions');
         Route::get('/export/monthly-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'exportMonthlyReports'])->name('export.monthly-reports');
@@ -75,10 +75,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/master-data/material/{material}', [\App\Http\Controllers\Admin\MasterDataController::class, 'deleteMaterial'])->name('master-data.material.delete');
 
         // Monthly Reports Management
-        Route::get('/monthly-reports', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'index'])->name('monthly-reports.index');
-        Route::get('/monthly-reports/{monthlyReport}', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'show'])->name('monthly-reports.show');
+        Route::resource('monthly-reports', \App\Http\Controllers\Admin\MonthlyReportController::class);
         Route::patch('/monthly-reports/{monthlyReport}/update-status', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'updateStatus'])->name('monthly-reports.update-status');
         Route::get('/monthly-reports/{monthlyReport}/download', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'download'])->name('monthly-reports.download');
+        Route::delete('/monthly-reports/{monthlyReport}', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'destroy'])->name('monthly-reports.destroy');
 
         // Loss Reports Management
         Route::get('/loss-reports', [\App\Http\Controllers\Admin\LossReportController::class, 'index'])->name('loss-reports.index');
@@ -150,7 +150,7 @@ Route::middleware('auth')->group(function () {
         // MFO Requests for Users
         Route::resource('mfo-requests', \App\Http\Controllers\User\MfoRequestController::class);
         Route::get('mfo-requests/{mfoRequest}/download', [\App\Http\Controllers\User\MfoRequestController::class, 'download'])->name('mfo-requests.download');
-        Route::get('ajax/sub-projects', [\App\Http\Controllers\User\MfoRequestController::class, 'getSubProjects'])->name('ajax.sub-projects');
+        Route::get('ajax/sub-projects', [\App\Http\Controllers\User\MfoRequestController::class, 'getSubProjects'])->name('user.ajax.sub-projects');
 
         // PO Transports for Users
         Route::resource('po-transports', \App\Http\Controllers\User\PoTransportController::class);

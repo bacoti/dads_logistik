@@ -485,7 +485,7 @@
                                         Periode & Tanggal
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Detail Laporan
+                                        Catatan Laporan
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         Status & Review
@@ -550,25 +550,51 @@
                                             </div>
                                         </td>
 
-                                        <!-- Report Details -->
+                                        <!-- Report Notes -->
                                         <td class="px-6 py-4">
                                             <div class="space-y-2">
-                                                <div class="bg-blue-50 rounded-lg px-3 py-2">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-xs font-medium text-blue-700">Total Transaksi</span>
-                                                        <span class="text-sm font-bold text-blue-900">
-                                                            {{ $report->total_transactions ?? 0 }}
-                                                        </span>
+                                                @if($report->notes)
+                                                    <div class="bg-blue-50 rounded-lg px-3 py-2">
+                                                        <div class="flex items-start">
+                                                            <svg class="w-4 h-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                                                            </svg>
+                                                            <div class="flex-1">
+                                                                <p class="text-xs text-blue-700 font-medium">Catatan User:</p>
+                                                                <p class="text-sm text-blue-900 mt-1 leading-relaxed">
+                                                                    {{ Str::limit($report->notes, 100) }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="bg-green-50 rounded-lg px-3 py-2">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-xs font-medium text-green-700">Material</span>
-                                                        <span class="text-sm font-bold text-green-900">
-                                                            {{ $report->total_materials ?? 0 }} Item
-                                                        </span>
+                                                @endif
+
+                                                @if($report->admin_notes)
+                                                    <div class="bg-amber-50 rounded-lg px-3 py-2">
+                                                        <div class="flex items-start">
+                                                            <svg class="w-4 h-4 text-amber-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                                            </svg>
+                                                            <div class="flex-1">
+                                                                <p class="text-xs text-amber-700 font-medium">Catatan Admin:</p>
+                                                                <p class="text-sm text-amber-900 mt-1 leading-relaxed">
+                                                                    {{ Str::limit($report->admin_notes, 100) }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @endif
+
+                                                @if(!$report->notes && !$report->admin_notes)
+                                                    <div class="bg-gray-50 rounded-lg px-3 py-2">
+                                                        <div class="flex items-center justify-center py-2">
+                                                            <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
+                                                            <span class="text-xs text-gray-500">Tidak ada catatan</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </td>
 

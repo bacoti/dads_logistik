@@ -96,6 +96,9 @@ class LossReportController extends Controller
             abort(403);
         }
 
+        // Load relationships
+        $lossReport->load(['project', 'subProject', 'user', 'reviewer']);
+
         return view('user.loss-reports.show', compact('lossReport'));
     }
 

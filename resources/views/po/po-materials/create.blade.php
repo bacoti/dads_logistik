@@ -1,89 +1,140 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Tambah PO Material') }}
-            </h2>
-            <a href="{{ route('po.po-materials.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg">
-                <svg class="-ml-1 mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                </svg>
+    <x-page-header 
+        title="Tambah PO Material" 
+        subtitle="Buat permintaan purchase order material baru"
+        :breadcrumbs="[
+            ['title' => 'Dashboard', 'url' => route('po.dashboard'), 'icon' => '<svg class=\'w-5 h-5 mr-2\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z\'></path></svg>'],
+            ['title' => 'PO Material', 'url' => route('po.po-materials.index')],
+            ['title' => 'Tambah PO']
+        ]"
+        :icon="'<svg class=\'w-8 h-8 mr-3\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M12 6v6m0 0v6m0-6h6m-6 0H6\'></path></svg>'"
+        >
+        <x-slot name="action">
+            <x-button 
+                variant="secondary"
+                href="{{ route('po.po-materials.index') }}"
+                :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M10 19l-7-7m0 0l7-7m-7 7h18\'></path></svg>'"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700">
                 Kembali
-            </a>
-        </div>
-    </x-slot>
+            </x-button>
+        </x-slot>
+    </x-page-header>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <form action="{{ route('po.po-materials.store') }}" method="POST" class="p-6 lg:p-8" id="po-material-form">
-                    @csrf
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form action="{{ route('po.po-materials.store') }}" method="POST" 
+              class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8" 
+              id="po-material-form">
+            @csrf
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+            <div class="space-y-8">
+                <!-- Basic Information -->
+                <div>
+                    <x-section-header 
+                        title="Informasi Dasar"
+                        :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\'></path></svg>'" />
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <!-- No. PO -->
-                        <div class="col-span-1">
-                            <label for="po_number" class="block text-sm font-medium text-gray-700 mb-1">
-                                No. PO <span class="text-red-500">*</span>
+                        <div>
+                            <label for="po_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                No. PO *
                             </label>
-                            <input type="text" name="po_number" id="po_number" required
+                            <input type="text" 
+                                   name="po_number" 
+                                   id="po_number" 
+                                   required
                                    value="{{ old('po_number') }}"
                                    placeholder="Masukkan nomor PO"
-                                   class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('po_number') border-red-300 @enderror">
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('po_number') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
                             @error('po_number')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Supplier -->
-                        <div class="col-span-1">
-                            <label for="supplier" class="block text-sm font-medium text-gray-700 mb-1">
-                                Supplier <span class="text-red-500">*</span>
+                        <div>
+                            <label for="supplier" class="block text-sm font-medium text-gray-700 mb-2">
+                                Supplier *
                             </label>
-                            <input type="text" name="supplier" id="supplier" required
+                            <input type="text" 
+                                   name="supplier" 
+                                   id="supplier" 
+                                   required
                                    value="{{ old('supplier') }}"
                                    placeholder="Nama supplier"
-                                   class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('supplier') border-red-300 @enderror">
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('supplier') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
                             @error('supplier')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Tanggal Rilis -->
-                        <div class="col-span-1">
-                            <label for="release_date" class="block text-sm font-medium text-gray-700 mb-1">
-                                Tanggal Rilis <span class="text-red-500">*</span>
+                        <div>
+                            <label for="release_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tanggal Rilis *
                             </label>
-                            <input type="date" name="release_date" id="release_date" required
+                            <input type="date" 
+                                   name="release_date" 
+                                   id="release_date" 
+                                   required
                                    value="{{ old('release_date') }}"
-                                   class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('release_date') border-red-300 @enderror">
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('release_date') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
                             @error('release_date')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Lokasi -->
-                        <div class="col-span-1">
-                            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">
-                                Lokasi <span class="text-red-500">*</span>
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                                Lokasi *
                             </label>
-                            <input type="text" name="location" id="location" required
+                            <input type="text" 
+                                   name="location" 
+                                   id="location" 
+                                   required
                                    value="{{ old('location') }}"
                                    placeholder="Lokasi pengiriman"
-                                   class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('location') border-red-300 @enderror">
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('location') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
                             @error('location')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                    </div>
+                </div>
 
+                <!-- Project Information -->
+                <div x-data="{ projects: @js($projects), subProjects: [], selectedProject: '{{ old('project_id') }}' }" x-init="
+                    if (selectedProject) {
+                        const project = projects.find(p => p.id == selectedProject);
+                        if (project) subProjects = project.sub_projects;
+                    }
+                ">
+                    <x-section-header 
+                        title="Informasi Proyek"
+                        :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10\'></path></svg>'" />
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <!-- Project -->
-                        <div class="col-span-1">
-                            <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">
-                                Project <span class="text-red-500">*</span>
+                        <div>
+                            <label for="project_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Proyek *
                             </label>
-                            <select name="project_id" id="project_id" required
-                                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('project_id') border-red-300 @enderror">
-                                <option value="">Pilih Project</option>
+                            <select name="project_id" 
+                                    id="project_id" 
+                                    required
+                                    x-model="selectedProject"
+                                    x-on:change="
+                                        const project = projects.find(p => p.id == selectedProject);
+                                        if (project) {
+                                            subProjects = project.sub_projects;
+                                        } else {
+                                            subProjects = [];
+                                        }
+                                        document.querySelector('select[name=sub_project_id]').value = '';
+                                    "
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('project_id') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
+                                <option value="">Pilih Proyek</option>
                                 @foreach($projects as $project)
                                 <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
                                     {{ $project->name }}
@@ -91,130 +142,164 @@
                                 @endforeach
                             </select>
                             @error('project_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Sub Project -->
-                        <div class="col-span-1">
-                            <label for="sub_project_id" class="block text-sm font-medium text-gray-700 mb-1">
-                                Sub Project
+                        <div>
+                            <label for="sub_project_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Sub Proyek (Opsional)
                             </label>
-                            <select name="sub_project_id" id="sub_project_id"
-                                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('sub_project_id') border-red-300 @enderror">
-                                <option value="">Pilih Sub Project (Opsional)</option>
-                                <!-- Will be populated via JavaScript -->
+                            <select name="sub_project_id" 
+                                    id="sub_project_id"
+                                    x-bind:disabled="!selectedProject || subProjects.length === 0"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed {{ $errors->has('sub_project_id') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
+                                <option value="">Pilih Sub Proyek (Opsional)</option>
+                                <template x-for="subProject in subProjects" :key="subProject.id">
+                                    <option x-bind:value="subProject.id"
+                                            x-text="subProject.name"
+                                            x-bind:selected="subProject.id == '{{ old('sub_project_id') }}'">
+                                    </option>
+                                </template>
                             </select>
                             @error('sub_project_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                    </div>
+                </div>
 
+                <!-- Material Information -->
+                <div>
+                    <x-section-header 
+                        title="Informasi Material"
+                        :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\'></path></svg>'" />
+                    
+                    <div class="mt-6">
                         <!-- Keterangan (Nama Material) -->
-                        <div class="col-span-2">
-                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-                                Keterangan (Nama Material) <span class="text-red-500">*</span>
+                        <div class="mb-6">
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                Keterangan (Nama Material) *
                             </label>
-                            <textarea name="description" id="description" required rows="3"
+                            <textarea name="description" 
+                                      id="description" 
+                                      required 
+                                      rows="4"
                                       placeholder="Deskripsi material yang dibutuhkan"
-                                      class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('description') border-red-300 @enderror">{{ old('description') }}</textarea>
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none {{ $errors->has('description') ? 'border-red-500 bg-red-50' : 'bg-white' }}">{{ old('description') }}</textarea>
                             @error('description')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- Quantity -->
-                        <div class="col-span-1">
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">
-                                Qty <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" name="quantity" id="quantity" required min="0" step="0.01"
-                                   value="{{ old('quantity') }}"
-                                   placeholder="0"
-                                   class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('quantity') border-red-300 @enderror">
-                            @error('quantity')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Quantity -->
+                            <div>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Kuantitas *
+                                </label>
+                                <input type="number" 
+                                       name="quantity" 
+                                       id="quantity" 
+                                       required 
+                                       min="0" 
+                                       step="0.01"
+                                       value="{{ old('quantity') }}"
+                                       placeholder="0"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('quantity') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
+                                @error('quantity')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                        <!-- Satuan -->
-                        <div class="col-span-1">
-                            <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">
-                                Satuan <span class="text-red-500">*</span>
-                            </label>
-                            <select name="unit" id="unit" required
-                                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('unit') border-red-300 @enderror">
-                                <option value="">Pilih Satuan</option>
-                                <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>kg</option>
-                                <option value="gram" {{ old('unit') == 'gram' ? 'selected' : '' }}>gram</option>
-                                <option value="ton" {{ old('unit') == 'ton' ? 'selected' : '' }}>ton</option>
-                                <option value="meter" {{ old('unit') == 'meter' ? 'selected' : '' }}>meter</option>
-                                <option value="cm" {{ old('unit') == 'cm' ? 'selected' : '' }}>cm</option>
-                                <option value="mm" {{ old('unit') == 'mm' ? 'selected' : '' }}>mm</option>
-                                <option value="liter" {{ old('unit') == 'liter' ? 'selected' : '' }}>liter</option>
-                                <option value="ml" {{ old('unit') == 'ml' ? 'selected' : '' }}>ml</option>
-                                <option value="pcs" {{ old('unit') == 'pcs' ? 'selected' : '' }}>pcs</option>
-                                <option value="unit" {{ old('unit') == 'unit' ? 'selected' : '' }}>unit</option>
-                                <option value="box" {{ old('unit') == 'box' ? 'selected' : '' }}>box</option>
-                                <option value="pack" {{ old('unit') == 'pack' ? 'selected' : '' }}>pack</option>
-                            </select>
-                            @error('unit')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <!-- Satuan -->
+                            <div>
+                                <label for="unit" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Satuan *
+                                </label>
+                                <select name="unit" 
+                                        id="unit" 
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 {{ $errors->has('unit') ? 'border-red-500 bg-red-50' : 'bg-white' }}">
+                                    <option value="">Pilih Satuan</option>
+                                    <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>kg</option>
+                                    <option value="gram" {{ old('unit') == 'gram' ? 'selected' : '' }}>gram</option>
+                                    <option value="ton" {{ old('unit') == 'ton' ? 'selected' : '' }}>ton</option>
+                                    <option value="meter" {{ old('unit') == 'meter' ? 'selected' : '' }}>meter</option>
+                                    <option value="cm" {{ old('unit') == 'cm' ? 'selected' : '' }}>cm</option>
+                                    <option value="mm" {{ old('unit') == 'mm' ? 'selected' : '' }}>mm</option>
+                                    <option value="liter" {{ old('unit') == 'liter' ? 'selected' : '' }}>liter</option>
+                                    <option value="ml" {{ old('unit') == 'ml' ? 'selected' : '' }}>ml</option>
+                                    <option value="pcs" {{ old('unit') == 'pcs' ? 'selected' : '' }}>pcs</option>
+                                    <option value="unit" {{ old('unit') == 'unit' ? 'selected' : '' }}>unit</option>
+                                    <option value="box" {{ old('unit') == 'box' ? 'selected' : '' }}>box</option>
+                                    <option value="pack" {{ old('unit') == 'pack' ? 'selected' : '' }}>pack</option>
+                                </select>
+                                @error('unit')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
-
-                        <!-- Catatan -->
-                        <div class="col-span-2">
-                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
-                                Catatan
-                            </label>
-                            <textarea name="notes" id="notes" rows="3"
-                                      placeholder="Catatan tambahan (opsional)"
-                                      class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('notes') border-red-300 @enderror">{{ old('notes') }}</textarea>
-                            @error('notes')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                     </div>
+                </div>
 
-                    <!-- Submit Buttons -->
-                    <div class="mt-8 flex justify-end space-x-3">
-                        <a href="{{ route('po.po-materials.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Batal
-                        </a>
-                        <button type="submit" id="submit-btn" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="-ml-1 mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-                            </svg>
-                            <span id="submit-text">Simpan PO Material</span>
-                            <span id="loading-text" class="hidden">Menyimpan...</span>
-                        </button>
+                <!-- Additional Information -->
+                <div>
+                    <x-section-header 
+                        title="Informasi Tambahan"
+                        :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\'></path></svg>'" />
+                    
+                    <div class="mt-6">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                            Catatan
+                        </label>
+                        <textarea name="notes" 
+                                  id="notes" 
+                                  rows="4"
+                                  placeholder="Catatan tambahan (opsional)"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none {{ $errors->has('notes') ? 'border-red-500 bg-red-50' : 'bg-white' }}">{{ old('notes') }}</textarea>
+                        @error('notes')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
-                </form>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-4 pt-6 border-t">
+                    <x-button 
+                        variant="secondary"
+                        href="{{ route('po.po-materials.index') }}"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700">
+                        Batal
+                    </x-button>
+                    
+                    <x-button 
+                        type="submit"
+                        id="submit-btn"
+                        :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M5 13l4 4L19 7\'></path></svg>'"
+                        class="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="submit-text">Simpan PO Material</span>
+                        <span id="loading-text" class="hidden">Menyimpan...</span>
+                    </x-button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const projectSelect = document.getElementById('project_id');
-            const subProjectSelect = document.getElementById('sub_project_id');
             const form = document.getElementById('po-material-form');
             const submitBtn = document.getElementById('submit-btn');
             const submitText = document.getElementById('submit-text');
             const loadingText = document.getElementById('loading-text');
 
-            // Debug console
-            console.log('PO Material Form initialized');
-            console.log('Form action:', form.action);
-
-            // Form submission handling
+            // Form submission handler with loading state
             form.addEventListener('submit', function(e) {
                 console.log('Form submitted');
 
-                // Disable button and show loading
+                // Disable submit button and show loading
                 submitBtn.disabled = true;
                 submitText.classList.add('hidden');
                 loadingText.classList.remove('hidden');
@@ -244,53 +329,6 @@
 
                 console.log('Form validation passed, submitting...');
             });
-
-            // Project change handler
-            projectSelect.addEventListener('change', function() {
-                const projectId = this.value;
-                console.log('Project selected:', projectId);
-
-                subProjectSelect.innerHTML = '<option value="">Pilih Sub Project (Opsional)</option>';
-
-                if (projectId) {
-                    const url = `{{ route('po.ajax.sub-projects') }}?project_id=${projectId}`;
-                    console.log('Fetching sub projects from:', url);
-
-                    fetch(url)
-                        .then(response => {
-                            console.log('Response status:', response.status);
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Sub projects received:', data);
-                            data.forEach(subProject => {
-                                const option = document.createElement('option');
-                                option.value = subProject.id;
-                                option.textContent = subProject.name;
-                                subProjectSelect.appendChild(option);
-                            });
-
-                            // Restore old value if it exists
-                            const oldValue = '{{ old('sub_project_id') }}';
-                            if (oldValue) {
-                                subProjectSelect.value = oldValue;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching sub projects:', error);
-                            alert('Gagal mengambil data sub project. Silakan refresh halaman.');
-                        });
-                }
-            });
-
-            // Load sub projects for existing project selection
-            if (projectSelect.value) {
-                console.log('Loading sub projects for existing selection');
-                projectSelect.dispatchEvent(new Event('change'));
-            }
         });
     </script>
     @endpush

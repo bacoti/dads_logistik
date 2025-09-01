@@ -59,7 +59,7 @@ class PoMaterialController extends Controller
      */
     public function create()
     {
-        $projects = Project::all();
+        $projects = Project::with('subProjects')->get();
         return view('po.po-materials.create', compact('projects'));
     }
 
@@ -116,7 +116,7 @@ class PoMaterialController extends Controller
             abort(403);
         }
 
-        $projects = Project::all();
+        $projects = Project::with('subProjects')->get();
         return view('po.po-materials.edit', compact('poMaterial', 'projects'));
     }
 

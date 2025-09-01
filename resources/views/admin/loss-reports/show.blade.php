@@ -51,7 +51,11 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Status</label>
-                                    <div class="mt-1">{!! $lossReport->status_badge !!}</div>
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $lossReport->status_badge }}">
+                                            {{ ucfirst($lossReport->status) }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -91,7 +95,7 @@
                                         </div>
                                         <div class="text-sm text-gray-500">Dokumen pendukung</div>
                                     </div>
-                                    <a href="{{ route('admin.loss-reports.download', $lossReport) }}" 
+                                    <a href="{{ route('admin.loss-reports.download', $lossReport) }}"
                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         Download
                                     </a>
@@ -121,7 +125,7 @@
                             <form method="POST" action="{{ route('admin.loss-reports.update-status', $lossReport) }}" class="space-y-4">
                                 @csrf
                                 @method('PATCH')
-                                
+
                                 <div>
                                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                                     <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -133,9 +137,9 @@
 
                                 <div>
                                     <label for="admin_notes" class="block text-sm font-medium text-gray-700">Catatan Admin</label>
-                                    <textarea name="admin_notes" 
-                                              id="admin_notes" 
-                                              rows="4" 
+                                    <textarea name="admin_notes"
+                                              id="admin_notes"
+                                              rows="4"
                                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                               placeholder="Berikan catatan atau komentar...">{{ $lossReport->admin_notes }}</textarea>
                                 </div>
