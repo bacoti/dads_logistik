@@ -475,12 +475,8 @@
                                         <tr class="hover:bg-gray-50 transition-all duration-200 group">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                                                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                                                         <span class="text-blue-700 font-bold text-sm">#{{ $transaction->id }}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="text-sm font-mono font-medium text-gray-900">TRX-{{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</span>
-                                                        <div class="text-xs text-gray-500">ID: {{ $transaction->id }}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -545,12 +541,16 @@
                                                     @if($transaction->cluster)
                                                         <div class="text-xs text-gray-500 ml-6">{{ $transaction->cluster }}</div>
                                                     @endif
-                                                    @if($transaction->vendor)
+                                                    @if($transaction->vendor || $transaction->vendor_name)
                                                         <div class="flex items-center text-xs text-blue-600 ml-6">
                                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                                             </svg>
-                                                            {{ $transaction->vendor->name }}
+                                                            @if($transaction->vendor)
+                                                                {{ $transaction->vendor->name }}
+                                                            @else
+                                                                {{ $transaction->vendor_name }}
+                                                            @endif
                                                         </div>
                                                     @endif
                                                 </div>
@@ -618,12 +618,8 @@
                                     <!-- Transaction Header -->
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="flex items-center">
-                                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                                                 <span class="text-blue-700 font-bold text-sm">#{{ $transaction->id }}</span>
-                                            </div>
-                                            <div>
-                                                <div class="text-sm font-mono font-bold text-gray-900">TRX-{{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</div>
-                                                <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y, H:i') }}</div>
                                             </div>
                                         </div>
                                         <div>
@@ -692,7 +688,7 @@
                                             </div>
                                         </div>
 
-                                        @if($transaction->vendor)
+                                        @if($transaction->vendor || $transaction->vendor_name)
                                             <div class="flex items-center">
                                                 <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
                                                     <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -700,8 +696,16 @@
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <div class="text-sm font-medium text-gray-900">{{ $transaction->vendor->name }}</div>
-                                                    <div class="text-xs text-gray-500">Vendor</div>
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        @if($transaction->vendor)
+                                                            {{ $transaction->vendor->name }}
+                                                        @else
+                                                            {{ $transaction->vendor_name }}
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-xs text-gray-500">
+                                                        Vendor
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endif

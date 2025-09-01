@@ -282,6 +282,8 @@
                                         {{ $transaction->location }}
                                         @if($transaction->vendor)
                                             • {{ $transaction->vendor->name }}
+                                        @elseif($transaction->vendor_name)
+                                            • {{ $transaction->vendor_name }}
                                         @endif
                                     </p>
                                 </div>

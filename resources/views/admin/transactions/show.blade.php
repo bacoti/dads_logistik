@@ -49,17 +49,22 @@
                                     <dt class="text-sm font-medium text-gray-500">User Input</dt>
                                     <dd class="text-sm text-gray-900">{{ $transaction->user->name }}</dd>
                                 </div>
-                                @if($transaction->vendor)
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Vendor</dt>
                                     <dd class="text-sm text-gray-900">
-                                        {{ $transaction->vendor->name }}
-                                        @if($transaction->vendor->contact_person)
-                                            <div class="text-xs text-gray-500">{{ $transaction->vendor->contact_person }}</div>
+                                        @if($transaction->vendor)
+                                            {{ $transaction->vendor->name }}
+                                            @if($transaction->vendor->contact_person)
+                                                <div class="text-xs text-gray-500">{{ $transaction->vendor->contact_person }}</div>
+                                            @endif
+                                        @elseif($transaction->vendor_name)
+                                            {{ $transaction->vendor_name }}
+                                            <div class="text-xs text-gray-500">Input Manual</div>
+                                        @else
+                                            -
                                         @endif
                                     </dd>
                                 </div>
-                                @endif
                             </dl>
                         </div>
 

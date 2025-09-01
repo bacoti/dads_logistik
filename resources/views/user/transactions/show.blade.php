@@ -46,12 +46,18 @@
                                     <dt class="text-sm font-medium text-gray-500">Tanggal Transaksi</dt>
                                     <dd class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d/m/Y') }}</dd>
                                 </div>
-                                @if($transaction->vendor)
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Vendor</dt>
-                                    <dd class="text-sm text-gray-900">{{ $transaction->vendor->name }}</dd>
+                                    <dd class="text-sm text-gray-900">
+                                        @if($transaction->vendor)
+                                            {{ $transaction->vendor->name }}
+                                        @elseif($transaction->vendor_name)
+                                            {{ $transaction->vendor_name }}
+                                        @else
+                                            -
+                                        @endif
+                                    </dd>
                                 </div>
-                                @endif
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">User Input</dt>
                                     <dd class="text-sm text-gray-900">{{ $transaction->user->name }}</dd>

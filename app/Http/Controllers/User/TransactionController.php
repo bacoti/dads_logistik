@@ -48,10 +48,9 @@ class TransactionController extends Controller
             abort(404);
         }
 
-        $vendors = Vendor::orderBy('name')->get();
         $projects = Project::orderBy('name')->get();
 
-        return view('user.transactions.create', compact('type', 'vendors', 'projects'));
+        return view('user.transactions.create', compact('type', 'projects'));
     }
 
     /**
@@ -97,6 +96,7 @@ class TransactionController extends Controller
             'type' => 'required|in:penerimaan,pengambilan,pengembalian,peminjaman',
             'transaction_date' => 'required|date',
             'vendor_id' => 'nullable|exists:vendors,id',
+            'vendor_name' => 'required|string|max:255',
             'project_id' => 'required|exists:projects,id',
             'sub_project_id' => 'required|exists:sub_projects,id',
             'location' => 'required|string|max:255',
@@ -119,6 +119,7 @@ class TransactionController extends Controller
             'type' => $request->type,
             'transaction_date' => $request->transaction_date,
             'vendor_id' => $request->vendor_id,
+            'vendor_name' => $request->vendor_name,
             'project_id' => $request->project_id,
             'sub_project_id' => $request->sub_project_id,
             'location' => $request->location,
@@ -169,14 +170,13 @@ class TransactionController extends Controller
             abort(403);
         }
 
-        $vendors = Vendor::orderBy('name')->get();
         $projects = Project::orderBy('name')->get();
         $categories = Category::with('materials')->orderBy('name')->get();
         $subProjects = SubProject::where('project_id', $transaction->project_id)->orderBy('name')->get();
 
         $transaction->load(['details']);
 
-        return view('user.transactions.edit', compact('transaction', 'vendors', 'projects', 'categories', 'subProjects'));
+        return view('user.transactions.edit', compact('transaction', 'projects', 'categories', 'subProjects'));
     }
 
     /**
@@ -193,6 +193,7 @@ class TransactionController extends Controller
             'type' => 'required|in:penerimaan,pengambilan,pengembalian,peminjaman',
             'transaction_date' => 'required|date',
             'vendor_id' => 'nullable|exists:vendors,id',
+            'vendor_name' => 'required|string|max:255',
             'project_id' => 'required|exists:projects,id',
             'sub_project_id' => 'required|exists:sub_projects,id',
             'location' => 'required|string|max:255',
@@ -215,6 +216,7 @@ class TransactionController extends Controller
             'type' => $request->type,
             'transaction_date' => $request->transaction_date,
             'vendor_id' => $request->vendor_id,
+            'vendor_name' => $request->vendor_name,
             'project_id' => $request->project_id,
             'sub_project_id' => $request->sub_project_id,
             'location' => $request->location,

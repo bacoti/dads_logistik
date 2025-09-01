@@ -66,19 +66,13 @@
 
                                 <!-- Vendor -->
                                 <div>
-                                    <label for="vendor_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label for="vendor_name" class="block text-sm font-medium text-gray-700 mb-2">
                                         Vendor <span class="text-red-500">*</span>
                                     </label>
-                                    <select name="vendor_id" id="vendor_id"
-                                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                                        <option value="">Pilih Vendor</option>
-                                        @foreach($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}" {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>
-                                                {{ $vendor->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('vendor_id')
+                                    <input type="text" name="vendor_name" id="vendor_name"
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           value="{{ old('vendor_name') }}" placeholder="Masukkan nama vendor" required>
+                                    @error('vendor_name')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>

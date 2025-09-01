@@ -82,7 +82,13 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $transaction->vendor ? $transaction->vendor->name : '-' }}
+                                            @if($transaction->vendor)
+                                                {{ $transaction->vendor->name }}
+                                            @elseif($transaction->vendor_name)
+                                                {{ $transaction->vendor_name }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <div>

@@ -13,6 +13,7 @@ class Transaction extends Model
         'type',
         'transaction_date',
         'vendor_id',
+        'vendor_name',
         'project_id',
         'sub_project_id',
         'location',
