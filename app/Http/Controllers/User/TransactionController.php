@@ -14,6 +14,7 @@ use App\Notifications\TransactionCreated;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -107,42 +108,70 @@ class TransactionController extends Controller
             'materials' => 'required|array|min:1',
         ]);
 
-        // Upload file bukti jika ada
-        $proofPath = null;
-        if ($request->hasFile('proof_path')) {
-            $proofPath = $request->file('proof_path')->store('transaction-proofs', 'public');
-        }
+        // Wrap dalam database transaction untuk data integrity
+        \DB::beginTransaction();
+        try {
+            // Upload file bukti jika ada
+            $proofPath = null;
+            if ($request->hasFile('proof_path')) {
+                try {
+                    $proofPath = $request->file('proof_path')->store('transaction-proofs', 'public');
+                } catch (\Exception $e) {
+                    throw new \Exception('Gagal mengupload file bukti: ' . $e->getMessage());
+                }
+            }
 
-        // Buat transaksi
-        $transaction = Transaction::create([
-            'user_id' => auth()->id(),
-            'type' => $request->type,
-            'transaction_date' => $request->transaction_date,
-            'vendor_id' => $request->vendor_id,
-            'vendor_name' => $request->vendor_name,
-            'project_id' => $request->project_id,
-            'sub_project_id' => $request->sub_project_id,
-            'location' => $request->location,
-            'cluster' => $request->cluster,
-            'site_id' => $request->site_id,
-            'notes' => $request->notes,
-            'proof_path' => $proofPath,
-        ]);
+            // Buat transaksi
+            $transaction = Transaction::create([
+                'user_id' => auth()->id(),
+                'type' => $request->type,
+                'transaction_date' => $request->transaction_date,
+                'vendor_id' => $request->vendor_id,
+                'vendor_name' => $request->vendor_name,
+                'project_id' => $request->project_id,
+                'sub_project_id' => $request->sub_project_id,
+                'location' => $request->location,
+                'cluster' => $request->cluster,
+                'site_id' => $request->site_id,
+                'notes' => $request->notes,
+                'proof_path' => $proofPath,
+            ]);
 
-        // Simpan detail material (format baru dari checkbox system)
-        foreach ($request->materials as $materialData) {
-            if (isset($materialData['material_id']) && isset($materialData['quantity']) && $materialData['quantity'] > 0) {
-                $transaction->details()->create([
-                    'material_id' => $materialData['material_id'],
-                    'quantity' => $materialData['quantity'],
+            // Validasi dan simpan detail material
+            $materialCount = 0;
+            foreach ($request->materials as $materialData) {
+                if (isset($materialData['material_id']) && isset($materialData['quantity']) && $materialData['quantity'] > 0) {
+                    $transaction->details()->create([
+                        'material_id' => $materialData['material_id'],
+                        'quantity' => $materialData['quantity'],
+                    ]);
+                    $materialCount++;
+                }
+            }
+
+            // Pastikan ada material yang disimpan
+            if ($materialCount === 0) {
+                throw new \Exception('Tidak ada material yang valid untuk disimpan');
+            }
+
+            // Kirim notifikasi menggunakan service
+            try {
+                $this->notificationService->notifyTransactionCreated($transaction);
+            } catch (\Exception $e) {
+                // Log error tapi jangan gagalkan transaksi
+                \Log::warning('Gagal mengirim notifikasi transaksi: ' . $e->getMessage(), [
+                    'transaction_id' => $transaction->id,
+                    'user_id' => auth()->id()
                 ]);
             }
+
+            \DB::commit();
+            return redirect()->route('user.dashboard')->with('success', 'Transaksi berhasil dibuat!');
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->withInput()->withErrors(['error' => $e->getMessage()]);
         }
-
-        // Kirim notifikasi menggunakan service
-        $this->notificationService->notifyTransactionCreated($transaction);
-
-        return redirect()->route('user.dashboard')->with('success', 'Transaksi berhasil dibuat!');
     }
 
     /**

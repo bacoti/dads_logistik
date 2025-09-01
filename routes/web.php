@@ -1,6 +1,11 @@
 <?php
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Route;
+
+// Health check routes (tidak perlu authentication)
+Route::get('/health-check', [HealthCheckController::class, 'check']);
+Route::get('/status', [HealthCheckController::class, 'status']);
 
 // Rute default: langsung ke login
 Route::get('/', function () {

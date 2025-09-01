@@ -40,6 +40,18 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                    <!-- Display General Errors -->
+                    @if($errors->has('error'))
+                        <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-red-700 font-medium">{{ $errors->first('error') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
                     <form action="{{ route('user.transactions.store') }}" method="POST" enctype="multipart/form-data"
                           x-data="materialReceiptForm()" x-init="init()">
                         @csrf
@@ -397,12 +409,19 @@
                     if (this.selectedProject) {
                         try {
                             const response = await fetch(`/user/projects/${this.selectedProject}/sub-projects`);
+                            
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            
                             this.subProjects = await response.json();
                             this.selectedSubProject = '';
                             this.materialsByCategory = {};
                             this.materialQuantities = {};
                         } catch (error) {
                             console.error('Error loading sub projects:', error);
+                            this.showErrorMessage('Gagal memuat sub proyek. Silakan refresh halaman dan coba lagi.');
+                            this.subProjects = [];
                         }
                     } else {
                         this.subProjects = [];
@@ -416,10 +435,16 @@
                         this.isLoadingMaterials = true;
                         try {
                             const response = await fetch(`/user/projects/${this.selectedProject}/sub-projects/${this.selectedSubProject}/materials`);
+                            
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            
                             this.materialsByCategory = await response.json();
                             this.materialQuantities = {};
                         } catch (error) {
                             console.error('Error loading materials:', error);
+                            this.showErrorMessage('Gagal memuat material. Silakan refresh halaman dan coba lagi.');
                             this.materialsByCategory = {};
                         } finally {
                             this.isLoadingMaterials = false;
@@ -428,6 +453,29 @@
                         this.materialsByCategory = {};
                         this.materialQuantities = {};
                     }
+                },
+
+                showErrorMessage(message) {
+                    // Create and show error notification
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    errorDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            ${message}
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(errorDiv);
+                    
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        if (errorDiv.parentNode) {
+                            errorDiv.parentNode.removeChild(errorDiv);
+                        }
+                    }, 5000);
                 },
 
                 getQuantity(materialId) {
