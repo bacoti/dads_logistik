@@ -1,0 +1,8 @@
+BASIC TEST FILE
+
+If you can see this text, then:
+1. File upload to hosting is working
+2. Web server can serve static files
+3. The problem might be with PHP execution
+
+Next step: Try accessing simple_storage.php

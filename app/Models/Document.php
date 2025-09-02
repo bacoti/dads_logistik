@@ -62,11 +62,11 @@ class Document extends Model
     public function getCategoryLabelAttribute(): string
     {
         return match($this->category) {
-            'sop' => 'SOP',
-            'form' => 'Form',
-            'panduan' => 'Panduan',
             'template' => 'Template',
-            'lainnya' => 'Lainnya',
+            'manual' => 'Manual/Panduan',
+            'form' => 'Form',
+            'document' => 'Dokumen',
+            'other' => 'Lainnya',
             default => 'Lainnya'
         };
     }

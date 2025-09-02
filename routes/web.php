@@ -150,7 +150,7 @@ Route::middleware('auth')->group(function () {
         // MFO Requests for Users
         Route::resource('mfo-requests', \App\Http\Controllers\User\MfoRequestController::class);
         Route::get('mfo-requests/{mfoRequest}/download', [\App\Http\Controllers\User\MfoRequestController::class, 'download'])->name('mfo-requests.download');
-        Route::get('ajax/sub-projects', [\App\Http\Controllers\User\MfoRequestController::class, 'getSubProjects'])->name('user.ajax.sub-projects');
+]        Route::get('ajax/sub-projects', [\App\Http\Controllers\User\MfoRequestController::class, 'getSubProjects'])->name('user.ajax.sub-projects');
 
         // PO Transports for Users
         Route::resource('po-transports', \App\Http\Controllers\User\PoTransportController::class);

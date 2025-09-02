@@ -30,8 +30,8 @@
                     <div>
                         <h3 class="text-lg font-semibold text-green-800 mb-2">Petunjuk Penggunaan</h3>
                         <p class="text-green-700 text-sm leading-relaxed">
-                            Sistem ini menggunakan data master yang telah diatur oleh admin. Setelah memilih proyek dan sub proyek, 
-                            sistem akan menampilkan daftar material yang tersedia. Anda hanya perlu mengisi jumlah material yang diterima 
+                            Sistem ini menggunakan data master yang telah diatur oleh admin. Setelah memilih proyek dan sub proyek,
+                            sistem akan menampilkan daftar material yang tersedia. Anda hanya perlu mengisi jumlah material yang diterima
                             menggunakan tombol <strong>(-)</strong> dan <strong>(+)</strong> atau input manual pada field quantity.
                         </p>
                     </div>
@@ -79,11 +79,11 @@
                                 <!-- Vendor -->
                                 <div>
                                     <label for="vendor_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Vendor <span class="text-red-500">*</span>
+                                        Vendor
                                     </label>
                                     <input type="text" name="vendor_name" id="vendor_name"
                                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                           value="{{ old('vendor_name') }}" placeholder="Masukkan nama vendor" required>
+                                           value="{{ old('vendor_name') }}" placeholder="Masukkan nama vendor (opsional)">
                                     @error('vendor_name')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
@@ -205,12 +205,12 @@
                                                             <p class="text-xs text-gray-400 mt-1" x-text="material.description" x-show="material.description"></p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Quantity Controls -->
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center space-x-2">
                                                             <!-- Minus Button -->
-                                                            <button type="button" 
+                                                            <button type="button"
                                                                     @click="updateQuantity(material.id, -1)"
                                                                     :disabled="getQuantity(material.id) <= 0"
                                                                     class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
@@ -220,14 +220,14 @@
                                                             </button>
 
                                                             <!-- Quantity Input -->
-                                                            <input type="number" 
+                                                            <input type="number"
                                                                    :value="getQuantity(material.id)"
                                                                    @input="setQuantity(material.id, $event.target.value)"
                                                                    min="0"
                                                                    class="w-16 text-center border border-gray-300 rounded-lg text-sm py-1 focus:border-blue-500 focus:ring-blue-500">
 
                                                             <!-- Plus Button -->
-                                                            <button type="button" 
+                                                            <button type="button"
                                                                     @click="updateQuantity(material.id, 1)"
                                                                     class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors">
                                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,20 +237,20 @@
                                                         </div>
 
                                                         <!-- Status Badge -->
-                                                        <span x-show="getQuantity(material.id) > 0" 
+                                                        <span x-show="getQuantity(material.id) > 0"
                                                               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                             Dipilih
                                                         </span>
                                                     </div>
 
                                                     <!-- Hidden input for form submission -->
-                                                    <input type="hidden" 
+                                                    <input type="hidden"
                                                            x-show="getQuantity(material.id) > 0"
-                                                           :name="'materials[' + material.id + '][material_id]'" 
+                                                           :name="'materials[' + material.id + '][material_id]'"
                                                            :value="material.id">
-                                                    <input type="hidden" 
+                                                    <input type="hidden"
                                                            x-show="getQuantity(material.id) > 0"
-                                                           :name="'materials[' + material.id + '][quantity]'" 
+                                                           :name="'materials[' + material.id + '][quantity]'"
                                                            :value="getQuantity(material.id)">
                                                 </div>
                                             </template>
@@ -281,16 +281,16 @@
                                             <p class="text-xs text-gray-600">PDF, JPG, PNG (Max: 2MB)</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="relative">
                                         <input type="file" name="proof_path" id="proof_path" accept=".pdf,.jpg,.jpeg,.png"
                                                class="w-full px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-sm
-                                                      file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 
+                                                      file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
                                                       file:text-sm file:font-medium file:bg-blue-600 file:text-white
                                                       hover:file:bg-blue-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200
                                                       transition-all duration-200"
                                                onchange="updateFileName(this)">
-                                        
+
                                         <div id="file-info" class="hidden mt-3 p-3 bg-white border border-blue-200 rounded-lg">
                                             <div class="flex items-center">
                                                 <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,7 +300,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     @error('proof_path')
                                         <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                                             <div class="flex items-center">
@@ -328,14 +328,14 @@
                                             <p class="text-xs text-gray-600">Tambahkan informasi tambahan jika diperlukan</p>
                                         </div>
                                     </div>
-                                    
+
                                     <textarea name="notes" id="notes" rows="6"
                                               class="w-full px-4 py-3 border-2 border-green-200 rounded-lg text-sm
                                                      focus:border-green-500 focus:ring-2 focus:ring-green-200
                                                      resize-none transition-all duration-200"
                                               placeholder="Contoh:&#10;- Kondisi barang: Baik&#10;- Catatan khusus: -&#10;- Keterangan tambahan: Material diterima sesuai spesifikasi..."
                                               oninput="updateCharCount(this)">{{ old('notes') }}</textarea>
-                                    
+
                                     <div class="flex justify-between items-center mt-2">
                                         <span class="text-xs text-gray-500" id="char-count">0 karakter</span>
                                         <div class="flex items-center text-xs text-gray-500">
@@ -345,7 +345,7 @@
                                             Opsional
                                         </div>
                                     </div>
-                                    
+
                                     @error('notes')
                                         <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                                             <div class="flex items-center">
@@ -364,7 +364,7 @@
                         <div x-show="getTotalSelectedMaterials() > 0" class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <h4 class="font-medium text-blue-800 mb-2">Ringkasan Material Dipilih</h4>
                             <div class="text-sm text-blue-700">
-                                Total <span x-text="getTotalSelectedMaterials()" class="font-semibold"></span> jenis material dengan total 
+                                Total <span x-text="getTotalSelectedMaterials()" class="font-semibold"></span> jenis material dengan total
                                 <span x-text="getTotalQuantity()" class="font-semibold"></span> unit akan diinput.
                             </div>
                         </div>
@@ -409,11 +409,11 @@
                     if (this.selectedProject) {
                         try {
                             const response = await fetch(`/user/projects/${this.selectedProject}/sub-projects`);
-                            
+
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);
                             }
-                            
+
                             this.subProjects = await response.json();
                             this.selectedSubProject = '';
                             this.materialsByCategory = {};
@@ -435,11 +435,11 @@
                         this.isLoadingMaterials = true;
                         try {
                             const response = await fetch(`/user/projects/${this.selectedProject}/sub-projects/${this.selectedSubProject}/materials`);
-                            
+
                             if (!response.ok) {
                                 throw new Error(`HTTP error! status: ${response.status}`);
                             }
-                            
+
                             this.materialsByCategory = await response.json();
                             this.materialQuantities = {};
                         } catch (error) {
@@ -467,9 +467,9 @@
                             ${message}
                         </div>
                     `;
-                    
+
                     document.body.appendChild(errorDiv);
-                    
+
                     // Auto remove after 5 seconds
                     setTimeout(() => {
                         if (errorDiv.parentNode) {
@@ -511,7 +511,7 @@
         function updateFileName(input) {
             const fileInfo = document.getElementById('file-info');
             const fileName = document.getElementById('selected-file-name');
-            
+
             if (input.files && input.files.length > 0) {
                 const file = input.files[0];
                 fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';

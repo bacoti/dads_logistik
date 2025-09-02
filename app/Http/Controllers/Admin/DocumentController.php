@@ -53,7 +53,7 @@ class DocumentController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'category' => 'required|in:sop,form,panduan,template,lainnya',
+            'category' => 'required|in:template,manual,form,document,other',
             'file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar|max:20480', // 20MB max
             'is_active' => 'boolean'
         ]);
@@ -103,7 +103,7 @@ class DocumentController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'category' => 'required|in:sop,form,panduan,template,lainnya',
+            'category' => 'required|in:template,manual,form,document,other',
             'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar|max:20480',
             'is_active' => 'boolean'
         ]);

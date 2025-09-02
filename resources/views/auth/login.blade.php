@@ -112,6 +112,7 @@
         </button>
 
         <!-- Help Text -->
+        {{-- Registration disabled
         <div class="text-center mt-6">
             <p class="text-sm text-gray-600">
                 Belum memiliki akun?
@@ -121,6 +122,7 @@
                 </a>
             </p>
         </div>
+        --}}
     </form>
 
     <script>
