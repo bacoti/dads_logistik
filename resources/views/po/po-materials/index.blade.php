@@ -74,6 +74,7 @@
                                 <option value="">Semua Status</option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏳ Menunggu</option>
                                 <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>✅ Disetujui</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>🚫 Dibatalkan</option>
                                 <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>❌ Ditolak</option>
                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>🔄 Aktif</option>
                                 <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>✅ Selesai</option>
@@ -201,15 +202,46 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
-                                    <div class="max-w-xs truncate flex items-center" title="{{ $poMaterial->description }}">
-                                        <i class="fas fa-box text-gray-400 mr-2 flex-shrink-0"></i>
-                                        {{ $poMaterial->description }}
+                                    <div class="max-w-xs">
+                                        <div class="flex items-center mb-1">
+                                            <i class="fas fa-box text-gray-400 mr-2 flex-shrink-0"></i>
+                                            <span class="text-xs text-gray-500 font-medium">{{ $poMaterial->items->count() }} Material{{ $poMaterial->items->count() > 1 ? 's' : '' }}</span>
+                                        </div>
+                                        @if($poMaterial->items->count() > 0)
+                                            @foreach($poMaterial->items->take(2) as $item)
+                                            <div class="truncate text-xs text-gray-700 ml-6" title="{{ $item->description }}">
+                                                • {{ $item->description }}
+                                            </div>
+                                            @endforeach
+                                            @if($poMaterial->items->count() > 2)
+                                            <div class="text-xs text-blue-600 ml-6 font-medium">
+                                                +{{ $poMaterial->items->count() - 2 }} lainnya...
+                                            </div>
+                                            @endif
+                                        @else
+                                            <!-- Fallback untuk PO lama yang belum memiliki items -->
+                                            <div class="truncate text-xs text-gray-700 ml-6" title="{{ $poMaterial->description }}">
+                                                • {{ $poMaterial->description }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div class="flex items-center">
                                         <i class="fas fa-balance-scale text-gray-400 mr-2"></i>
-                                        <span class="font-medium">{{ $poMaterial->formatted_quantity }}</span>
+                                        @if($poMaterial->items->count() > 0)
+                                            <div>
+                                                @foreach($poMaterial->items->take(2) as $item)
+                                                <div class="text-xs">{{ $item->formatted_quantity }}</div>
+                                                @endforeach
+                                                @if($poMaterial->items->count() > 2)
+                                                <div class="text-xs text-blue-600">+{{ $poMaterial->items->count() - 2 }} lainnya</div>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <!-- Fallback untuk PO lama -->
+                                            <span class="font-medium">{{ $poMaterial->formatted_quantity }}</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -229,6 +261,28 @@
                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
+
+                                        <!-- Approve Button -->
+                                        <form action="{{ route('po.po-materials.update-status', $poMaterial) }}" method="POST" class="inline-block"
+                                              onsubmit="return confirm('✅ Apakah Anda yakin ingin menyetujui PO Material ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-all duration-200" title="Setujui">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Cancel Button -->
+                                        <form action="{{ route('po.po-materials.update-status', $poMaterial) }}" method="POST" class="inline-block"
+                                              onsubmit="return confirm('❌ Apakah Anda yakin ingin membatalkan PO Material ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded-lg transition-all duration-200" title="Batalkan">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
 
                                         <form action="{{ route('po.po-materials.destroy', $poMaterial) }}" method="POST" class="inline-block"
                                               onsubmit="return confirm('⚠️ Apakah Anda yakin ingin menghapus PO Material ini?\n\nData yang dihapus tidak dapat dikembalikan.')">

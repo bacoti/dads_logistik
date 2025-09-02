@@ -125,7 +125,27 @@ Route::middleware('auth')->group(function () {
 
         // PO Materials routes
         Route::resource('po-materials', \App\Http\Controllers\Po\PoMaterialController::class);
+        Route::patch('po-materials/{poMaterial}/update-status', [\App\Http\Controllers\Po\PoMaterialController::class, 'updateStatus'])->name('po-materials.update-status');
         Route::get('ajax/sub-projects', [\App\Http\Controllers\Po\PoMaterialController::class, 'getSubProjects'])->name('ajax.sub-projects');
+
+        // Material Tracking System
+        Route::get('/material-dashboard', [\App\Http\Controllers\Po\MaterialDashboardController::class, 'index'])->name('material-dashboard.index');
+        
+        // Material Receipt (Penerimaan Material)
+        Route::get('/material-receipt', [\App\Http\Controllers\Po\MaterialReceiptController::class, 'index'])->name('material-receipt.index');
+        Route::get('/material-receipt/{poMaterial}/create', [\App\Http\Controllers\Po\MaterialReceiptController::class, 'create'])->name('material-receipt.create');
+        Route::post('/material-receipt/{poMaterial}', [\App\Http\Controllers\Po\MaterialReceiptController::class, 'store'])->name('material-receipt.store');
+        Route::get('/material-receipt/{poMaterial}/show', [\App\Http\Controllers\Po\MaterialReceiptController::class, 'show'])->name('material-receipt.show');
+
+        // Material Usage (Penggunaan Material)
+        Route::get('/material-usage', [\App\Http\Controllers\Po\MaterialUsageController::class, 'index'])->name('material-usage.index');
+        Route::get('/material-usage/create', [\App\Http\Controllers\Po\MaterialUsageController::class, 'create'])->name('material-usage.create');
+        Route::post('/material-usage', [\App\Http\Controllers\Po\MaterialUsageController::class, 'store'])->name('material-usage.store');
+        Route::get('/material-usage/{transaction}', [\App\Http\Controllers\Po\MaterialUsageController::class, 'show'])->name('material-usage.show');
+
+        // Material Stock (Stock Material)
+        Route::get('/material-stock', [\App\Http\Controllers\Po\MaterialStockController::class, 'index'])->name('material-stock.index');
+        Route::get('/material-stock/{materialStock}', [\App\Http\Controllers\Po\MaterialStockController::class, 'show'])->name('material-stock.show');
     });
 
     // Rute untuk User (Staf Lapangan)

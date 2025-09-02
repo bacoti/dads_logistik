@@ -110,8 +110,8 @@
                 <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-sm font-medium text-red-100">Ditolak</h3>
-                            <p class="text-3xl font-bold">{{ $statistics['rejected'] }}</p>
+                            <h3 class="text-sm font-medium text-red-100">Dibatalkan</h3>
+                            <p class="text-3xl font-bold">{{ $statistics['cancelled'] }}</p>
                         </div>
                         <div class="bg-red-400 bg-opacity-30 rounded-lg p-3">
                             <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -139,6 +139,7 @@
                                 <option value="">Semua Status</option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
                                 <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
                                 <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                             </select>
                         </div>
@@ -199,10 +200,10 @@
                                     Project
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Material
+                                    Materials
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Qty
+                                    Total Items
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status
@@ -233,12 +234,59 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
-                                    <div class="max-w-xs truncate" title="{{ $poMaterial->description }}">
-                                        {{ $poMaterial->description }}
-                                    </div>
+                                    @if($poMaterial->items->count() > 0)
+                                        <div class="material-preview space-y-2">
+                                            @foreach($poMaterial->items->take(3) as $index => $item)
+                                                <div class="flex items-center space-x-2 bg-gray-50 rounded-md p-2">
+                                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full flex-shrink-0">
+                                                        {{ $index + 1 }}
+                                                    </span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0">
+                                                        {{ $item->formatted_quantity }}
+                                                    </span>
+                                                    <span class="text-sm text-gray-700 line-clamp-1 flex-1" title="{{ $item->description }}">
+                                                        {{ Str::limit($item->description, 30) }}
+                                                    </span>
+                                                </div>
+                                            @endforeach
+                                            @if($poMaterial->items->count() > 3)
+                                                <div class="text-xs text-gray-500 italic text-center py-1">
+                                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                    +{{ $poMaterial->items->count() - 3 }} material lagi
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        {{-- Fallback untuk data lama --}}
+                                        <div class="flex items-center space-x-2 bg-yellow-50 rounded-md p-2">
+                                            <svg class="w-4 h-4 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                            </svg>
+                                            @if($poMaterial->quantity && $poMaterial->unit)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 flex-shrink-0">
+                                                    {{ $poMaterial->formatted_quantity }}
+                                                </span>
+                                            @endif
+                                            <span class="text-sm text-gray-700 flex-1" title="{{ $poMaterial->description }}">
+                                                {{ Str::limit($poMaterial->description ?? 'Tidak ada deskripsi', 30) }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $poMaterial->formatted_quantity }}
+                                    @if($poMaterial->items->count() > 0)
+                                        <div class="flex items-center space-x-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ $poMaterial->items->count() }} items
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            1 item (legacy)
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {!! $poMaterial->status_badge !!}
@@ -256,58 +304,14 @@
                                             Detail
                                         </a>
 
-                                        @if($poMaterial->status === 'pending')
-                                        <!-- Tombol Setuju - Pure Laravel Form -->
-                                        <form method="POST" action="{{ route('admin.po-materials.update-status', $poMaterial) }}" class="inline-block">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="approved">
-                                            <input type="hidden" name="admin_notes" value="Disetujui melalui tabel admin">
-                                            <button type="submit"
-                                                    name="confirm_action"
-                                                    value="approve"
-                                                    class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition-colors duration-200"
-                                                    title="Setujui PO Material">
-                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Setuju
-                                            </button>
-                                        </form>
-
-                                        <!-- Tombol Tolak - Pure Laravel Form -->
-                                        <form method="POST" action="{{ route('admin.po-materials.update-status', $poMaterial) }}" class="inline-block">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="rejected">
-                                            <input type="hidden" name="admin_notes" value="Ditolak melalui tabel admin">
-                                            <button type="submit"
-                                                    name="confirm_action"
-                                                    value="reject"
-                                                    class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 transition-colors duration-200"
-                                                    title="Tolak PO Material">
-                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Tolak
-                                            </button>
-                                        </form>
-                                        @else
-                                        <!-- Status sudah final - tampilkan badge -->
-                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md {{ $poMaterial->status === 'approved' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100' }}">
-                                            @if($poMaterial->status === 'approved')
-                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Disetujui
-                                            @else
-                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Ditolak
-                                            @endif
+                                        <!-- Info badge - admin hanya bisa melihat -->
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-600"
+                                              title="Admin hanya dapat melihat data PO Material">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                            </svg>
+                                            View Only
                                         </span>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -383,6 +387,45 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+        }
+
+        /* Text truncation */
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Material items styling */
+        .material-preview {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .material-preview::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .material-preview::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 2px;
+        }
+
+        .material-preview::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .material-preview::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
     @endpush

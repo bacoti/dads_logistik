@@ -67,7 +67,7 @@ class PoMaterialController extends Controller
             $query->where('project_id', $request->project_id);
         }
 
-        $poMaterials = $query->orderBy('release_date', 'desc')->paginate(15);
+        $poMaterials = $query->with(['user', 'project', 'subProject', 'items'])->orderBy('release_date', 'desc')->paginate(15);
 
         // Get users and projects for filters
         $users = User::where('role', 'po')->get();
@@ -90,6 +90,7 @@ class PoMaterialController extends Controller
 
     public function show(PoMaterial $poMaterial)
     {
+        $poMaterial->load(['user', 'project', 'subProject', 'items']);
         return view('admin.po-materials.show', compact('poMaterial'));
     }
 

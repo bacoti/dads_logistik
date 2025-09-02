@@ -24,7 +24,7 @@ class PoMaterialController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PoMaterial::with(['project', 'subProject'])
+        $query = PoMaterial::with(['project', 'subProject', 'items'])
             ->where('user_id', Auth::id());
 
         // Apply filters
@@ -75,22 +75,48 @@ class PoMaterialController extends Controller
             'location' => 'required|string|max:255',
             'project_id' => 'required|exists:projects,id',
             'sub_project_id' => 'nullable|exists:sub_projects,id',
-            'description' => 'required|string',
-            'quantity' => 'required|numeric|min:0',
-            'unit' => 'required|string|max:50',
             'notes' => 'nullable|string',
+            // Validation untuk multiple materials
+            'materials' => 'required|array|min:1',
+            'materials.*.description' => 'required|string',
+            'materials.*.quantity' => 'required|numeric|min:0',
+            'materials.*.unit' => 'required|string|max:50',
         ]);
 
         $validated['user_id'] = Auth::id();
-        $validated['status'] = 'pending'; // Default status for new PO Materials
+        $validated['status'] = 'pending';
 
-        $poMaterial = PoMaterial::create($validated);
+        // Buat PO Material utama
+        $poMaterial = PoMaterial::create([
+            'user_id' => $validated['user_id'],
+            'po_number' => $validated['po_number'],
+            'supplier' => $validated['supplier'],
+            'release_date' => $validated['release_date'],
+            'location' => $validated['location'],
+            'project_id' => $validated['project_id'],
+            'sub_project_id' => $validated['sub_project_id'],
+            'status' => $validated['status'],
+            'notes' => $validated['notes'],
+            // Set description dan quantity dari material pertama untuk kompatibilitas
+            'description' => $validated['materials'][0]['description'],
+            'quantity' => $validated['materials'][0]['quantity'],
+            'unit' => $validated['materials'][0]['unit'],
+        ]);
+
+        // Simpan semua material items
+        foreach ($validated['materials'] as $materialData) {
+            $poMaterial->items()->create([
+                'description' => $materialData['description'],
+                'quantity' => $materialData['quantity'],
+                'unit' => $materialData['unit'],
+            ]);
+        }
 
         // Kirim notifikasi ke admin
         $this->notificationService->notifyPoMaterialSubmitted($poMaterial);
 
         return redirect()->route('po.po-materials.index')
-            ->with('success', 'PO Material berhasil dibuat!');
+            ->with('success', 'PO Material dengan ' . count($validated['materials']) . ' material berhasil dibuat!');
     }
 
     /**
@@ -102,6 +128,9 @@ class PoMaterialController extends Controller
         if ($poMaterial->user_id !== Auth::id()) {
             abort(403);
         }
+
+        // Load items relationship
+        $poMaterial->load('items');
 
         return view('po.po-materials.show', compact('poMaterial'));
     }
@@ -169,5 +198,54 @@ class PoMaterialController extends Controller
     {
         $subProjects = SubProject::where('project_id', $request->project_id)->get();
         return response()->json($subProjects);
+    }
+
+    /**
+     * Update status of PO Material by the PO user themselves
+     */
+    public function updateStatus(Request $request, PoMaterial $poMaterial)
+    {
+        // Ensure user can only update their own PO Materials
+        if ($poMaterial->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action');
+        }
+
+        // Validate input
+        $validated = $request->validate([
+            'status' => 'required|in:approved,cancelled',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        // Additional business logic validations
+        if ($poMaterial->status !== 'pending') {
+            return back()->with('error', 'Hanya PO Material dengan status "Menunggu" yang dapat diubah statusnya.');
+        }
+
+        // Update PO Material status
+        $oldStatus = $poMaterial->status;
+
+        $poMaterial->update([
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? $poMaterial->notes,
+        ]);
+
+        // Log the status change
+        \Log::info('PO Material status updated by user', [
+            'po_material_id' => $poMaterial->id,
+            'po_number' => $poMaterial->po_number,
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user()->name,
+            'old_status' => $oldStatus,
+            'new_status' => $validated['status'],
+            'timestamp' => now(),
+        ]);
+
+        // Success message based on status
+        $statusMessages = [
+            'approved' => 'PO Material berhasil disetujui!',
+            'cancelled' => 'PO Material berhasil dibatalkan.',
+        ];
+
+        return back()->with('success', $statusMessages[$validated['status']]);
     }
 }
