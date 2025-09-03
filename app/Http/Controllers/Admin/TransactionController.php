@@ -7,7 +7,9 @@ use App\Models\Transaction;
 use App\Models\Vendor;
 use App\Models\Project;
 use App\Models\User;
+use App\Exports\TransactionsExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
@@ -78,5 +80,19 @@ class TransactionController extends Controller
     {
         $transaction->load(['user', 'vendor', 'project', 'subProject', 'details.material.category']);
         return view('admin.transactions.show', compact('transaction'));
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->get('date_from');
+        $endDate = $request->get('date_to');
+        $projectId = $request->get('project_id');
+
+        $fileName = 'transaksi_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new TransactionsExport($startDate, $endDate, $projectId), 
+            $fileName
+        );
     }
 }

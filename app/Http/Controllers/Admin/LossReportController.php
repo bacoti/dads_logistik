@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LossReport;
+use App\Exports\LossReportsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LossReportController extends Controller
 {
@@ -92,5 +94,20 @@ class LossReportController extends Controller
         }
 
         return Storage::disk('public')->download($lossReport->supporting_document_path);
+    }
+
+    public function export(Request $request)
+    {
+        $status = $request->get('status');
+        $startDate = $request->get('date_from');
+        $endDate = $request->get('date_to');
+        $projectId = $request->get('project_id');
+
+        $fileName = 'laporan_kehilangan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new LossReportsExport($status, $startDate, $endDate, $projectId), 
+            $fileName
+        );
     }
 }

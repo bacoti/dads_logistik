@@ -14,6 +14,9 @@ use App\Models\PoMaterial;
 use App\Exports\TransactionsExport;
 use App\Exports\MonthlyReportsExport;
 use App\Exports\AdminSummaryExport;
+use App\Exports\LossReportsExport;
+use App\Exports\MfoRequestsExport;
+use App\Exports\ComprehensiveExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -158,6 +161,60 @@ class DashboardController extends Controller
         
         return Excel::download(
             new MonthlyReportsExport($status, $startDate, $endDate), 
+            $fileName
+        );
+    }
+
+    /**
+     * Export loss reports to Excel
+     */
+    public function exportLossReports(Request $request)
+    {
+        $status = $request->get('status');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $projectId = $request->get('project_id');
+
+        $fileName = 'laporan_kehilangan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new LossReportsExport($status, $startDate, $endDate, $projectId), 
+            $fileName
+        );
+    }
+
+    /**
+     * Export MFO requests to Excel
+     */
+    public function exportMfoRequests(Request $request)
+    {
+        $status = $request->get('status');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $projectId = $request->get('project_id');
+
+        $fileName = 'pengajuan_mfo_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new MfoRequestsExport($status, $startDate, $endDate, $projectId), 
+            $fileName
+        );
+    }
+
+    /**
+     * Export comprehensive data (all data in multiple sheets)
+     */
+    public function exportComprehensive(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $projectId = $request->get('project_id');
+        $status = $request->get('status');
+
+        $fileName = 'data_lengkap_logistik_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new ComprehensiveExport($startDate, $endDate, $projectId, $status), 
             $fileName
         );
     }

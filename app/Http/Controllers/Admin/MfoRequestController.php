@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MfoRequest;
+use App\Exports\MfoRequestsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MfoRequestController extends Controller
 {
@@ -93,5 +95,20 @@ class MfoRequestController extends Controller
         }
 
         return Storage::disk('public')->download($mfoRequest->document_path);
+    }
+
+    public function export(Request $request)
+    {
+        $status = $request->get('status');
+        $startDate = $request->get('date_from');
+        $endDate = $request->get('date_to');
+        $projectId = $request->get('project_id');
+
+        $fileName = 'pengajuan_mfo_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new MfoRequestsExport($status, $startDate, $endDate, $projectId), 
+            $fileName
+        );
     }
 }

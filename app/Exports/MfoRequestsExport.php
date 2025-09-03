@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\MonthlyReport;
+use App\Models\MfoRequest;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -15,96 +15,97 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
+class MfoRequestsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
 
     protected $status;
     protected $startDate;
     protected $endDate;
+    protected $projectId;
 
-    public function __construct($status = null, $startDate = null, $endDate = null)
+    public function __construct($status = null, $startDate = null, $endDate = null, $projectId = null)
     {
         $this->status = $status;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->projectId = $projectId;
     }
 
     public function query()
     {
-        $query = MonthlyReport::with(['user', 'reviewer']);
+        $query = MfoRequest::with(['user', 'project', 'subProject', 'reviewer']);
 
         if ($this->status) {
             $query->where('status', $this->status);
         }
 
         if ($this->startDate) {
-            $query->whereDate('created_at', '>=', $this->startDate);
+            $query->whereDate('request_date', '>=', $this->startDate);
         }
 
         if ($this->endDate) {
-            $query->whereDate('created_at', '<=', $this->endDate);
+            $query->whereDate('request_date', '<=', $this->endDate);
         }
 
-        return $query->orderBy('created_at', 'desc');
+        if ($this->projectId) {
+            $query->where('project_id', $this->projectId);
+        }
+
+        return $query->orderBy('request_date', 'desc');
     }
 
     public function headings(): array
     {
         return [
             'No',
-            'User',
-            'Bulan Laporan',
-            'Tahun',
-            'Judul Laporan',
-            'Deskripsi',
+            'Tanggal Pengajuan',
+            'User Pengaju',
+            'Project',
+            'Sub Project',
+            'Lokasi Project',
+            'Cluster',
+            'Tanggal Request',
+            'Deskripsi Pengajuan',
             'Status',
             'Reviewer',
             'Tanggal Review',
-            'Admin Notes',
-            'File Attachment',
+            'Catatan Admin',
+            'Dokumen Pendukung',
             'Created At',
             'Updated At'
         ];
     }
 
-    public function map($report): array
+    public function map($mfoRequest): array
     {
         static $no = 1;
         
         return [
             $no++,
-            $report->user ? $report->user->name : '',
-            $this->getMonthName($report->month),
-            $report->year,
-            $report->title ?? '',
-            $report->description ?? '',
-            $this->getStatusLabel($report->status),
-            $report->reviewer ? $report->reviewer->name : '',
-            $report->reviewed_at ? $report->reviewed_at->format('d/m/Y H:i:s') : '',
-            $report->admin_notes ?? '',
-            $report->file_path ? 'Ada File' : 'Tidak Ada',
-            $report->created_at ? $report->created_at->format('d/m/Y H:i:s') : '',
-            $report->updated_at ? $report->updated_at->format('d/m/Y H:i:s') : ''
+            $mfoRequest->created_at ? $mfoRequest->created_at->format('d/m/Y H:i:s') : '',
+            $mfoRequest->user ? $mfoRequest->user->name : '',
+            $mfoRequest->project ? $mfoRequest->project->name : '',
+            $mfoRequest->subProject ? $mfoRequest->subProject->name : '',
+            $mfoRequest->project_location ?? '',
+            $mfoRequest->cluster ?? '',
+            $mfoRequest->request_date ? $mfoRequest->request_date->format('d/m/Y') : '',
+            $mfoRequest->description ?? '',
+            $this->getStatusLabel($mfoRequest->status),
+            $mfoRequest->reviewer ? $mfoRequest->reviewer->name : '',
+            $mfoRequest->reviewed_at ? $mfoRequest->reviewed_at->format('d/m/Y H:i:s') : '',
+            $mfoRequest->admin_notes ?? '',
+            $mfoRequest->document_path ? 'Ada Dokumen' : 'Tidak Ada',
+            $mfoRequest->created_at ? $mfoRequest->created_at->format('d/m/Y H:i:s') : '',
+            $mfoRequest->updated_at ? $mfoRequest->updated_at->format('d/m/Y H:i:s') : ''
         ];
-    }
-
-    private function getMonthName($month)
-    {
-        $months = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-        ];
-
-        return $months[$month] ?? '';
     }
 
     private function getStatusLabel($status)
     {
         $statusLabels = [
             'pending' => 'Menunggu Review',
-            'reviewed' => 'Sudah Direview',
+            'reviewed' => 'Sedang Ditinjau',
             'approved' => 'Disetujui',
             'rejected' => 'Ditolak'
         ];
@@ -114,13 +115,13 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
 
     public function title(): string
     {
-        return 'Laporan Bulanan';
+        return 'Pengajuan MFO';
     }
 
     public function styles(Worksheet $sheet)
     {
         // Header styling
-        $sheet->getStyle('A1:M1')->applyFromArray([
+        $sheet->getStyle('A1:P1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -128,7 +129,7 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'color' => ['rgb' => 'EF4444'] // Red theme
+                'color' => ['rgb' => '10B981'] // Green theme
             ],
             'borders' => [
                 'allBorders' => [
@@ -148,7 +149,7 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
         // Data rows styling
         $highestRow = $sheet->getHighestRow();
         if ($highestRow > 1) {
-            $sheet->getStyle('A2:M' . $highestRow)->applyFromArray([
+            $sheet->getStyle('A2:P' . $highestRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -164,9 +165,9 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
             // Zebra striping for better readability
             for ($row = 2; $row <= $highestRow; $row++) {
                 if ($row % 2 == 0) {
-                    $sheet->getStyle('A' . $row . ':M' . $row)->getFill()
+                    $sheet->getStyle('A' . $row . ':P' . $row)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()->setRGB('FEF2F2');
+                        ->getStartColor()->setRGB('F0FDF4');
                 }
             }
         }

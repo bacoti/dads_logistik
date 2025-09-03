@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function () {
         // Export Routes
         Route::get('/export/transactions', [\App\Http\Controllers\Admin\DashboardController::class, 'exportTransactions'])->name('export.transactions');
         Route::get('/export/monthly-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'exportMonthlyReports'])->name('export.monthly-reports');
+        Route::get('/export/loss-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'exportLossReports'])->name('export.loss-reports');
+        Route::get('/export/mfo-requests', [\App\Http\Controllers\Admin\DashboardController::class, 'exportMfoRequests'])->name('export.mfo-requests');
+        Route::get('/export/comprehensive', [\App\Http\Controllers\Admin\DashboardController::class, 'exportComprehensive'])->name('export.comprehensive');
         Route::get('/export/summary', [\App\Http\Controllers\Admin\DashboardController::class, 'exportSummary'])->name('export.summary');
 
         // User Management Routes
@@ -49,6 +52,7 @@ Route::middleware('auth')->group(function () {
 
         // Tabel Data Transaksi
         Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('transactions.index');
+        Route::get('/transactions/export', [\App\Http\Controllers\Admin\TransactionController::class, 'export'])->name('transactions.export');
         Route::get('/transactions/{transaction}', [\App\Http\Controllers\Admin\TransactionController::class, 'show'])->name('transactions.show');
 
         // Manajemen Data Master - Unified Page
@@ -76,18 +80,21 @@ Route::middleware('auth')->group(function () {
 
         // Monthly Reports Management
         Route::resource('monthly-reports', \App\Http\Controllers\Admin\MonthlyReportController::class);
+        Route::get('/monthly-reports/export/excel', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'export'])->name('monthly-reports.export');
         Route::patch('/monthly-reports/{monthlyReport}/update-status', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'updateStatus'])->name('monthly-reports.update-status');
         Route::get('/monthly-reports/{monthlyReport}/download', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'download'])->name('monthly-reports.download');
         Route::delete('/monthly-reports/{monthlyReport}', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'destroy'])->name('monthly-reports.destroy');
 
         // Loss Reports Management
         Route::get('/loss-reports', [\App\Http\Controllers\Admin\LossReportController::class, 'index'])->name('loss-reports.index');
+        Route::get('/loss-reports/export', [\App\Http\Controllers\Admin\LossReportController::class, 'export'])->name('loss-reports.export');
         Route::get('/loss-reports/{lossReport}', [\App\Http\Controllers\Admin\LossReportController::class, 'show'])->name('loss-reports.show');
         Route::patch('/loss-reports/{lossReport}/update-status', [\App\Http\Controllers\Admin\LossReportController::class, 'updateStatus'])->name('loss-reports.update-status');
         Route::get('/loss-reports/{lossReport}/download', [\App\Http\Controllers\Admin\LossReportController::class, 'download'])->name('loss-reports.download');
 
         // MFO Requests Management
         Route::get('/mfo-requests', [\App\Http\Controllers\Admin\MfoRequestController::class, 'index'])->name('mfo-requests.index');
+        Route::get('/mfo-requests/export', [\App\Http\Controllers\Admin\MfoRequestController::class, 'export'])->name('mfo-requests.export');
         Route::get('/mfo-requests/{mfoRequest}', [\App\Http\Controllers\Admin\MfoRequestController::class, 'show'])->name('mfo-requests.show');
         Route::patch('/mfo-requests/{mfoRequest}/update-status', [\App\Http\Controllers\Admin\MfoRequestController::class, 'updateStatus'])->name('mfo-requests.update-status');
         Route::get('/mfo-requests/{mfoRequest}/download', [\App\Http\Controllers\Admin\MfoRequestController::class, 'download'])->name('mfo-requests.download');

@@ -381,14 +381,14 @@
                         <!-- View Mode Toggle -->
                         <div class="flex items-center space-x-4">
                             <!-- Export Button -->
-                            <button class="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md flex items-center"
-                                    title="Export Data"
-                                    @click="alert('Fitur export akan segera tersedia!')">
+                            <a href="{{ route('admin.transactions.export') }}?{{ http_build_query(request()->all()) }}"
+                               class="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md flex items-center"
+                               title="Export Data Transaksi ke Excel">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                <span class="text-sm font-medium">Export</span>
-                            </button>
+                                <span class="text-sm font-medium">Export Excel</span>
+                            </a>
 
                             <!-- View Mode Selector -->
                             <div class="flex items-center bg-gray-100 rounded-xl p-1">

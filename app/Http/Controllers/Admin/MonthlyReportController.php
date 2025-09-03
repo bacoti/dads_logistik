@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\MonthlyReport;
 use App\Models\Project;
 use App\Models\User;
+use App\Exports\MonthlyReportsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MonthlyReportController extends Controller
 {
@@ -172,5 +174,19 @@ class MonthlyReportController extends Controller
         }
 
         return response()->download($filePath);
+    }
+
+    public function export(Request $request)
+    {
+        $status = $request->get('status');
+        $startDate = $request->get('date_from');
+        $endDate = $request->get('date_to');
+
+        $fileName = 'laporan_bulanan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new MonthlyReportsExport($status, $startDate, $endDate), 
+            $fileName
+        );
     }
 }

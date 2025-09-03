@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\MonthlyReport;
+use App\Models\LossReport;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -10,102 +10,107 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
+class LossReportsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
 
     protected $status;
     protected $startDate;
     protected $endDate;
+    protected $projectId;
 
-    public function __construct($status = null, $startDate = null, $endDate = null)
+    public function __construct($status = null, $startDate = null, $endDate = null, $projectId = null)
     {
         $this->status = $status;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->projectId = $projectId;
     }
 
     public function query()
     {
-        $query = MonthlyReport::with(['user', 'reviewer']);
+        $query = LossReport::with(['user', 'project', 'subProject', 'reviewer']);
 
         if ($this->status) {
             $query->where('status', $this->status);
         }
 
         if ($this->startDate) {
-            $query->whereDate('created_at', '>=', $this->startDate);
+            $query->whereDate('loss_date', '>=', $this->startDate);
         }
 
         if ($this->endDate) {
-            $query->whereDate('created_at', '<=', $this->endDate);
+            $query->whereDate('loss_date', '<=', $this->endDate);
         }
 
-        return $query->orderBy('created_at', 'desc');
+        if ($this->projectId) {
+            $query->where('project_id', $this->projectId);
+        }
+
+        return $query->orderBy('loss_date', 'desc');
     }
 
     public function headings(): array
     {
         return [
             'No',
-            'User',
-            'Bulan Laporan',
-            'Tahun',
-            'Judul Laporan',
-            'Deskripsi',
+            'Tanggal Lapor',
+            'User Pelapor',
+            'Project',
+            'Sub Project',
+            'Lokasi Project',
+            'Cluster',
+            'Tanggal Kehilangan',
+            'Tipe Material',
+            'Kronologi Kehilangan',
+            'Catatan Tambahan',
             'Status',
             'Reviewer',
             'Tanggal Review',
-            'Admin Notes',
-            'File Attachment',
-            'Created At',
-            'Updated At'
+            'Catatan Admin',
+            'Dokumen Pendukung',
+            'Created At'
         ];
     }
 
-    public function map($report): array
+    public function map($lossReport): array
     {
         static $no = 1;
         
         return [
             $no++,
-            $report->user ? $report->user->name : '',
-            $this->getMonthName($report->month),
-            $report->year,
-            $report->title ?? '',
-            $report->description ?? '',
-            $this->getStatusLabel($report->status),
-            $report->reviewer ? $report->reviewer->name : '',
-            $report->reviewed_at ? $report->reviewed_at->format('d/m/Y H:i:s') : '',
-            $report->admin_notes ?? '',
-            $report->file_path ? 'Ada File' : 'Tidak Ada',
-            $report->created_at ? $report->created_at->format('d/m/Y H:i:s') : '',
-            $report->updated_at ? $report->updated_at->format('d/m/Y H:i:s') : ''
+            $lossReport->created_at ? $lossReport->created_at->format('d/m/Y H:i:s') : '',
+            $lossReport->user ? $lossReport->user->name : '',
+            $lossReport->project ? $lossReport->project->name : '',
+            $lossReport->subProject ? $lossReport->subProject->name : '',
+            $lossReport->project_location ?? '',
+            $lossReport->cluster ?? '',
+            $lossReport->loss_date ? $lossReport->loss_date->format('d/m/Y') : '',
+            $lossReport->material_type ?? '',
+            $lossReport->loss_chronology ?? '',
+            $lossReport->additional_notes ?? '',
+            $this->getStatusLabel($lossReport->status),
+            $lossReport->reviewer ? $lossReport->reviewer->name : '',
+            $lossReport->reviewed_at ? $lossReport->reviewed_at->format('d/m/Y H:i:s') : '',
+            $lossReport->admin_notes ?? '',
+            $lossReport->supporting_document_path ? 'Ada Dokumen' : 'Tidak Ada',
+            $lossReport->created_at ? $lossReport->created_at->format('d/m/Y H:i:s') : ''
         ];
-    }
-
-    private function getMonthName($month)
-    {
-        $months = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-        ];
-
-        return $months[$month] ?? '';
     }
 
     private function getStatusLabel($status)
     {
         $statusLabels = [
             'pending' => 'Menunggu Review',
-            'reviewed' => 'Sudah Direview',
+            'reviewed' => 'Sedang Ditinjau',
             'approved' => 'Disetujui',
+            'completed' => 'Selesai',
             'rejected' => 'Ditolak'
         ];
 
@@ -114,13 +119,13 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
 
     public function title(): string
     {
-        return 'Laporan Bulanan';
+        return 'Laporan Kehilangan';
     }
 
     public function styles(Worksheet $sheet)
     {
         // Header styling
-        $sheet->getStyle('A1:M1')->applyFromArray([
+        $sheet->getStyle('A1:Q1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -128,7 +133,7 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'color' => ['rgb' => 'EF4444'] // Red theme
+                'color' => ['rgb' => '3B82F6'] // Blue theme
             ],
             'borders' => [
                 'allBorders' => [
@@ -148,7 +153,7 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
         // Data rows styling
         $highestRow = $sheet->getHighestRow();
         if ($highestRow > 1) {
-            $sheet->getStyle('A2:M' . $highestRow)->applyFromArray([
+            $sheet->getStyle('A2:Q' . $highestRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -164,9 +169,9 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
             // Zebra striping for better readability
             for ($row = 2; $row <= $highestRow; $row++) {
                 if ($row % 2 == 0) {
-                    $sheet->getStyle('A' . $row . ':M' . $row)->getFill()
+                    $sheet->getStyle('A' . $row . ':Q' . $row)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()->setRGB('FEF2F2');
+                        ->getStartColor()->setRGB('F8FAFC');
                 }
             }
         }
