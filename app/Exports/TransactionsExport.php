@@ -62,8 +62,9 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
             'Location',
             'Cluster', 
             'Site ID',
-            'Materials & Quantity',
-            'Total Items',
+            'Detail Materials',
+            'Total Quantity',
+            'Jumlah Item',
             'Keterangan',
             'Created At'
         ];
@@ -73,14 +74,16 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
     {
         static $no = 1;
         
-        // Ambil detail materials dengan quantity
-        $materialsWithQty = $transaction->details->map(function($detail) {
+        // Format materials dengan rapi - setiap material di baris baru
+        $materialDetails = $transaction->details->map(function($detail) {
             $materialName = $detail->material ? $detail->material->name : 'Unknown Material';
-            return $materialName . ' (' . $detail->quantity . ' unit)';
+            $unit = $detail->material && $detail->material->unit ? $detail->material->unit : 'unit';
+            return "• " . $materialName . ": " . number_format($detail->quantity) . " " . $unit;
         });
         
-        $materialsString = $materialsWithQty->isNotEmpty() ? $materialsWithQty->join(', ') : '-';
-        $totalItems = $transaction->details->sum('quantity');
+        $materialsString = $materialDetails->isNotEmpty() ? $materialDetails->join("\n") : '-';
+        $totalQuantity = $transaction->details->sum('quantity');
+        $totalItems = $transaction->details->count();
         
         return [
             $no++,
@@ -94,6 +97,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
             $transaction->cluster ?? '',
             $transaction->site_id ?? '',
             $materialsString,
+            number_format($totalQuantity),
             $totalItems,
             $transaction->notes ?? '',
             $transaction->created_at ? $transaction->created_at->format('d/m/Y H:i:s') : ''
@@ -108,7 +112,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
     public function styles(Worksheet $sheet)
     {
         // Header styling
-        $sheet->getStyle('A1:N1')->applyFromArray([
+        $sheet->getStyle('A1:O1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -136,7 +140,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
         // Data rows styling
         $highestRow = $sheet->getHighestRow();
         if ($highestRow > 1) {
-            $sheet->getStyle('A2:N' . $highestRow)->applyFromArray([
+            $sheet->getStyle('A2:O' . $highestRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -149,13 +153,22 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
                 ]
             ]);
 
+            // Set optimal column widths
+            $sheet->getColumnDimension('K')->setWidth(40); // Detail Materials column
+            $sheet->getColumnDimension('L')->setWidth(15); // Total Quantity
+            $sheet->getColumnDimension('M')->setWidth(12); // Jumlah Item
+            $sheet->getColumnDimension('N')->setWidth(30); // Keterangan
+
             // Zebra striping for better readability
             for ($row = 2; $row <= $highestRow; $row++) {
                 if ($row % 2 == 0) {
-                    $sheet->getStyle('A' . $row . ':N' . $row)->getFill()
+                    $sheet->getStyle('A' . $row . ':O' . $row)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()->setRGB('FAF5FF');
                 }
+                
+                // Set row height for better readability of materials
+                $sheet->getRowDimension($row)->setRowHeight(-1); // Auto height
             }
         }
 

@@ -25,7 +25,7 @@ class ComprehensiveExport implements WithMultipleSheets
     public function sheets(): array
     {
         return [
-            new TransactionsExport($this->startDate, $this->endDate, $this->projectId),
+            new TransactionsDetailExport($this->startDate, $this->endDate, $this->projectId),
             new MonthlyReportsExport($this->status, $this->startDate, $this->endDate),
             new LossReportsExport($this->status, $this->startDate, $this->endDate, $this->projectId),
             new MfoRequestsExport($this->status, $this->startDate, $this->endDate, $this->projectId),

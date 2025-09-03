@@ -11,7 +11,7 @@ use App\Models\MonthlyReport;
 use App\Models\LossReport;
 use App\Models\MfoRequest;
 use App\Models\PoMaterial;
-use App\Exports\TransactionsExport;
+use App\Exports\TransactionsDetailExport;
 use App\Exports\MonthlyReportsExport;
 use App\Exports\AdminSummaryExport;
 use App\Exports\LossReportsExport;
@@ -132,7 +132,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Export all transactions to Excel
+     * Export all transactions to Excel (Detail)
      */
     public function exportTransactions(Request $request)
     {
@@ -140,10 +140,27 @@ class DashboardController extends Controller
         $endDate = $request->get('end_date');
         $projectId = $request->get('project_id');
 
-        $fileName = 'transaksi_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $fileName = 'transaksi_detail_' . date('Y-m-d_H-i-s') . '.xlsx';
         
         return Excel::download(
-            new TransactionsExport($startDate, $endDate, $projectId), 
+            new TransactionsDetailExport($startDate, $endDate, $projectId), 
+            $fileName
+        );
+    }
+
+    /**
+     * Export all transactions to Excel (Detail per Material)
+     */
+    public function exportTransactionsDetail(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $projectId = $request->get('project_id');
+
+        $fileName = 'transaksi_detail_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(
+            new TransactionsDetailExport($startDate, $endDate, $projectId), 
             $fileName
         );
     }

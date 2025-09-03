@@ -7,7 +7,7 @@ use App\Models\Transaction;
 use App\Models\Vendor;
 use App\Models\Project;
 use App\Models\User;
-use App\Exports\TransactionsExport;
+use App\Exports\TransactionsDetailExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -88,10 +88,10 @@ class TransactionController extends Controller
         $endDate = $request->get('date_to');
         $projectId = $request->get('project_id');
 
-        $fileName = 'transaksi_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $fileName = 'transaksi_detail_' . date('Y-m-d_H-i-s') . '.xlsx';
         
         return Excel::download(
-            new TransactionsExport($startDate, $endDate, $projectId), 
+            new TransactionsDetailExport($startDate, $endDate, $projectId), 
             $fileName
         );
     }
