@@ -37,7 +37,7 @@
                     </div>
 
                     <!-- Informasi Umum -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h4 class="font-medium text-gray-900 mb-3">Informasi Transaksi</h4>
                             <dl class="space-y-2">
@@ -50,9 +50,18 @@
                                     <dd class="text-sm text-gray-900">{{ $transaction->user->name }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Vendor</dt>
+                                    <dt class="text-sm font-medium text-gray-500">
+                                        @if($transaction->type == 'pengembalian')
+                                            Tujuan Pengembalian
+                                        @else
+                                            Vendor
+                                        @endif
+                                    </dt>
                                     <dd class="text-sm text-gray-900">
-                                        @if($transaction->vendor)
+                                        @if($transaction->type == 'pengembalian' && $transaction->return_destination)
+                                            {{ $transaction->return_destination }}
+                                            <div class="text-xs text-gray-500">Tujuan Pengembalian</div>
+                                        @elseif($transaction->vendor)
                                             {{ $transaction->vendor->name }}
                                             @if($transaction->vendor->contact_person)
                                                 <div class="text-xs text-gray-500">{{ $transaction->vendor->contact_person }}</div>
@@ -100,6 +109,64 @@
                                     <dt class="text-sm font-medium text-gray-500">Site ID</dt>
                                     <dd class="text-sm text-gray-900">{{ $transaction->site_id }}</dd>
                                 </div>
+                                @endif
+                            </dl>
+                        </div>
+
+                        <!-- Informasi Dokumen -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                            <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Nomor Dokumen
+                            </h4>
+                            <dl class="space-y-2">
+                                @if($transaction->type == 'penerimaan')
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">No. DO (Delivery Order)</dt>
+                                        <dd class="text-sm text-gray-900">
+                                            @if($transaction->delivery_order_no)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    {{ $transaction->delivery_order_no }}
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400 italic">Tidak ada</span>
+                                            @endif
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">No. DN (Delivery Note)</dt>
+                                        <dd class="text-sm text-gray-900">
+                                            @if($transaction->delivery_note_no)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    {{ $transaction->delivery_note_no }}
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400 italic">Tidak ada</span>
+                                            @endif
+                                        </dd>
+                                    </div>
+                                @elseif($transaction->type == 'pengembalian')
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">No. DR (Delivery Return)</dt>
+                                        <dd class="text-sm text-gray-900">
+                                            @if($transaction->delivery_return_no)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                    {{ $transaction->delivery_return_no }}
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400 italic">Opsional - Tidak diisi</span>
+                                            @endif
+                                        </dd>
+                                    </div>
+                                @else
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                        <dd class="text-sm text-gray-900">
+                                            <span class="text-gray-400 italic">Tipe transaksi ini tidak memerlukan nomor dokumen khusus</span>
+                                        </dd>
+                                    </div>
                                 @endif
                             </dl>
                         </div>

@@ -76,8 +76,8 @@
                                     @enderror
                                 </div>
 
-                                <!-- Vendor -->
-                                <div>
+                                <!-- Vendor atau Tujuan Pengembalian -->
+                                <div x-show="'{{ $type }}' !== 'pengembalian'">
                                     <label for="vendor_name" class="block text-sm font-medium text-gray-700 mb-2">
                                         Vendor
                                     </label>
@@ -85,6 +85,19 @@
                                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            value="{{ old('vendor_name') }}" placeholder="Masukkan nama vendor (opsional)">
                                     @error('vendor_name')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div x-show="'{{ $type }}' === 'pengembalian'">
+                                    <label for="return_destination" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Tujuan Pengembalian <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="return_destination" id="return_destination"
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           value="{{ old('return_destination') }}" placeholder="Masukkan tujuan pengembalian" 
+                                           x-bind:required="'{{ $type }}' === 'pengembalian'">
+                                    @error('return_destination')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
@@ -151,6 +164,54 @@
                                                class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                value="{{ old('site_id') }}" placeholder="Site ID">
                                     </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Document Numbers Section -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                                <!-- No. DO (Delivery Order) - untuk penerimaan -->
+                                <div x-show="'{{ $type }}' === 'penerimaan'">
+                                    <label for="delivery_order_no" class="block text-sm font-medium text-gray-700 mb-2">
+                                        No. DO (Delivery Order) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="delivery_order_no" id="delivery_order_no"
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           value="{{ old('delivery_order_no') }}" 
+                                           placeholder="Masukkan No. Delivery Order"
+                                           x-bind:required="'{{ $type }}' === 'penerimaan'">
+                                    @error('delivery_order_no')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- No. DN (Delivery Note) - untuk penerimaan -->
+                                <div x-show="'{{ $type }}' === 'penerimaan'">
+                                    <label for="delivery_note_no" class="block text-sm font-medium text-gray-700 mb-2">
+                                        No. DN (Delivery Note) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="delivery_note_no" id="delivery_note_no"
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           value="{{ old('delivery_note_no') }}" 
+                                           placeholder="Masukkan No. Delivery Note"
+                                           x-bind:required="'{{ $type }}' === 'penerimaan'">
+                                    @error('delivery_note_no')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- No. DR (Delivery Return) - untuk pengembalian -->
+                                <div x-show="'{{ $type }}' === 'pengembalian'">
+                                    <label for="delivery_return_no" class="block text-sm font-medium text-gray-700 mb-2">
+                                        No. DR (Delivery Return)
+                                        <span class="text-gray-500 text-xs">(Opsional)</span>
+                                    </label>
+                                    <input type="text" name="delivery_return_no" id="delivery_return_no"
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           value="{{ old('delivery_return_no') }}" 
+                                           placeholder="Masukkan No. Delivery Return (opsional)">
+                                    @error('delivery_return_no')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>

@@ -161,6 +161,102 @@ class MonthlyReportController extends Controller
             ->with('success', $statusMessages[$validated['status']]);
     }
 
+    public function getChartData(Request $request)
+    {
+        try {
+            \Log::info('Chart API called with params: ' . json_encode($request->all()));
+            
+            // Apply same filtering logic as index method
+            $query = MonthlyReport::with(['user', 'project', 'subProject']);
+            
+            // Apply filters
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('user', function($user) use ($search) {
+                        $user->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('project', function($project) use ($search) {
+                        $project->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhere('project_location', 'like', "%{$search}%")
+                    ->orWhere('report_period', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->filled('user_id')) {
+                $query->where('user_id', $request->user_id);
+            }
+
+            if ($request->filled('date_range')) {
+                $range = $request->date_range;
+                switch ($range) {
+                    case 'this_month':
+                        $query->whereMonth('report_date', now()->month)
+                              ->whereYear('report_date', now()->year);
+                        break;
+                    case 'last_month':
+                        $query->whereMonth('report_date', now()->subMonth()->month)
+                              ->whereYear('report_date', now()->subMonth()->year);
+                        break;
+                    case 'this_year':
+                        $query->whereYear('report_date', now()->year);
+                        break;
+                }
+            }
+
+            $reports = $query->get();
+
+            // Project distribution data (top 10 projects)
+            $projectReports = $reports->groupBy(function($r) {
+                return optional($r->project)->name ?? 'Unknown Project';
+            })->map->count()->sortDesc()->take(10);
+
+            // Location distribution data (top 10 locations)
+            $locationReports = $reports->groupBy(function($r) {
+                return $r->project_location ?? 'Unknown Location';
+            })->map->count()->sortDesc()->take(10);
+
+            return response()->json([
+                'projectData' => $projectReports->map(function ($count, $name) {
+                    return ['name' => $name, 'count' => $count];
+                })->values(),
+                'locationData' => $locationReports->map(function ($count, $name) {
+                    return ['name' => $name, 'count' => $count];
+                })->values(),
+                'summary' => [
+                    'totalReports' => $reports->count(),
+                    'totalUsers' => $reports->pluck('user_id')->unique()->count(),
+                    'totalProjects' => $reports->pluck('project_id')->filter()->unique()->count(),
+                    'filtersApplied' => collect($request->except(['period']))->filter()->count() > 0
+                ]
+            ]);
+
+            \Log::info('Chart API response: ' . json_encode($response));
+            
+            return response()->json($response);
+            
+        } catch (\Exception $e) {
+            \Log::error('Monthly Report Chart API Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat memuat data chart',
+                'projectData' => [],
+                'locationData' => [],
+                'summary' => [
+                    'totalReports' => 0,
+                    'totalUsers' => 0,
+                    'totalProjects' => 0,
+                    'filtersApplied' => false
+                ]
+            ], 500);
+        }
+    }
+
     public function download(MonthlyReport $monthlyReport)
     {
         if (!$monthlyReport->excel_file_path) {

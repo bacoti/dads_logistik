@@ -205,9 +205,78 @@
                     </div>
                 </div>
             </div>
-            <!-- Enhanced Filter Section -->
+
+            <!-- Enhanced Charts Analytics Section (Simplified - 2 Charts) -->
+            <div class="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl border border-blue-200 overflow-hidden">
+                <!-- Header banner removed per request: charts section will show only charts -->
+
+                <!-- Chart Loading State -->
+                <div id="chart-loading" class="flex items-center justify-center py-12">
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p class="text-gray-600">Memuat data grafik...</p>
+                    </div>
+                </div>
+
+                <!-- Charts Container (2 Charts) -->
+                <div id="charts-container" class="hidden p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Project Distribution Chart -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">Distribusi Laporan per Proyek</h4>
+                                    <p class="text-sm text-gray-600">Distribusi jumlah laporan berdasarkan proyek</p>
+                                </div>
+                                <button onclick="toggleChartType('statusChart')" 
+                                        class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                    Toggle Type
+                                </button>
+                            </div>
+                            <div class="relative" style="height: 250px;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                            <div id="status-chart-details" class="mt-4 grid grid-cols-2 gap-4">
+                                <!-- Dynamic status details will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Location Reports Chart -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">Laporan Berdasarkan Lokasi</h4>
+                                    <p class="text-sm text-gray-600">Distribusi jumlah laporan berdasarkan lokasi</p>
+                                </div>
+                            </div>
+                            <div class="relative" style="height: 250px;">
+                                <canvas id="userChart"></canvas>
+                            </div>
+                            <div id="user-chart-details" class="mt-4 text-center">
+                                <!-- Dynamic user details will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Error State -->
+                <div id="chart-error" class="hidden p-8 text-center">
+                    <div class="text-red-500 mb-4">
+                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Gagal Memuat Grafik</h3>
+                    <p class="text-gray-600 mb-4">Terjadi kesalahan saat memuat data grafik</p>
+                    <button onclick="loadChartsData()" 
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Coba Lagi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enhanced Filter Section (cleaned) -->
             <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                <!-- Filter Header -->
                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-6 py-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -231,14 +300,12 @@
                     </div>
                 </div>
 
-                <!-- Filter Form -->
                 <div x-show="showFilters"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 transform -translate-y-2"
                      x-transition:enter-end="opacity-100 transform translate-y-0"
                      class="p-6">
-                    <form method="GET" action="{{ route('admin.monthly-reports.index') }}" class="space-y-6">
-                        <!-- Quick Search Row -->
+                    <form id="filterForm" method="GET" action="{{ route('admin.monthly-reports.index') }}" class="space-y-6" @submit.prevent="submitFormWithChart()">
                         <div class="bg-gray-50 rounded-xl p-4">
                             <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,139 +313,84 @@
                                 </svg>
                                 Pencarian Cepat
                             </label>
-                            <input type="text" name="search" id="search"
-                                   value="{{ request('search') }}"
-                                   placeholder="Cari berdasarkan nama user, proyek, lokasi, atau periode..."
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                            <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Cari berdasarkan nama user, proyek, lokasi, atau periode..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
                         </div>
 
-                        <!-- Advanced Filters -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <!-- Status Filter -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                             <div>
-                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                    Status Laporan
-                                </label>
-                                <select name="status" id="status"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status Laporan</label>
+                                <select name="status" id="status" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
                                     <option value="">Semua Status</option>
-                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
-                                        🟡 Pending Review
-                                    </option>
-                                    <option value="reviewed" {{ request('status') == 'reviewed' ? 'selected' : '' }}>
-                                        🔵 Reviewed
-                                    </option>
-                                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
-                                        🟢 Approved
-                                    </option>
-                                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
-                                        🔴 Rejected
-                                    </option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>🟡 Pending Review</option>
+                                    <option value="reviewed" {{ request('status') == 'reviewed' ? 'selected' : '' }}>🔵 Reviewed</option>
+                                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>🟢 Approved</option>
+                                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>🔴 Rejected</option>
                                 </select>
                             </div>
 
-                            <!-- User Filter -->
                             <div>
-                                <label for="user_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                    </svg>
-                                    User Lapangan
-                                </label>
-                                <select name="user_id" id="user_id"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                <label for="user_id" class="block text-sm font-semibold text-gray-700 mb-2">User Lapangan</label>
+                                <select name="user_id" id="user_id" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
                                     <option value="">Semua User</option>
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                                            {{ $user->name }}
-                                        </option>
+                                        <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            <!-- Date Range Filter -->
                             <div>
-                                <label for="date_range" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                    Periode
-                                </label>
-                                <select name="date_range" id="date_range"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
-                                    <option value="">Semua Waktu</option>
-                                    <option value="this_month" {{ request('date_range') == 'this_month' ? 'selected' : '' }}>
-                                        📅 Bulan Ini
-                                    </option>
-                                    <option value="last_month" {{ request('date_range') == 'last_month' ? 'selected' : '' }}>
-                                        📅 Bulan Lalu
-                                    </option>
-                                    <option value="this_year" {{ request('date_range') == 'this_year' ? 'selected' : '' }}>
-                                        📅 Tahun Ini
-                                    </option>
+                                <label for="project_id" class="block text-sm font-semibold text-gray-700 mb-2">Proyek</label>
+                                <select name="project_id" id="project_id" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                    <option value="">Semua Proyek</option>
+                                    @foreach($projects as $project)
+                                        <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>{{ $project->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
-                            <!-- Priority Filter -->
                             <div>
-                                <label for="priority" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                    </svg>
-                                    Prioritas Review
-                                </label>
-                                <select name="priority" id="priority"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
-                                    <option value="">Semua Prioritas</option>
-                                    <option value="urgent" {{ request('priority') == 'urgent' ? 'selected' : '' }}>
-                                        🚨 Urgent (>7 hari)
-                                    </option>
-                                    <option value="normal" {{ request('priority') == 'normal' ? 'selected' : '' }}>
-                                        ⏰ Normal (3-7 hari)
-                                    </option>
-                                    <option value="recent" {{ request('priority') == 'recent' ? 'selected' : '' }}>
-                                        🆕 Baru (<3 hari)
-                                    </option>
+                                <label for="date_range" class="block text-sm font-semibold text-gray-700 mb-2">Periode</label>
+                                <select name="date_range" id="date_range" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                    <option value="">Semua Waktu</option>
+                                    <option value="this_month" {{ request('date_range') == 'this_month' ? 'selected' : '' }}>📅 Bulan Ini</option>
+                                    <option value="last_month" {{ request('date_range') == 'last_month' ? 'selected' : '' }}>📅 Bulan Lalu</option>
+                                    <option value="this_year" {{ request('date_range') == 'this_year' ? 'selected' : '' }}>📅 Tahun Ini</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="report_period" class="block text-sm font-semibold text-gray-700 mb-2">Bulan Laporan</label>
+                                <select name="report_period" id="report_period" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                    <option value="">Semua Bulan</option>
+                                    @foreach(['January'=>'Januari','February'=>'Februari','March'=>'Maret','April'=>'April','May'=>'Mei','June'=>'Juni','July'=>'Juli','August'=>'Agustus','September'=>'September','October'=>'Oktober','November'=>'November','December'=>'Desember'] as $val => $label)
+                                        <option value="{{ $val }}" {{ request('report_period') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Filter Actions -->
                         <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
                             <div class="flex items-center space-x-4">
-                                <button type="submit"
-                                        class="flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"/>
-                                    </svg>
+                                <button type="submit" class="flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"/></svg>
                                     Terapkan Filter
                                 </button>
 
-                                @if(request()->anyFilled(['search', 'status', 'user_id', 'date_range', 'priority']))
-                                    <a href="{{ route('admin.monthly-reports.index') }}"
-                                       class="flex items-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                        Reset Filter
-                                    </a>
+                                @if(request()->anyFilled(['search', 'status', 'user_id', 'project_id', 'date_range', 'report_period']))
+                                    <a href="{{ route('admin.monthly-reports.index') }}" class="flex items-center px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-200">Reset Filter</a>
                                 @endif
                             </div>
 
-                            <!-- Filter Summary -->
                             <div class="text-sm text-gray-600">
                                 <span class="font-medium">Hasil:</span> {{ $reports->total() }} laporan ditemukan
-                                @if(request()->anyFilled(['search', 'status', 'user_id', 'date_range', 'priority']))
+                                @if(request()->anyFilled(['search', 'status', 'user_id', 'project_id', 'date_range', 'report_period']))
                                     <span class="text-purple-600 font-medium ml-1">(filtered)</span>
                                 @endif
                             </div>
                         </div>
                     </form>
                 </div>
-            </div>
+                </div>
             <!-- View Mode Toggle & Actions Bar -->
             <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mb-8">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
@@ -479,7 +491,7 @@
                                             <span>User & Lokasi</span>
                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
-                                            </svg>
+                                            </div>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -537,7 +549,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                                     </svg>
                                                     <span class="text-sm font-medium text-gray-900">
-                                                        {{ $report->report_month }}/{{ $report->report_year }}
+                                                        {{ $report->report_period ?? 'Tidak ada periode' }} {{ $report->report_date ? $report->report_date->format('Y') : '' }}
                                                     </span>
                                                 </div>
                                                 <div class="flex items-center">
@@ -770,7 +782,7 @@
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                             </svg>
-                                            <span class="font-medium">{{ $report->report_month }}/{{ $report->report_year }}</span>
+                                            <span class="font-medium">{{ $report->report_period ?? 'Tidak ada periode' }} {{ $report->report_date ? $report->report_date->format('Y') : '' }}</span>
                                         </div>
                                     </div>
 
@@ -865,7 +877,7 @@
                     <div class="text-center py-16 px-6">
                         <div class="mx-auto w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-8">
                             <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2v-5a2 2 0 00-2-2h-2a2 2 0 00-2 2v5z"/>
                             </svg>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900 mb-4">Tidak Ada Laporan Bulanan</h3>
@@ -1093,6 +1105,363 @@
                     }, 300);
                 }, 5000);
             }
+
+            // Initialize charts after page load
+            initializeCharts();
+            loadChartsData();
         });
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Charts JavaScript -->
+    <script>
+        let statusChart = null;
+        let userChart = null;
+
+        // Initialize charts on page load
+        function initializeCharts() {
+            console.log('Initializing monthly reports charts...');
+
+            // Project Chart (Horizontal Bar)
+            const statusCtx = document.getElementById('statusChart');
+            if (statusCtx) {
+                statusChart = new Chart(statusCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Jumlah Laporan',
+                            data: [],
+                            backgroundColor: '#8B5CF6',
+                            borderColor: '#7C3AED',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', // horizontal bars
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label || ''}: ${context.parsed.x}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 11 }, stepSize: 1 },
+                                grid: { color: '#f3f4f6' }
+                            },
+                            y: {
+                                ticks: { font: { size: 11 }, autoSkip: true, maxRotation: 0 },
+                                grid: { display: false }
+                            }
+                        },
+                        animation: { duration: 600 }
+                    }
+                });
+            }
+
+            // User Chart (Bar)
+            const userCtx = document.getElementById('userChart');
+            if (userCtx) {
+                userChart = new Chart(userCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Jumlah Laporan',
+                            data: [],
+                            backgroundColor: '#8B5CF6',
+                            borderColor: '#7C3AED',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return context[0].label;
+                                    },
+                                    label: function(context) {
+                                        return `Total Laporan: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    font: { size: 10 }
+                                },
+                                grid: { color: '#f3f4f6' }
+                            },
+                            x: {
+                                ticks: { font: { size: 10 }, maxRotation: 30 },
+                                grid: { display: false }
+                            }
+                        },
+                        animation: { duration: 600 }
+                    }
+                });
+            }
+        }
+
+        // Submit form with chart updates
+        function submitFormWithChart() {
+            console.log('Submitting form and updating charts...');
+            
+            // First submit the form normally
+            const form = document.getElementById('filterForm');
+            if (form) {
+                // Prevent default and update charts before form submission
+                updateChartsWithFilters();
+                
+                // Submit form after a short delay to allow chart update
+                setTimeout(() => {
+                    form.submit();
+                }, 200);
+            }
+        }
+
+        // Update charts with current filter values
+        function updateChartsWithFilters() {
+            console.log('Updating charts with current filters...');
+
+            const formData = new FormData(document.getElementById('filterForm'));
+            const filterParams = new URLSearchParams();
+
+            // Collect filter parameters
+            for (let [key, value] of formData.entries()) {
+                if (value && value.trim() !== '') {
+                    filterParams.append(key, value);
+                }
+            }
+
+            const queryString = filterParams.toString();
+            const apiUrl = `/admin/monthly-reports/chart-data${queryString ? '?' + queryString : ''}`;
+
+            console.log('Chart API URL:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('Chart API response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Chart data received:', data);
+
+                    // Check for API errors
+                    if (data.error) {
+                        throw new Error(data.message || 'API returned error');
+                    }
+
+                    // Update charts with original keys: projectData, locationData
+                    updateProjectChart(data.projectData || []);
+                    updateLocationChart(data.locationData || []);
+                })
+                .catch(error => {
+                    console.error('Chart update error:', error);
+                });
+        }
+
+    // Load initial chart data (clean, single implementation)
+    function loadChartsData() {
+            console.log('Loading initial charts data...');
+
+            const loadingEl = document.getElementById('chart-loading');
+            const chartsEl = document.getElementById('charts-container');
+            const errorEl = document.getElementById('chart-error');
+
+            // Show loading
+            if (loadingEl) loadingEl.classList.remove('hidden');
+            if (chartsEl) chartsEl.classList.add('hidden');
+            if (errorEl) errorEl.classList.add('hidden');
+
+            // Build query from current filters (form preferred)
+            const form = document.getElementById('filterForm');
+            const params = new URLSearchParams();
+            if (form) {
+                new FormData(form).forEach((v, k) => {
+                    if (v !== null && v !== undefined && String(v).trim() !== '') params.append(k, v);
+                });
+            } else {
+                // fallback to URL
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.forEach((v, k) => { if (v) params.append(k, v); });
+            }
+
+            const apiUrl = '/admin/monthly-reports/chart-data' + (params.toString() ? ('?' + params.toString()) : '');
+            console.log('Chart API URL:', apiUrl);
+
+        fetch(apiUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async response => {
+                    console.log('Chart API response status:', response.status);
+                    const text = await response.text();
+                    // Guard: if response starts with '<' it's HTML (error page)
+                    if (text.trim().startsWith('<')) {
+                        throw new Error('Server returned HTML (likely an error page). Check server logs or auth middleware.');
+                    }
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('Invalid JSON from chart API: ' + e.message);
+                    }
+                })
+                .then(data => {
+                    if (!data || data.error) throw new Error(data?.message || 'Invalid chart data');
+
+                    // Update charts and UI
+                    if (loadingEl) loadingEl.classList.add('hidden');
+                    if (chartsEl) chartsEl.classList.remove('hidden');
+
+            // Backend returns projectData and locationData
+            updateProjectChart(data.projectData || []);
+            updateLocationChart(data.locationData || []);
+                })
+                .catch(error => {
+                    console.error('Charts API error:', error);
+                    if (loadingEl) loadingEl.classList.add('hidden');
+                    if (errorEl) errorEl.classList.remove('hidden');
+                });
+        }
+
+        // Update project distribution chart
+        function updateProjectChart(projectData) {
+            console.log('Updating project chart with:', projectData);
+
+            if (statusChart && projectData && projectData.length > 0) {
+                const labels = projectData.map(item => item.name);
+                const data = projectData.map(item => item.count);
+
+                statusChart.data.labels = labels;
+                statusChart.data.datasets[0].data = data;
+                // Use a palette of colors for projects
+                statusChart.data.datasets[0].backgroundColor = labels.map((_, i) => `hsl(${(i * 45) % 360} 70% 55%)`);
+                statusChart.update('active');
+
+                // Update details
+                const detailsContainer = document.getElementById('status-chart-details');
+                detailsContainer.innerHTML = projectData.slice(0,4).map(item => {
+                    return `
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-lg font-bold text-gray-900">${item.count}</div>
+                            <div class="text-xs text-gray-600 mt-1">${item.name}</div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                // Show empty state
+                if (statusChart) {
+                    statusChart.data.labels = ['Tidak ada data'];
+                    statusChart.data.datasets[0].data = [1];
+                    statusChart.data.datasets[0].backgroundColor = ['#D1D5DB'];
+                    statusChart.update('active');
+                }
+
+                const detailsContainer = document.getElementById('status-chart-details');
+                detailsContainer.innerHTML = '<div class="col-span-2 text-center text-gray-500 py-4">Tidak ada data proyek tersedia</div>';
+            }
+        }
+
+        // Update location distribution chart
+        function updateLocationChart(locationData) {
+            console.log('Updating location chart with:', locationData);
+
+            if (userChart && locationData && locationData.length > 0) {
+                const labels = locationData.map(item => item.name);
+                const data = locationData.map(item => item.count);
+
+                userChart.data.labels = labels;
+                userChart.data.datasets[0].data = data;
+                userChart.update('active');
+
+                // Update details
+                const detailsContainer = document.getElementById('user-chart-details');
+                detailsContainer.innerHTML = `
+                    <div class="text-sm text-gray-600 text-center">
+                        <span class="font-medium">Lokasi Teratas:</span> ${locationData[0]?.name || 'Tidak ada data'} 
+                        <span class="text-purple-600 font-bold">(${locationData[0]?.count || 0} laporan)</span>
+                    </div>
+                `;
+            } else {
+                // Show empty state
+                if (userChart) {
+                    userChart.data.labels = ['Tidak ada data'];
+                    userChart.data.datasets[0].data = [1];
+                    userChart.data.datasets[0].backgroundColor = '#D1D5DB';
+                    userChart.update('active');
+                }
+
+                const detailsContainer = document.getElementById('user-chart-details');
+                detailsContainer.innerHTML = `
+                    <div class="text-sm text-gray-500 text-center">
+                        <span>Tidak ada data lokasi tersedia</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Toggle chart type
+        function toggleChartType(chartId) {
+            if (chartId === 'statusChart' && statusChart) {
+                const isDoughnut = statusChart.config.type === 'doughnut';
+                const newType = isDoughnut ? 'bar' : 'doughnut';
+
+                const currentData = statusChart.data;
+                statusChart.destroy();
+
+                const ctx = document.getElementById('statusChart');
+                if (newType === 'bar') {
+                    statusChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: currentData,
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                                y: { ticks: { autoSkip: true } }
+                            }
+                        }
+                    });
+                } else {
+                    statusChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: currentData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true } }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
     </script>
 </x-admin-layout>

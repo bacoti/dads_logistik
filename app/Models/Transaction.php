@@ -20,7 +20,11 @@ class Transaction extends Model
         'cluster',
         'site_id',
         'notes',
-        'proof_path'
+        'proof_path',
+        'delivery_order_no',
+        'delivery_note_no',
+        'delivery_return_no',
+        'return_destination'
     ];
 
     protected $casts = [

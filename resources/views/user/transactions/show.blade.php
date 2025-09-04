@@ -38,7 +38,7 @@
                     @endif
 
                     <!-- Informasi Umum -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h4 class="font-medium text-gray-900 mb-3">Informasi Transaksi</h4>
                             <dl class="space-y-2">
@@ -46,6 +46,7 @@
                                     <dt class="text-sm font-medium text-gray-500">Tanggal Transaksi</dt>
                                     <dd class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d/m/Y') }}</dd>
                                 </div>
+                                @if($transaction->type !== 'pengembalian')
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Vendor</dt>
                                     <dd class="text-sm text-gray-900">
@@ -58,6 +59,13 @@
                                         @endif
                                     </dd>
                                 </div>
+                                @endif
+                                @if($transaction->type === 'pengembalian' && $transaction->return_destination)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Tujuan Pengembalian</dt>
+                                    <dd class="text-sm text-gray-900">{{ $transaction->return_destination }}</dd>
+                                </div>
+                                @endif
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">User Input</dt>
                                     <dd class="text-sm text-gray-900">{{ $transaction->user->name }}</dd>
@@ -90,6 +98,39 @@
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Site ID</dt>
                                     <dd class="text-sm text-gray-900">{{ $transaction->site_id }}</dd>
+                                </div>
+                                @endif
+                            </dl>
+                        </div>
+
+                        <!-- Informasi Dokumen -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-3">Informasi Dokumen</h4>
+                            <dl class="space-y-2">
+                                @if($transaction->type === 'penerimaan')
+                                    @if($transaction->delivery_order_no)
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">No. DO (Delivery Order)</dt>
+                                        <dd class="text-sm text-gray-900">{{ $transaction->delivery_order_no }}</dd>
+                                    </div>
+                                    @endif
+                                    @if($transaction->delivery_note_no)
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">No. DN (Delivery Note)</dt>
+                                        <dd class="text-sm text-gray-900">{{ $transaction->delivery_note_no }}</dd>
+                                    </div>
+                                    @endif
+                                @endif
+                                @if($transaction->type === 'pengembalian' && $transaction->delivery_return_no)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">No. DR (Delivery Return)</dt>
+                                    <dd class="text-sm text-gray-900">{{ $transaction->delivery_return_no }}</dd>
+                                </div>
+                                @endif
+                                @if(!$transaction->delivery_order_no && !$transaction->delivery_note_no && !$transaction->delivery_return_no)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Dokumen</dt>
+                                    <dd class="text-sm text-gray-900">-</dd>
                                 </div>
                                 @endif
                             </dl>

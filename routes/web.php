@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
         // Tabel Data Transaksi
         Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('transactions.index');
         Route::get('/transactions/export', [\App\Http\Controllers\Admin\TransactionController::class, 'export'])->name('transactions.export');
+        Route::get('/transactions/chart-data', [\App\Http\Controllers\Admin\TransactionController::class, 'getChartData'])->name('transactions.chart-data');
         Route::get('/transactions/{transaction}', [\App\Http\Controllers\Admin\TransactionController::class, 'show'])->name('transactions.show');
 
         // Manajemen Data Master - Unified Page
@@ -79,9 +80,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/master-data/material/{material}', [\App\Http\Controllers\Admin\MasterDataController::class, 'updateMaterial'])->name('master-data.material.update');
         Route::delete('/master-data/material/{material}', [\App\Http\Controllers\Admin\MasterDataController::class, 'deleteMaterial'])->name('master-data.material.delete');
 
-        // Monthly Reports Management
-        Route::resource('monthly-reports', \App\Http\Controllers\Admin\MonthlyReportController::class);
-        Route::get('/monthly-reports/export/excel', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'export'])->name('monthly-reports.export');
+    // Monthly Reports Management
+    // Chart-data route must be declared before the resource route to avoid route-model binding
+    Route::get('/monthly-reports/chart-data', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'getChartData'])->name('monthly-reports.chart-data');
+    Route::resource('monthly-reports', \App\Http\Controllers\Admin\MonthlyReportController::class);
+    Route::get('/monthly-reports/export/excel', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'export'])->name('monthly-reports.export');
         Route::patch('/monthly-reports/{monthlyReport}/update-status', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'updateStatus'])->name('monthly-reports.update-status');
         Route::get('/monthly-reports/{monthlyReport}/download', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'download'])->name('monthly-reports.download');
         Route::delete('/monthly-reports/{monthlyReport}', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'destroy'])->name('monthly-reports.destroy');

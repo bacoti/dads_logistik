@@ -93,7 +93,7 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validationRules = [
             'type' => 'required|in:penerimaan,pengambilan,pengembalian,peminjaman',
             'transaction_date' => 'required|date',
             'vendor_id' => 'nullable|exists:vendors,id',
@@ -106,7 +106,25 @@ class TransactionController extends Controller
             'notes' => 'nullable|string',
             'proof_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'materials' => 'required|array|min:1',
-        ]);
+            'return_destination' => 'nullable|string|max:255',
+            'delivery_return_no' => 'nullable|string|max:255',
+        ];
+
+        // Tambahan validasi untuk transaksi penerimaan
+        if ($request->type === 'penerimaan') {
+            $validationRules['delivery_order_no'] = 'required|string|max:255';
+            $validationRules['delivery_note_no'] = 'required|string|max:255';
+        } else {
+            $validationRules['delivery_order_no'] = 'nullable|string|max:255';
+            $validationRules['delivery_note_no'] = 'nullable|string|max:255';
+        }
+
+        // Validasi tujuan pengembalian untuk transaksi pengembalian
+        if ($request->type === 'pengembalian') {
+            $validationRules['return_destination'] = 'required|string|max:255';
+        }
+
+        $request->validate($validationRules);
 
         // Wrap dalam database transaction untuk data integrity
         \DB::beginTransaction();
@@ -135,6 +153,10 @@ class TransactionController extends Controller
                 'site_id' => $request->site_id,
                 'notes' => $request->notes,
                 'proof_path' => $proofPath,
+                'delivery_order_no' => $request->delivery_order_no,
+                'delivery_note_no' => $request->delivery_note_no,
+                'delivery_return_no' => $request->delivery_return_no,
+                'return_destination' => $request->return_destination,
             ]);
 
             // Validasi dan simpan detail material
@@ -218,7 +240,7 @@ class TransactionController extends Controller
             abort(403);
         }
 
-        $request->validate([
+        $validationRules = [
             'type' => 'required|in:penerimaan,pengambilan,pengembalian,peminjaman',
             'transaction_date' => 'required|date',
             'vendor_id' => 'nullable|exists:vendors,id',
@@ -233,7 +255,25 @@ class TransactionController extends Controller
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:materials,id',
             'materials.*.quantity' => 'required|integer|min:1',
-        ]);
+            'return_destination' => 'nullable|string|max:255',
+            'delivery_return_no' => 'nullable|string|max:255',
+        ];
+
+        // Tambahan validasi untuk transaksi penerimaan
+        if ($request->type === 'penerimaan') {
+            $validationRules['delivery_order_no'] = 'required|string|max:255';
+            $validationRules['delivery_note_no'] = 'required|string|max:255';
+        } else {
+            $validationRules['delivery_order_no'] = 'nullable|string|max:255';
+            $validationRules['delivery_note_no'] = 'nullable|string|max:255';
+        }
+
+        // Validasi tujuan pengembalian untuk transaksi pengembalian
+        if ($request->type === 'pengembalian') {
+            $validationRules['return_destination'] = 'required|string|max:255';
+        }
+
+        $request->validate($validationRules);
 
         $proofPath = $transaction->proof_path;
         if ($request->hasFile('proof_path')) {
@@ -253,6 +293,10 @@ class TransactionController extends Controller
             'site_id' => $request->site_id,
             'notes' => $request->notes,
             'proof_path' => $proofPath,
+            'delivery_order_no' => $request->delivery_order_no,
+            'delivery_note_no' => $request->delivery_note_no,
+            'delivery_return_no' => $request->delivery_return_no,
+            'return_destination' => $request->return_destination,
         ]);
 
         // Hapus detail lama dan buat yang baru
