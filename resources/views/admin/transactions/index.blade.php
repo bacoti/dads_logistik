@@ -25,6 +25,8 @@
             project_id: '{{ request('project_id') }}',
             sub_project_id: '{{ request('sub_project_id') }}',
             user_id: '{{ request('user_id') }}',
+            location: '{{ request('location') }}',
+            cluster: '{{ request('cluster') }}',
             date_from: '{{ request('date_from') }}',
             date_to: '{{ request('date_to') }}',
             delivery_order_no: '{{ request('delivery_order_no') }}',
@@ -189,7 +191,7 @@
                                     <p class="text-sm text-gray-500 mt-2">Memuat data chart...</p>
                                 </div>
                             </div>
-                            <canvas id="projectChart" width="400" height="300"></canvas>
+                            <canvas id="projectChart" width="400" height="400"></canvas>
                         </div>
                         <!-- Project Chart Legend/Details -->
                         <div id="projectChartDetails" class="mt-6 grid grid-cols-2 gap-4">
@@ -339,6 +341,45 @@
                                     <option value="peminjaman" {{ request('type') == 'peminjaman' ? 'selected' : '' }}>
                                         🟣 Peminjaman
                                     </option>
+                                </select>
+                            </div>
+
+                            <!-- Location Filter -->
+                            <div>
+                                <label for="location" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    Lokasi
+                                </label>
+                                <select name="location" id="location"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                    <option value="">Semua Lokasi</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location }}" {{ request('location') == $location ? 'selected' : '' }}>
+                                            📍 {{ $location }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Cluster Filter -->
+                            <div>
+                                <label for="cluster" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                    </svg>
+                                    Cluster
+                                </label>
+                                <select name="cluster" id="cluster"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm">
+                                    <option value="">Semua Cluster</option>
+                                    @foreach($clusters as $cluster)
+                                        <option value="{{ $cluster }}" {{ request('cluster') == $cluster ? 'selected' : '' }}>
+                                            🏢 {{ $cluster }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -584,7 +625,7 @@
                                     Terapkan Filter
                                 </button>
 
-                                @if(request()->anyFilled(['search', 'type', 'vendor_id', 'vendor_name', 'project_id', 'sub_project_id', 'user_id', 'date_from', 'date_to', 'delivery_order_no', 'delivery_note_no', 'delivery_return_no', 'return_destination']))
+                                @if(request()->anyFilled(['search', 'type', 'vendor_id', 'vendor_name', 'project_id', 'sub_project_id', 'user_id', 'location', 'cluster', 'date_from', 'date_to', 'delivery_order_no', 'delivery_note_no', 'delivery_return_no', 'return_destination']))
                                     <a href="{{ route('admin.transactions.index') }}"
                                        class="flex items-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -596,7 +637,7 @@
                             </div>
 
                             <!-- Filter Summary -->
-                            @if(request()->anyFilled(['search', 'type', 'vendor_id', 'vendor_name', 'project_id', 'sub_project_id', 'user_id', 'date_from', 'date_to', 'delivery_order_no', 'delivery_note_no', 'delivery_return_no', 'return_destination']))
+                            @if(request()->anyFilled(['search', 'type', 'vendor_id', 'vendor_name', 'project_id', 'sub_project_id', 'user_id', 'location', 'cluster', 'date_from', 'date_to', 'delivery_order_no', 'delivery_note_no', 'delivery_return_no', 'return_destination']))
                                 <div class="text-sm text-gray-600">
                                     <span class="font-medium">Hasil:</span> {{ $transactions->total() }} transaksi ditemukan
                                 </div>
@@ -616,7 +657,7 @@
                             <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
                                 {{ $transactions->total() }} transaksi
                             </span>
-                            @if(request()->anyFilled(['search', 'type', 'vendor_id', 'project_id', 'user_id', 'date_from', 'date_to']))
+                            @if(request()->anyFilled(['search', 'type', 'vendor_id', 'vendor_name', 'project_id', 'sub_project_id', 'user_id', 'location', 'cluster', 'date_from', 'date_to', 'delivery_order_no', 'delivery_note_no', 'delivery_return_no', 'return_destination']))
                                 <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                                     Filtered
                                 </span>
@@ -1329,10 +1370,11 @@
             
             if (projectCtx) {
                 projectChart = new Chart(projectCtx, {
-                    type: 'doughnut',
+                    type: 'bar',
                     data: {
                         labels: [],
                         datasets: [{
+                            label: 'Jumlah Transaksi',
                             data: [],
                             backgroundColor: [
                                 '#8B5CF6', // Purple
@@ -1344,27 +1386,28 @@
                                 '#EC4899', // Pink
                                 '#84CC16'  // Lime
                             ],
-                            borderWidth: 3,
-                            borderColor: '#ffffff',
-                            hoverBorderWidth: 4,
-                            hoverBorderColor: '#ffffff'
+                            borderWidth: 2,
+                            borderColor: [
+                                '#7C3AED', // Purple
+                                '#0891B2', // Cyan
+                                '#059669', // Emerald
+                                '#D97706', // Amber
+                                '#DC2626', // Red
+                                '#4F46E5', // Indigo
+                                '#DB2777', // Pink
+                                '#65A30D'  // Lime
+                            ],
+                            borderRadius: 8,
+                            borderSkipped: false,
                         }]
                     },
                     options: {
+                        indexAxis: 'y', // This makes the bar chart horizontal
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    padding: 20,
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    }
-                                }
+                                display: false
                             },
                             tooltip: {
                                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -1374,18 +1417,45 @@
                                 caretPadding: 10,
                                 callbacks: {
                                     label: function(context) {
-                                        return context.label + ': ' + context.parsed + ' transaksi';
+                                        return context.dataset.label + ': ' + context.parsed.x + ' transaksi';
                                     }
                                 }
                             }
                         },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    font: {
+                                        size: 12
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)',
+                                    drawBorder: false
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: 11,
+                                        weight: '500'
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
                         animation: {
-                            animateScale: true,
-                            animateRotate: true,
                             duration: 1500,
                             easing: 'easeInOutQuart'
                         },
-                        cutout: '60%'
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
                     }
                 });
                 console.log('Project chart initialized:', projectChart);
@@ -1564,14 +1634,23 @@
                 projectChart.data.labels = labels;
                 projectChart.data.datasets[0].data = data;
                 
-                // Update colors for empty state
+                // Update colors for bar chart
                 if (projectData && projectData.length > 0) {
-                    projectChart.data.datasets[0].backgroundColor = [
+                    const colors = [
                         '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', 
                         '#EF4444', '#6366F1', '#EC4899', '#84CC16'
                     ];
+                    const borderColors = [
+                        '#7C3AED', '#0891B2', '#059669', '#D97706', 
+                        '#DC2626', '#4F46E5', '#DB2777', '#65A30D'
+                    ];
+                    
+                    // Repeat colors if there are more projects than colors
+                    projectChart.data.datasets[0].backgroundColor = data.map((_, index) => colors[index % colors.length]);
+                    projectChart.data.datasets[0].borderColor = data.map((_, index) => borderColors[index % borderColors.length]);
                 } else {
                     projectChart.data.datasets[0].backgroundColor = ['#D1D5DB'];
+                    projectChart.data.datasets[0].borderColor = ['#9CA3AF'];
                 }
                 
                 projectChart.update('active');
@@ -1654,8 +1733,124 @@
         // Chart Utility Functions
         function toggleChartType(chartId) {
             if (chartId === 'projectChart' && projectChart) {
-                projectChart.config.type = projectChart.config.type === 'doughnut' ? 'bar' : 'doughnut';
-                projectChart.update('active');
+                const currentType = projectChart.config.type;
+                const newType = currentType === 'bar' ? 'doughnut' : 'bar';
+                
+                // Destroy current chart
+                projectChart.destroy();
+                
+                // Reinitialize with new type
+                const projectCtx = document.getElementById('projectChart');
+                if (newType === 'doughnut') {
+                    projectChart = new Chart(projectCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: projectChart ? projectChart.data.labels : [],
+                            datasets: [{
+                                data: projectChart ? projectChart.data.datasets[0].data : [],
+                                backgroundColor: [
+                                    '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', 
+                                    '#EF4444', '#6366F1', '#EC4899', '#84CC16'
+                                ],
+                                borderWidth: 3,
+                                borderColor: '#ffffff',
+                                hoverBorderWidth: 4,
+                                hoverBorderColor: '#ffffff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        padding: 20,
+                                        font: { size: 12, weight: '500' }
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    titleFont: { size: 14, weight: 'bold' },
+                                    bodyFont: { size: 12 },
+                                    cornerRadius: 8,
+                                    caretPadding: 10,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + ' transaksi';
+                                        }
+                                    }
+                                }
+                            },
+                            animation: { animateScale: true, animateRotate: true, duration: 1500, easing: 'easeInOutQuart' },
+                            cutout: '60%'
+                        }
+                    });
+                } else {
+                    // Reinitialize as horizontal bar chart (same as original initialization)
+                    projectChart = new Chart(projectCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: projectChart ? projectChart.data.labels : [],
+                            datasets: [{
+                                label: 'Jumlah Transaksi',
+                                data: projectChart ? projectChart.data.datasets[0].data : [],
+                                backgroundColor: [
+                                    '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', 
+                                    '#EF4444', '#6366F1', '#EC4899', '#84CC16'
+                                ],
+                                borderWidth: 2,
+                                borderColor: [
+                                    '#7C3AED', '#0891B2', '#059669', '#D97706', 
+                                    '#DC2626', '#4F46E5', '#DB2777', '#65A30D'
+                                ],
+                                borderRadius: 8,
+                                borderSkipped: false,
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y', // Horizontal bar chart
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    titleFont: { size: 14, weight: 'bold' },
+                                    bodyFont: { size: 12 },
+                                    cornerRadius: 8,
+                                    caretPadding: 10,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.dataset.label + ': ' + context.parsed.x + ' transaksi';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, font: { size: 12 } },
+                                    grid: { color: 'rgba(0, 0, 0, 0.1)', drawBorder: false }
+                                },
+                                y: {
+                                    ticks: { font: { size: 11, weight: '500' } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 1500, easing: 'easeInOutQuart' },
+                            interaction: { intersect: false, mode: 'index' }
+                        }
+                    });
+                }
+                
+                // Reload current data
+                if (chartData && chartData.projectData) {
+                    updateProjectChart(chartData.projectData);
+                }
+                
             } else if (chartId === 'locationChart' && locationChart) {
                 locationChart.config.type = locationChart.config.type === 'bar' ? 'line' : 'bar';
                 locationChart.update('active');

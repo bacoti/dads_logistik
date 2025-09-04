@@ -21,12 +21,16 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
     protected $startDate;
     protected $endDate;
     protected $projectId;
+    protected $location;
+    protected $cluster;
 
-    public function __construct($startDate = null, $endDate = null, $projectId = null)
+    public function __construct($startDate = null, $endDate = null, $projectId = null, $location = null, $cluster = null)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->projectId = $projectId;
+        $this->location = $location;
+        $this->cluster = $cluster;
     }
 
     public function collection()
@@ -45,6 +49,14 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
             $query->where('project_id', $this->projectId);
         }
 
+        if ($this->location) {
+            $query->where('location', 'like', '%' . $this->location . '%');
+        }
+
+        if ($this->cluster) {
+            $query->where('cluster', 'like', '%' . $this->cluster . '%');
+        }
+
         $transactions = $query->orderBy('transaction_date', 'desc')->get();
 
         $exportData = collect();
@@ -56,16 +68,31 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
                 foreach ($transaction->details as $index => $detail) {
                     $isFirstDetail = $index === 0;
                     
+                    // Menentukan vendor/tujuan berdasarkan tipe transaksi
+                    $vendorDestination = '';
+                    if ($transaction->type == 'pengembalian' && $transaction->return_destination) {
+                        $vendorDestination = 'Tujuan: ' . $transaction->return_destination;
+                    } elseif ($transaction->vendor) {
+                        $vendorDestination = 'Vendor: ' . $transaction->vendor->name;
+                    } elseif ($transaction->vendor_name) {
+                        $vendorDestination = 'Vendor: ' . $transaction->vendor_name;
+                    }
+                    
                     $exportData->push([
                         'no' => $isFirstDetail ? $no : '', // Nomor hanya di baris pertama
+                        'transaction_id' => $isFirstDetail ? $transaction->id : '',
                         'transaction_date' => $isFirstDetail ? ($transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '') : '',
-                        'user_name' => $isFirstDetail ? ($transaction->user ? $transaction->user->name : '') : '',
+                        'transaction_time' => $isFirstDetail ? ($transaction->transaction_date ? $transaction->transaction_date->format('H:i:s') : '') : '',
                         'type' => $isFirstDetail ? ucfirst($transaction->type ?? '') : '',
+                        'user_name' => $isFirstDetail ? ($transaction->user ? $transaction->user->name : '') : '',
                         'project_name' => $isFirstDetail ? ($transaction->project ? $transaction->project->name : '') : '',
                         'sub_project_name' => $isFirstDetail ? ($transaction->subProject ? $transaction->subProject->name : '') : '',
-                        'vendor_name' => $isFirstDetail ? ($transaction->vendor ? $transaction->vendor->name : '') : '',
                         'location' => $isFirstDetail ? ($transaction->location ?? '') : '',
                         'cluster' => $isFirstDetail ? ($transaction->cluster ?? '') : '',
+                        'vendor_destination' => $isFirstDetail ? $vendorDestination : '',
+                        'delivery_order_no' => $isFirstDetail ? ($transaction->delivery_order_no ?? '') : '',
+                        'delivery_note_no' => $isFirstDetail ? ($transaction->delivery_note_no ?? '') : '',
+                        'delivery_return_no' => $isFirstDetail ? ($transaction->delivery_return_no ?? '') : '',
                         'site_id' => $isFirstDetail ? ($transaction->site_id ?? '') : '',
                         'material_category' => $detail->material && $detail->material->category ? $detail->material->category->name : '-',
                         'material_name' => $detail->material ? $detail->material->name : 'Unknown Material',
@@ -77,16 +104,30 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
                 }
             } else {
                 // Jika tidak ada detail material
+                $vendorDestination = '';
+                if ($transaction->type == 'pengembalian' && $transaction->return_destination) {
+                    $vendorDestination = 'Tujuan: ' . $transaction->return_destination;
+                } elseif ($transaction->vendor) {
+                    $vendorDestination = 'Vendor: ' . $transaction->vendor->name;
+                } elseif ($transaction->vendor_name) {
+                    $vendorDestination = 'Vendor: ' . $transaction->vendor_name;
+                }
+                
                 $exportData->push([
                     'no' => $no,
+                    'transaction_id' => $transaction->id,
                     'transaction_date' => $transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '',
-                    'user_name' => $transaction->user ? $transaction->user->name : '',
+                    'transaction_time' => $transaction->transaction_date ? $transaction->transaction_date->format('H:i:s') : '',
                     'type' => ucfirst($transaction->type ?? ''),
+                    'user_name' => $transaction->user ? $transaction->user->name : '',
                     'project_name' => $transaction->project ? $transaction->project->name : '',
                     'sub_project_name' => $transaction->subProject ? $transaction->subProject->name : '',
-                    'vendor_name' => $transaction->vendor ? $transaction->vendor->name : '',
                     'location' => $transaction->location ?? '',
                     'cluster' => $transaction->cluster ?? '',
+                    'vendor_destination' => $vendorDestination,
+                    'delivery_order_no' => $transaction->delivery_order_no ?? '',
+                    'delivery_note_no' => $transaction->delivery_note_no ?? '',
+                    'delivery_return_no' => $transaction->delivery_return_no ?? '',
                     'site_id' => $transaction->site_id ?? '',
                     'material_category' => '-',
                     'material_name' => 'No Materials',
@@ -106,14 +147,19 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
     {
         return [
             'No',
+            'ID Transaksi',
             'Tanggal Transaksi',
-            'User',
+            'Waktu',
             'Tipe Transaksi',
+            'User',
             'Project',
             'Sub Project',
-            'Vendor',
             'Location',
             'Cluster',
+            'Vendor/Tujuan',
+            'Delivery Order No',
+            'Delivery Note No',
+            'Delivery Return No',
             'Site ID',
             'Kategori Material',
             'Nama Material',
@@ -132,7 +178,7 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
     public function styles(Worksheet $sheet)
     {
         // Header styling
-        $sheet->getStyle('A1:P1')->applyFromArray([
+        $sheet->getStyle('A1:U1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -160,7 +206,7 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
         // Data rows styling
         $highestRow = $sheet->getHighestRow();
         if ($highestRow > 1) {
-            $sheet->getStyle('A2:P' . $highestRow)->applyFromArray([
+            $sheet->getStyle('A2:U' . $highestRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -173,23 +219,39 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
             ]);
 
             // Set column widths
-            $sheet->getColumnDimension('L')->setWidth(25); // Material Name
-            $sheet->getColumnDimension('K')->setWidth(18); // Material Category
-            $sheet->getColumnDimension('M')->setWidth(12); // Quantity
-            $sheet->getColumnDimension('N')->setWidth(10); // Unit
-            $sheet->getColumnDimension('O')->setWidth(30); // Notes
+            $sheet->getColumnDimension('A')->setWidth(8);  // No
+            $sheet->getColumnDimension('B')->setWidth(12); // ID Transaksi
+            $sheet->getColumnDimension('C')->setWidth(15); // Tanggal
+            $sheet->getColumnDimension('D')->setWidth(10); // Waktu
+            $sheet->getColumnDimension('E')->setWidth(15); // Tipe
+            $sheet->getColumnDimension('F')->setWidth(20); // User
+            $sheet->getColumnDimension('G')->setWidth(25); // Project
+            $sheet->getColumnDimension('H')->setWidth(25); // Sub Project
+            $sheet->getColumnDimension('I')->setWidth(20); // Location
+            $sheet->getColumnDimension('J')->setWidth(15); // Cluster
+            $sheet->getColumnDimension('K')->setWidth(25); // Vendor/Tujuan
+            $sheet->getColumnDimension('L')->setWidth(20); // DO No
+            $sheet->getColumnDimension('M')->setWidth(20); // DN No
+            $sheet->getColumnDimension('N')->setWidth(20); // DR No
+            $sheet->getColumnDimension('O')->setWidth(15); // Site ID
+            $sheet->getColumnDimension('P')->setWidth(18); // Material Category
+            $sheet->getColumnDimension('Q')->setWidth(30); // Material Name
+            $sheet->getColumnDimension('R')->setWidth(12); // Quantity
+            $sheet->getColumnDimension('S')->setWidth(10); // Unit
+            $sheet->getColumnDimension('T')->setWidth(30); // Notes
+            $sheet->getColumnDimension('U')->setWidth(18); // Created At
 
             // Zebra striping for better readability
             for ($row = 2; $row <= $highestRow; $row++) {
                 if ($row % 2 == 0) {
-                    $sheet->getStyle('A' . $row . ':P' . $row)->getFill()
+                    $sheet->getStyle('A' . $row . ':U' . $row)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()->setRGB('F0F9FF');
                 }
             }
 
             // Center align quantity and unit columns
-            $sheet->getStyle('M2:N' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('R2:S' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         }
 
         return [];

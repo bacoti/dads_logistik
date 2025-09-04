@@ -72,6 +72,16 @@ class TransactionController extends Controller
             $query->where('return_destination', 'like', "%{$request->return_destination}%");
         }
 
+        // Filter by location
+        if ($request->filled('location')) {
+            $query->where('location', $request->location);
+        }
+
+        // Filter by cluster
+        if ($request->filled('cluster')) {
+            $query->where('cluster', $request->cluster);
+        }
+
         // Enhanced Search - include document numbers and vendor names
         if ($request->filled('search')) {
             $search = $request->search;
@@ -114,8 +124,21 @@ class TransactionController extends Controller
         $projects = Project::orderBy('name')->get();
         $subProjects = SubProject::orderBy('name')->get();
         $users = User::where('role', 'user')->orderBy('name')->get();
+        
+        // Get distinct locations and clusters for filter dropdown
+        $locations = Transaction::whereNotNull('location')
+            ->where('location', '!=', '')
+            ->distinct()
+            ->orderBy('location')
+            ->pluck('location');
+            
+        $clusters = Transaction::whereNotNull('cluster')
+            ->where('cluster', '!=', '')
+            ->distinct()
+            ->orderBy('cluster')
+            ->pluck('cluster');
 
-        return view('admin.transactions.index', compact('transactions', 'vendors', 'projects', 'subProjects', 'users'));
+        return view('admin.transactions.index', compact('transactions', 'vendors', 'projects', 'subProjects', 'users', 'locations', 'clusters'));
     }
 
     public function show(Transaction $transaction)
@@ -129,11 +152,13 @@ class TransactionController extends Controller
         $startDate = $request->get('date_from');
         $endDate = $request->get('date_to');
         $projectId = $request->get('project_id');
+        $location = $request->get('location');
+        $cluster = $request->get('cluster');
 
         $fileName = 'transaksi_detail_' . date('Y-m-d_H-i-s') . '.xlsx';
         
         return Excel::download(
-            new TransactionsDetailExport($startDate, $endDate, $projectId), 
+            new TransactionsDetailExport($startDate, $endDate, $projectId, $location, $cluster), 
             $fileName
         );
     }
@@ -210,6 +235,15 @@ class TransactionController extends Controller
 
         if ($request->filled('return_destination')) {
             $query->where('return_destination', 'like', '%' . $request->get('return_destination') . '%');
+        }
+
+        // Location filters
+        if ($request->filled('location')) {
+            $query->where('location', $request->get('location'));
+        }
+
+        if ($request->filled('cluster')) {
+            $query->where('cluster', $request->get('cluster'));
         }
 
         // Project Chart Data - Group by project and sum counts per type

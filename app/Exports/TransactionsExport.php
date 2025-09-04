@@ -22,12 +22,16 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
     protected $startDate;
     protected $endDate;
     protected $projectId;
+    protected $location;
+    protected $cluster;
 
-    public function __construct($startDate = null, $endDate = null, $projectId = null)
+    public function __construct($startDate = null, $endDate = null, $projectId = null, $location = null, $cluster = null)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->projectId = $projectId;
+        $this->location = $location;
+        $this->cluster = $cluster;
     }
 
     public function query()
@@ -46,6 +50,14 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
             $query->where('project_id', $this->projectId);
         }
 
+        if ($this->location) {
+            $query->where('location', 'like', '%' . $this->location . '%');
+        }
+
+        if ($this->cluster) {
+            $query->where('cluster', 'like', '%' . $this->cluster . '%');
+        }
+
         return $query->orderBy('transaction_date', 'desc');
     }
 
@@ -53,14 +65,19 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
     {
         return [
             'No',
+            'ID Transaksi',
             'Tanggal Transaksi',
-            'User',
+            'Waktu',
             'Tipe Transaksi',
+            'User',
             'Project',
             'Sub Project',
-            'Vendor',
             'Location',
-            'Cluster', 
+            'Cluster',
+            'Vendor/Tujuan',
+            'Delivery Order No',
+            'Delivery Note No', 
+            'Delivery Return No',
             'Site ID',
             'Detail Materials',
             'Total Quantity',
@@ -85,16 +102,31 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
         $totalQuantity = $transaction->details->sum('quantity');
         $totalItems = $transaction->details->count();
         
+        // Menentukan vendor/tujuan berdasarkan tipe transaksi
+        $vendorDestination = '';
+        if ($transaction->type == 'pengembalian' && $transaction->return_destination) {
+            $vendorDestination = 'Tujuan: ' . $transaction->return_destination;
+        } elseif ($transaction->vendor) {
+            $vendorDestination = 'Vendor: ' . $transaction->vendor->name;
+        } elseif ($transaction->vendor_name) {
+            $vendorDestination = 'Vendor: ' . $transaction->vendor_name;
+        }
+        
         return [
             $no++,
+            $transaction->id,
             $transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '',
-            $transaction->user ? $transaction->user->name : '',
+            $transaction->transaction_date ? $transaction->transaction_date->format('H:i:s') : '',
             ucfirst($transaction->type ?? ''),
+            $transaction->user ? $transaction->user->name : '',
             $transaction->project ? $transaction->project->name : '',
             $transaction->subProject ? $transaction->subProject->name : '',
-            $transaction->vendor ? $transaction->vendor->name : '',
             $transaction->location ?? '',
             $transaction->cluster ?? '',
+            $vendorDestination,
+            $transaction->delivery_order_no ?? '',
+            $transaction->delivery_note_no ?? '',
+            $transaction->delivery_return_no ?? '',
             $transaction->site_id ?? '',
             $materialsString,
             number_format($totalQuantity),
@@ -112,7 +144,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
     public function styles(Worksheet $sheet)
     {
         // Header styling
-        $sheet->getStyle('A1:O1')->applyFromArray([
+        $sheet->getStyle('A1:T1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -140,7 +172,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
         // Data rows styling
         $highestRow = $sheet->getHighestRow();
         if ($highestRow > 1) {
-            $sheet->getStyle('A2:O' . $highestRow)->applyFromArray([
+            $sheet->getStyle('A2:T' . $highestRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -154,15 +186,31 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
             ]);
 
             // Set optimal column widths
-            $sheet->getColumnDimension('K')->setWidth(40); // Detail Materials column
-            $sheet->getColumnDimension('L')->setWidth(15); // Total Quantity
-            $sheet->getColumnDimension('M')->setWidth(12); // Jumlah Item
-            $sheet->getColumnDimension('N')->setWidth(30); // Keterangan
+            $sheet->getColumnDimension('A')->setWidth(8);  // No
+            $sheet->getColumnDimension('B')->setWidth(12); // ID Transaksi
+            $sheet->getColumnDimension('C')->setWidth(15); // Tanggal
+            $sheet->getColumnDimension('D')->setWidth(10); // Waktu
+            $sheet->getColumnDimension('E')->setWidth(15); // Tipe
+            $sheet->getColumnDimension('F')->setWidth(20); // User
+            $sheet->getColumnDimension('G')->setWidth(25); // Project
+            $sheet->getColumnDimension('H')->setWidth(25); // Sub Project
+            $sheet->getColumnDimension('I')->setWidth(20); // Location
+            $sheet->getColumnDimension('J')->setWidth(15); // Cluster
+            $sheet->getColumnDimension('K')->setWidth(25); // Vendor/Tujuan
+            $sheet->getColumnDimension('L')->setWidth(20); // DO No
+            $sheet->getColumnDimension('M')->setWidth(20); // DN No
+            $sheet->getColumnDimension('N')->setWidth(20); // DR No
+            $sheet->getColumnDimension('O')->setWidth(15); // Site ID
+            $sheet->getColumnDimension('P')->setWidth(45); // Detail Materials
+            $sheet->getColumnDimension('Q')->setWidth(15); // Total Quantity
+            $sheet->getColumnDimension('R')->setWidth(12); // Jumlah Item
+            $sheet->getColumnDimension('S')->setWidth(30); // Keterangan
+            $sheet->getColumnDimension('T')->setWidth(18); // Created At
 
             // Zebra striping for better readability
             for ($row = 2; $row <= $highestRow; $row++) {
                 if ($row % 2 == 0) {
-                    $sheet->getStyle('A' . $row . ':O' . $row)->getFill()
+                    $sheet->getStyle('A' . $row . ':T' . $row)->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()->setRGB('FAF5FF');
                 }
