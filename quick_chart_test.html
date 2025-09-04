@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Quick MFO Chart Fix Test</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            .container {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .chart-area {
+                background: white;
+                border: 1px solid #ddd;
+                padding: 20px;
+                border-radius: 8px;
+            }
+            .controls {
+                margin-bottom: 20px;
+            }
+            .controls select,
+            .controls input,
+            .controls button {
+                margin: 5px;
+                padding: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>MFO Chart Direct Test</h1>
+
+            <div class="controls">
+                <select id="groupBy">
+                    <option value="month" selected>Bulanan</option>
+                    <option value="week">Mingguan</option>
+                    <option value="day">Harian</option>
+                </select>
+                <input type="date" id="startDate" />
+                <input type="date" id="endDate" />
+                <button onclick="loadChartNow()">Load Chart</button>
+            </div>
+
+            <div class="chart-area">
+                <canvas id="testChart" width="700" height="300"></canvas>
+            </div>
+
+            <div id="debug"></div>
+        </div>
+
+        <script>
+            const canvas = document.getElementById("testChart");
+            const ctx = canvas.getContext("2d");
+            let chart = null;
+
+            // Set default dates
+            const end = new Date();
+            const start = new Date();
+            start.setMonth(end.getMonth() - 5);
+            document.getElementById("startDate").value = start
+                .toISOString()
+                .slice(0, 10);
+            document.getElementById("endDate").value = end
+                .toISOString()
+                .slice(0, 10);
+
+            async function loadChartNow() {
+                const debug = document.getElementById("debug");
+                debug.innerHTML = "Loading chart...";
+
+                try {
+                    const groupBy = document.getElementById("groupBy").value;
+                    const startDate =
+                        document.getElementById("startDate").value;
+                    const endDate = document.getElementById("endDate").value;
+
+                    const params = new URLSearchParams();
+                    params.set("group_by", groupBy);
+                    if (startDate) params.set("start", startDate);
+                    if (endDate) params.set("end", endDate);
+
+                    const url = `http://127.0.0.1:8000/admin/mfo-requests/chart-data?${params.toString()}`;
+
+                    console.log("Fetching from:", url);
+                    debug.innerHTML += "<br>Fetching from: " + url;
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    console.log("API Response:", data);
+                    debug.innerHTML +=
+                        "<br>API Response: " + JSON.stringify(data);
+
+                    if (data.data && data.data.length > 0) {
+                        const labels = data.data.map((d) => d.period);
+                        const counts = data.data.map((d) => d.count);
+
+                        console.log("Chart Labels:", labels);
+                        console.log("Chart Data:", counts);
+
+                        // Create gradient
+                        const gradient = ctx.createLinearGradient(
+                            0,
+                            0,
+                            0,
+                            canvas.height
+                        );
+                        gradient.addColorStop(0, "rgba(99,102,241,0.18)");
+                        gradient.addColorStop(1, "rgba(99,102,241,0.02)");
+
+                        const chartData = {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: "Jumlah Pengajuan MFO",
+                                    data: counts,
+                                    fill: true,
+                                    backgroundColor: gradient,
+                                    borderColor: "rgba(99,102,241,1)",
+                                    pointBackgroundColor: "white",
+                                    pointBorderColor: "rgba(99,102,241,1)",
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7,
+                                    tension: 0.25,
+                                },
+                            ],
+                        };
+
+                        const options = {
+                            responsive: false,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    display: true,
+                                    grid: { display: false },
+                                    ticks: { color: "#374151" },
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: "rgba(15,23,42,0.06)" },
+                                    ticks: { color: "#374151" },
+                                },
+                            },
+                            plugins: {
+                                legend: { display: true },
+                                tooltip: {
+                                    mode: "index",
+                                    intersect: false,
+                                    backgroundColor: "rgba(17,24,39,0.9)",
+                                    titleColor: "#fff",
+                                    bodyColor: "#fff",
+                                },
+                            },
+                        };
+
+                        if (chart) {
+                            chart.destroy();
+                        }
+
+                        chart = new Chart(ctx, {
+                            type: "line",
+                            data: chartData,
+                            options: options,
+                        });
+
+                        console.log("Chart created successfully!");
+                        debug.innerHTML +=
+                            "<br><strong>✅ Chart created successfully!</strong>";
+                    } else {
+                        debug.innerHTML += "<br>❌ No data received from API";
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    debug.innerHTML += "<br>❌ Error: " + error.message;
+                }
+            }
+
+            // Auto load on page load
+            window.onload = function () {
+                loadChartNow();
+            };
+        </script>
+    </body>
+</html>

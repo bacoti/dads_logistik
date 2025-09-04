@@ -82,5 +82,8 @@
                 </footer>
             </div>
         </div>
+        
+        <!-- Additional Scripts -->
+        @stack('scripts')
     </body>
 </html>

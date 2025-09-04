@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
         // MFO Requests Management
         Route::get('/mfo-requests', [\App\Http\Controllers\Admin\MfoRequestController::class, 'index'])->name('mfo-requests.index');
         Route::get('/mfo-requests/export', [\App\Http\Controllers\Admin\MfoRequestController::class, 'export'])->name('mfo-requests.export');
+        Route::get('/mfo-requests/chart-data', [\App\Http\Controllers\Admin\MfoRequestController::class, 'getChartData'])->name('mfo-requests.chart-data');
+        Route::get('/mfo-requests/chart-data/details', [\App\Http\Controllers\Admin\MfoRequestController::class, 'getChartDetails'])->name('mfo-requests.chart-details');
         Route::get('/mfo-requests/{mfoRequest}', [\App\Http\Controllers\Admin\MfoRequestController::class, 'show'])->name('mfo-requests.show');
         Route::patch('/mfo-requests/{mfoRequest}/update-status', [\App\Http\Controllers\Admin\MfoRequestController::class, 'updateStatus'])->name('mfo-requests.update-status');
         Route::get('/mfo-requests/{mfoRequest}/download', [\App\Http\Controllers\Admin\MfoRequestController::class, 'download'])->name('mfo-requests.download');

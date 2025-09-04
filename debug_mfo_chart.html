@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MFO Chart Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .chart-container { width: 800px; height: 400px; margin: 20px 0; }
+        .controls { margin: 20px 0; }
+        .controls input, .controls select, .controls button { 
+            margin: 5px; padding: 8px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>MFO Chart Debug Test</h1>
+    
+    <div class="controls">
+        <select id="mfo_group_by">
+            <option value="day">Harian</option>
+            <option value="week">Mingguan</option>
+            <option value="month" selected>Bulanan</option>
+        </select>
+        <input type="date" id="mfo_start" />
+        <input type="date" id="mfo_end" />
+        <button id="mfo_refresh">Refresh</button>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="mfoChart" width="800" height="400"></canvas>
+    </div>
+    
+    <div id="debug-info"></div>
+
+    <script>
+        console.log('Chart.js version:', Chart.version);
+        
+        const canvas = document.getElementById('mfoChart');
+        const ctx = canvas.getContext('2d');
+        
+        // Test with sample data
+        const sampleData = {
+            labels: ['2025-08', '2025-09'],
+            datasets: [{
+                label: 'Jumlah Pengajuan',
+                data: [0, 1],
+                fill: true,
+                backgroundColor: 'rgba(99,102,241,0.18)',
+                borderColor: 'rgba(99,102,241,1)',
+                pointBackgroundColor: 'white',
+                pointBorderColor: 'rgba(99,102,241,1)',
+                pointRadius: 3,
+                tension: 0.25,
+            }]
+        };
+        
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: sampleData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        display: true,
+                        grid: { display: false },
+                        ticks: { color: '#374151' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(15,23,42,0.06)' },
+                        ticks: { color: '#374151' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(17,24,39,0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
+                    }
+                }
+            }
+        });
+        
+        console.log('Chart created successfully:', chart);
+        document.getElementById('debug-info').innerHTML = '<p>✓ Chart created successfully with sample data</p>';
+        
+        // Test API call
+        async function testApiCall() {
+            try {
+                const response = await fetch('/admin/mfo-requests/chart-data?group_by=month');
+                const data = await response.json();
+                console.log('API Response:', data);
+                document.getElementById('debug-info').innerHTML += '<p>✓ API call successful</p>';
+            } catch (error) {
+                console.error('API Error:', error);
+                document.getElementById('debug-info').innerHTML += '<p>✗ API call failed: ' + error.message + '</p>';
+            }
+        }
+        
+        testApiCall();
+    </script>
+</body>
+</html>

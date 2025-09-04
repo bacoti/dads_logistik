@@ -111,4 +111,136 @@ class MfoRequestController extends Controller
             $fileName
         );
     }
+
+    public function getChartData(Request $request)
+    {
+        try {
+            $groupBy = $request->get('group_by', 'month');
+            $start = $request->get('start');
+            $end = $request->get('end');
+            
+            // Query builder
+            $query = MfoRequest::query();
+            
+            // Apply date filters if provided
+            if ($start && $end) {
+                $query->whereBetween('request_date', [$start, $end]);
+            }
+            
+            // Group by period
+            switch ($groupBy) {
+                case 'day':
+                    $dateFormat = '%Y-%m-%d';
+                    $selectFormat = 'DATE(request_date)';
+                    break;
+                case 'week':
+                    $dateFormat = '%Y-%u';
+                    $selectFormat = 'YEARWEEK(request_date)';
+                    break;
+                case 'month':
+                default:
+                    $dateFormat = '%Y-%m-01';
+                    $selectFormat = 'DATE_FORMAT(request_date, "%Y-%m-01")';
+                    break;
+            }
+            
+            $data = $query->selectRaw("$selectFormat as period, COUNT(*) as count")
+                         ->groupBy('period')
+                         ->orderBy('period')
+                         ->get();
+            
+            // Format data for chart
+            $chartData = $data->map(function ($item) use ($groupBy) {
+                $period = $item->period;
+                
+                // Format period for display
+                if ($groupBy === 'month') {
+                    $period = date('Y-m-01', strtotime($item->period));
+                } elseif ($groupBy === 'week') {
+                    // Convert YEARWEEK to readable format
+                    $year = substr($item->period, 0, 4);
+                    $week = substr($item->period, 4);
+                    $period = $year . '-W' . str_pad($week, 2, '0', STR_PAD_LEFT);
+                }
+                
+                return [
+                    'period' => $period,
+                    'count' => (int) $item->count
+                ];
+            });
+            
+            return response()->json([
+                'data' => $chartData,
+                'group_by' => $groupBy,
+                'start' => $start,
+                'end' => $end
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('MFO Chart Data Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Error loading chart data: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function getChartDetails(Request $request)
+    {
+        try {
+            $period = $request->get('period');
+            $groupBy = $request->get('group_by', 'month');
+            $perPage = $request->get('per_page', 10);
+            $page = $request->get('page', 1);
+            
+            // Build query based on grouping
+            $query = MfoRequest::with(['user', 'project', 'subProject']);
+            
+            // Filter by period
+            if ($period) {
+                switch ($groupBy) {
+                    case 'day':
+                        $query->whereDate('request_date', $period);
+                        break;
+                    case 'week':
+                        if (strpos($period, 'W') !== false) {
+                            // Parse YYYY-WXX format
+                            list($year, $week) = explode('-W', $period);
+                            $query->whereRaw('YEARWEEK(request_date) = ?', [$year . $week]);
+                        }
+                        break;
+                    case 'month':
+                    default:
+                        $query->whereYear('request_date', date('Y', strtotime($period)))
+                              ->whereMonth('request_date', date('m', strtotime($period)));
+                        break;
+                }
+            }
+            
+            // Get paginated results
+            $mfoRequests = $query->orderBy('request_date', 'desc')
+                                ->paginate($perPage, ['*'], 'page', $page);
+            
+            return response()->json([
+                'data' => $mfoRequests->items(),
+                'pagination' => [
+                    'current_page' => $mfoRequests->currentPage(),
+                    'last_page' => $mfoRequests->lastPage(),
+                    'per_page' => $mfoRequests->perPage(),
+                    'total' => $mfoRequests->total()
+                ],
+                'period' => $period,
+                'group_by' => $groupBy
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('MFO Chart Details Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Error loading chart details: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
 }
