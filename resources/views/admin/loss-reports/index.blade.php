@@ -151,6 +151,166 @@
                 </div>
             </div>
 
+            <!-- Analytics Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 1: Laporan Kehilangan per Status -->
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Laporan Kehilangan per Lokasi</h3>
+                                    <p class="text-sm text-gray-600">Distribusi laporan kehilangan berdasarkan lokasi project</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleLossChartType('statusChart')" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors">
+                                    Switch View
+                                </button>
+                                <div class="text-xs text-gray-500">
+                                    Updated: {{ now()->format('H:i') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative">
+                            <!-- Chart Loading State -->
+                            <div class="chart-loading absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10" style="display: none;">
+                                <div class="text-center">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                                    <p class="text-sm text-gray-500 mt-2">Memuat data chart...</p>
+                                </div>
+                            </div>
+                            <canvas id="statusChart" width="400" height="300"></canvas>
+                        </div>
+                        <!-- Status Chart Details -->
+                        <div id="statusChartDetails" class="mt-6 grid grid-cols-3 gap-4">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Tren Bulanan -->
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Tren Laporan {{ now()->year }}</h3>
+                                    <p class="text-sm text-gray-600">Perkembangan laporan kehilangan bulanan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleLossChartType('trendChart')" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200 transition-colors">
+                                    Switch View
+                                </button>
+                                <div class="text-xs text-gray-500">
+                                    {{ now()->year }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative">
+                            <!-- Chart Loading State -->
+                            <div class="chart-loading absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10" style="display: none;">
+                                <div class="text-center">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
+                                    <p class="text-sm text-gray-500 mt-2">Memuat data chart...</p>
+                                </div>
+                            </div>
+                            <canvas id="trendChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Row Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 3: Laporan per Project -->
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Laporan per Project</h3>
+                                    <p class="text-sm text-gray-600">Top project dengan laporan kehilangan terbanyak</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleLossChartType('projectChart')" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 transition-colors">
+                                    Switch View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative">
+                            <!-- Chart Loading State -->
+                            <div class="chart-loading absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10" style="display: none;">
+                                <div class="text-center">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+                                    <p class="text-sm text-gray-500 mt-2">Memuat data chart...</p>
+                                </div>
+                            </div>
+                            <canvas id="projectChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 4: Material Type Distribution -->
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border-b border-gray-200 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Laporan Kehilangan per Project</h3>
+                                    <p class="text-sm text-gray-600">Distribusi laporan kehilangan berdasarkan project</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleLossChartType('materialChart')" class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-lg hover:bg-orange-200 transition-colors">
+                                    Switch View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative">
+                            <!-- Chart Loading State -->
+                            <div class="chart-loading absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10" style="display: none;">
+                                <div class="text-center">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+                                    <p class="text-sm text-gray-500 mt-2">Memuat data chart...</p>
+                                </div>
+                            </div>
+                            <canvas id="materialChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Enhanced Filter Section -->
             <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                 <!-- Filter Header -->
@@ -1000,6 +1160,445 @@
             select.dataset.originalValue = select.value;
         });
     });
+</script>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Loss Reports Charts Script -->
+<script>
+    // Chart instances
+    let statusChart, trendChart, projectChart, materialChart;
+    let lossChartData = {};
+
+    // Initialize Charts when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeLossCharts();
+        loadLossChartData();
+    });
+
+    // Initialize Chart Instances
+    function initializeLossCharts() {
+        console.log('Initializing loss reports charts...');
+        
+        // Status Chart (Column Chart)
+        const statusCtx = document.getElementById('statusChart');
+        if (statusCtx) {
+            statusChart = new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Jumlah Laporan',
+                        data: [],
+                        backgroundColor: [
+                            '#FCD34D', // Yellow - Pending
+                            '#3B82F6', // Blue - Reviewed
+                            '#10B981'  // Green - Completed
+                        ],
+                        borderColor: [
+                            '#F59E0B',
+                            '#2563EB',
+                            '#059669'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 8,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' laporan';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, font: { size: 12 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)', drawBorder: false }
+                        },
+                        x: {
+                            ticks: { font: { size: 11, weight: '500' } },
+                            grid: { display: false }
+                        }
+                    },
+                    animation: { duration: 1500, easing: 'easeInOutQuart' }
+                }
+            });
+        }
+
+        // Trend Chart (Line Chart)
+        const trendCtx = document.getElementById('trendChart');
+        if (trendCtx) {
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Laporan Kehilangan',
+                        data: [],
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#10B981',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#10B981',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 8,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' laporan';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, font: { size: 12 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)', drawBorder: false }
+                        },
+                        x: {
+                            ticks: { font: { size: 11, weight: '500' } },
+                            grid: { display: false }
+                        }
+                    },
+                    animation: { duration: 1500, easing: 'easeInOutQuart' }
+                }
+            });
+        }
+
+        // Project Chart (Horizontal Bar Chart)
+        const projectCtx = document.getElementById('projectChart');
+        if (projectCtx) {
+            projectChart = new Chart(projectCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Jumlah Laporan',
+                        data: [],
+                        backgroundColor: [
+                            '#8B5CF6', '#EC4899', '#F59E0B', '#EF4444', 
+                            '#06B6D4', '#10B981', '#6366F1', '#84CC16'
+                        ],
+                        borderColor: [
+                            '#7C3AED', '#DB2777', '#D97706', '#DC2626', 
+                            '#0891B2', '#059669', '#4F46E5', '#65A30D'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal bar chart
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 8,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.x + ' laporan';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, font: { size: 12 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)', drawBorder: false }
+                        },
+                        y: {
+                            ticks: { font: { size: 11, weight: '500' } },
+                            grid: { display: false }
+                        }
+                    },
+                    animation: { duration: 1500, easing: 'easeInOutQuart' }
+                }
+            });
+        }
+
+        // Material Chart (Horizontal Bar Chart)
+        const materialCtx = document.getElementById('materialChart');
+        if (materialCtx) {
+            materialChart = new Chart(materialCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Jumlah Laporan',
+                        data: [],
+                        backgroundColor: [
+                            '#F97316', '#EF4444', '#DC2626', '#B91C1C', 
+                            '#991B1B', '#7F1D1D', '#FCD34D', '#F59E0B'
+                        ],
+                        borderColor: [
+                            '#EA580C', '#DC2626', '#B91C1C', '#991B1B', 
+                            '#7F1D1D', '#6B1F1F', '#F59E0B', '#D97706'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal bar chart
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 8,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.x + ' laporan';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, font: { size: 12 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)', drawBorder: false }
+                        },
+                        y: {
+                            ticks: { font: { size: 11, weight: '500' } },
+                            grid: { display: false }
+                        }
+                    },
+                    animation: { duration: 1500, easing: 'easeInOutQuart' }
+                }
+            });
+        }
+
+        console.log('Loss reports charts initialized successfully!');
+    }
+
+    // Load Chart Data from API
+    function loadLossChartData() {
+        console.log('Loading loss reports chart data...');
+        showLossChartLoading(true);
+        
+        fetch('{{ route("admin.loss-reports.chart-data") }}', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Loss chart API Response:', response);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Loss chart data received:', data);
+            lossChartData = data;
+            updateLocationChart(data.locationData); // Changed from statusData to locationData
+            updateTrendChart(data.monthlyData);
+            updateProjectChart(data.projectData);
+            updateClusterChart(data.clusterData); // Changed from materialData to clusterData
+            updateLocationChartDetails(data.locationData); // Updated function name
+            showLossChartLoading(false);
+        })
+        .catch(error => {
+            console.error('Error loading loss chart data:', error);
+            showLossChartLoading(false);
+            showLossChartError();
+        });
+    }
+
+    // Update Location Chart (was Status Chart)
+    function updateLocationChart(locationData) {
+        if (statusChart && locationData && locationData.length > 0) {
+            const labels = locationData.map(item => item.name);
+            const data = locationData.map(item => item.count);
+            
+            statusChart.data.labels = labels;
+            statusChart.data.datasets[0].data = data;
+            statusChart.update('active');
+        }
+    }
+
+    // Update Trend Chart
+    function updateTrendChart(monthlyData) {
+        if (trendChart && monthlyData && monthlyData.length > 0) {
+            const labels = monthlyData.map(item => item.month_short);
+            const data = monthlyData.map(item => item.count);
+            
+            trendChart.data.labels = labels;
+            trendChart.data.datasets[0].data = data;
+            trendChart.update('active');
+        }
+    }
+
+    // Update Project Chart
+    function updateProjectChart(projectData) {
+        if (projectChart && projectData && projectData.length > 0) {
+            const labels = projectData.map(item => item.name);
+            const data = projectData.map(item => item.count);
+            const colors = [
+                '#8B5CF6', '#EC4899', '#F59E0B', '#EF4444', 
+                '#06B6D4', '#10B981', '#6366F1', '#84CC16'
+            ];
+            const borderColors = [
+                '#7C3AED', '#DB2777', '#D97706', '#DC2626', 
+                '#0891B2', '#059669', '#4F46E5', '#65A30D'
+            ];
+            
+            projectChart.data.labels = labels;
+            projectChart.data.datasets[0].data = data;
+            projectChart.data.datasets[0].backgroundColor = data.map((_, index) => colors[index % colors.length]);
+            projectChart.data.datasets[0].borderColor = data.map((_, index) => borderColors[index % borderColors.length]);
+            projectChart.update('active');
+        }
+    }
+
+    // Update Cluster Chart (was Material Chart)
+    function updateClusterChart(clusterData) {
+        if (materialChart && clusterData && clusterData.length > 0) {
+            const labels = clusterData.map(item => item.name);
+            const data = clusterData.map(item => item.count);
+            const colors = [
+                '#F97316', '#EF4444', '#DC2626', '#B91C1C', 
+                '#991B1B', '#7F1D1D', '#FCD34D', '#F59E0B'
+            ];
+            const borderColors = [
+                '#EA580C', '#DC2626', '#B91C1C', '#991B1B', 
+                '#7F1D1D', '#6B1F1F', '#F59E0B', '#D97706'
+            ];
+            
+            materialChart.data.labels = labels;
+            materialChart.data.datasets[0].data = data;
+            materialChart.data.datasets[0].backgroundColor = data.map((_, index) => colors[index % colors.length]);
+            materialChart.data.datasets[0].borderColor = data.map((_, index) => borderColors[index % borderColors.length]);
+            materialChart.update('active');
+        }
+    }
+
+    // Update Location Chart Details (was Status Chart Details)
+    function updateLocationChartDetails(locationData) {
+        const detailsContainer = document.getElementById('statusChartDetails');
+        if (detailsContainer && locationData) {
+            let detailsHTML = '';
+            
+            locationData.forEach((item, index) => {
+                const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+                const bgColors = ['bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-red-100', 'bg-purple-100'];
+                const textColors = ['text-blue-800', 'text-green-800', 'text-yellow-800', 'text-red-800', 'text-purple-800'];
+                
+                detailsHTML += `
+                    <div class="text-center p-3 ${bgColors[index % bgColors.length] || 'bg-gray-100'} rounded-xl">
+                        <div class="text-2xl font-bold ${textColors[index % textColors.length] || 'text-gray-800'}">${item.count}</div>
+                        <div class="text-xs font-medium text-gray-600 mt-1">${item.name}</div>
+                    </div>
+                `;
+            });
+            
+            detailsContainer.innerHTML = detailsHTML;
+        }
+    }
+
+    // Chart Toggle Functions
+    function toggleLossChartType(chartId) {
+        const chartMap = {
+            'statusChart': statusChart,
+            'trendChart': trendChart,
+            'projectChart': projectChart,
+            'materialChart': materialChart
+        };
+        
+        const chart = chartMap[chartId];
+        if (chart) {
+            const currentType = chart.config.type;
+            let newType = 'bar';
+            
+            if (chartId === 'trendChart') {
+                newType = currentType === 'line' ? 'bar' : 'line';
+            } else if (chartId === 'statusChart') {
+                newType = currentType === 'bar' ? 'pie' : 'bar';
+            }
+            
+            // Destroy and recreate with new type
+            const canvas = chart.canvas;
+            const parent = canvas.parentNode;
+            chart.destroy();
+            
+            const newCanvas = document.createElement('canvas');
+            newCanvas.id = chartId;
+            newCanvas.width = 400;
+            newCanvas.height = chartId.includes('Chart') ? 400 : 300;
+            parent.appendChild(newCanvas);
+            
+            // Reinitialize chart
+            setTimeout(() => {
+                initializeLossCharts();
+                if (lossChartData && Object.keys(lossChartData).length > 0) {
+                    updateLocationChart(lossChartData.locationData); // Updated
+                    updateTrendChart(lossChartData.monthlyData);
+                    updateProjectChart(lossChartData.projectData);
+                    updateClusterChart(lossChartData.clusterData); // Updated
+                    updateLocationChartDetails(lossChartData.locationData); // Updated
+                }
+            }, 100);
+        }
+    }
+
+    // Loading and Error States
+    function showLossChartLoading(show) {
+        const loadingElements = document.querySelectorAll('.chart-loading');
+        loadingElements.forEach(element => {
+            element.style.display = show ? 'flex' : 'none';
+        });
+    }
+
+    function showLossChartError() {
+        console.error('Failed to load loss chart data');
+        // You can add error UI here if needed
+    }
 </script>
 
 </x-admin-layout>

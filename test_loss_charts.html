@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test Loss Reports Charts</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .chart-container {
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            h1,
+            h2 {
+                text-align: center;
+                color: #333;
+            }
+            .chart-wrapper {
+                position: relative;
+                height: 400px;
+                margin-bottom: 20px;
+            }
+            .chart-description {
+                text-align: center;
+                color: #666;
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Test Loss Reports Charts - Updated Version</h1>
+
+        <!-- Chart 1: Location Chart (was Status Chart) -->
+        <div class="chart-container">
+            <h2>Laporan Kehilangan per Lokasi</h2>
+            <p class="chart-description">
+                Distribusi laporan kehilangan berdasarkan lokasi project (Bar
+                Chart)
+            </p>
+            <div class="chart-wrapper">
+                <canvas id="locationChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Project Chart -->
+        <div class="chart-container">
+            <h2>Laporan Kehilangan per Project</h2>
+            <p class="chart-description">
+                Distribusi laporan kehilangan berdasarkan project (Horizontal
+                Bar Chart)
+            </p>
+            <div class="chart-wrapper">
+                <canvas id="projectChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 3: Monthly Trend Chart -->
+        <div class="chart-container">
+            <h2>Tren Laporan Kehilangan (2025)</h2>
+            <p class="chart-description">
+                Perkembangan laporan kehilangan bulanan (Line Chart)
+            </p>
+            <div class="chart-wrapper">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 4: Cluster Chart -->
+        <div class="chart-container">
+            <h2>Laporan Kehilangan per Cluster</h2>
+            <p class="chart-description">
+                Distribusi laporan kehilangan berdasarkan cluster (Column Chart)
+            </p>
+            <div class="chart-wrapper">
+                <canvas id="clusterChart"></canvas>
+            </div>
+        </div>
+
+        <script>
+            // Sample data for testing
+            const sampleLocationData = [
+                { name: "Warehouse A", count: 15 },
+                { name: "Site Office B", count: 12 },
+                { name: "Construction Site C", count: 8 },
+                { name: "Storage D", count: 5 },
+                { name: "Factory E", count: 3 },
+            ];
+
+            const sampleProjectData = [
+                { name: "Infrastructure Development", count: 18 },
+                { name: "Building Construction", count: 14 },
+                { name: "Road Maintenance", count: 10 },
+                { name: "Bridge Project", count: 7 },
+                { name: "Utilities Installation", count: 4 },
+            ];
+
+            const sampleMonthlyData = [
+                { month_short: "Jan", count: 3 },
+                { month_short: "Feb", count: 5 },
+                { month_short: "Mar", count: 8 },
+                { month_short: "Apr", count: 12 },
+                { month_short: "May", count: 15 },
+                { month_short: "Jun", count: 10 },
+                { month_short: "Jul", count: 7 },
+                { month_short: "Aug", count: 9 },
+                { month_short: "Sep", count: 11 },
+                { month_short: "Oct", count: 0 },
+                { month_short: "Nov", count: 0 },
+                { month_short: "Dec", count: 0 },
+            ];
+
+            const sampleClusterData = [
+                { name: "Cluster North", count: 20 },
+                { name: "Cluster South", count: 16 },
+                { name: "Cluster East", count: 12 },
+                { name: "Cluster West", count: 9 },
+                { name: "Cluster Central", count: 6 },
+            ];
+
+            // Initialize charts
+            document.addEventListener("DOMContentLoaded", function () {
+                initializeLocationChart();
+                initializeProjectChart();
+                initializeTrendChart();
+                initializeClusterChart();
+            });
+
+            function initializeLocationChart() {
+                const ctx = document
+                    .getElementById("locationChart")
+                    .getContext("2d");
+                const labels = sampleLocationData.map((item) => item.name);
+                const data = sampleLocationData.map((item) => item.count);
+
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Jumlah Laporan",
+                                data: data,
+                                backgroundColor: [
+                                    "#3B82F6",
+                                    "#10B981",
+                                    "#F59E0B",
+                                    "#EF4444",
+                                    "#8B5CF6",
+                                ],
+                                borderColor: [
+                                    "#2563EB",
+                                    "#059669",
+                                    "#D97706",
+                                    "#DC2626",
+                                    "#7C3AED",
+                                ],
+                                borderWidth: 2,
+                                borderRadius: 8,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
+                            },
+                        },
+                    },
+                });
+            }
+
+            function initializeProjectChart() {
+                const ctx = document
+                    .getElementById("projectChart")
+                    .getContext("2d");
+                const labels = sampleProjectData.map((item) => item.name);
+                const data = sampleProjectData.map((item) => item.count);
+
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Jumlah Laporan",
+                                data: data,
+                                backgroundColor: [
+                                    "#8B5CF6",
+                                    "#EC4899",
+                                    "#F59E0B",
+                                    "#EF4444",
+                                    "#06B6D4",
+                                ],
+                                borderColor: [
+                                    "#7C3AED",
+                                    "#DB2777",
+                                    "#D97706",
+                                    "#DC2626",
+                                    "#0891B2",
+                                ],
+                                borderWidth: 2,
+                                borderRadius: 8,
+                            },
+                        ],
+                    },
+                    options: {
+                        indexAxis: "y", // Horizontal bar chart
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 2 },
+                            },
+                        },
+                    },
+                });
+            }
+
+            function initializeTrendChart() {
+                const ctx = document
+                    .getElementById("trendChart")
+                    .getContext("2d");
+                const labels = sampleMonthlyData.map(
+                    (item) => item.month_short
+                );
+                const data = sampleMonthlyData.map((item) => item.count);
+
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Laporan per Bulan",
+                                data: data,
+                                borderColor: "#10B981",
+                                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                                borderWidth: 3,
+                                pointBackgroundColor: "#10B981",
+                                pointBorderColor: "#ffffff",
+                                pointBorderWidth: 2,
+                                pointRadius: 6,
+                                fill: true,
+                                tension: 0.4,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
+                            },
+                        },
+                    },
+                });
+            }
+
+            function initializeClusterChart() {
+                const ctx = document
+                    .getElementById("clusterChart")
+                    .getContext("2d");
+                const labels = sampleClusterData.map((item) => item.name);
+                const data = sampleClusterData.map((item) => item.count);
+
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Jumlah Laporan",
+                                data: data,
+                                backgroundColor: [
+                                    "#F97316",
+                                    "#EF4444",
+                                    "#DC2626",
+                                    "#B91C1C",
+                                    "#991B1B",
+                                ],
+                                borderColor: [
+                                    "#EA580C",
+                                    "#DC2626",
+                                    "#B91C1C",
+                                    "#991B1B",
+                                    "#7F1D1D",
+                                ],
+                                borderWidth: 2,
+                                borderRadius: 8,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 2 },
+                            },
+                        },
+                    },
+                });
+            }
+
+            console.log("All charts initialized successfully!");
+        </script>
+    </body>
+</html>

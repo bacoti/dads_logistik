@@ -99,15 +99,108 @@ class LossReportController extends Controller
     public function export(Request $request)
     {
         $status = $request->get('status');
-        $startDate = $request->get('date_from');
-        $endDate = $request->get('date_to');
-        $projectId = $request->get('project_id');
-
-        $fileName = 'laporan_kehilangan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $dateRange = $request->get('date_range');
         
-        return Excel::download(
-            new LossReportsExport($status, $startDate, $endDate, $projectId), 
-            $fileName
-        );
+        return Excel::download(new LossReportsExport($status, $dateRange), 'loss-reports.xlsx');
+    }
+
+    public function getChartData(Request $request)
+    {
+        try {
+            // 1. Loss Reports by Location (instead of status)
+            $locationData = LossReport::selectRaw('project_location, COUNT(*) as count')
+                ->whereNotNull('project_location')
+                ->groupBy('project_location')
+                ->orderBy('count', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'name' => $item->project_location,
+                        'count' => $item->count
+                    ];
+                });
+
+            // 2. Loss Reports by Project (instead of material type)
+            $projectData = LossReport::selectRaw('projects.name as project_name, COUNT(*) as count')
+                ->join('projects', 'loss_reports.project_id', '=', 'projects.id')
+                ->groupBy('projects.id', 'projects.name')
+                ->orderBy('count', 'desc')
+                ->limit(8)
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'name' => $item->project_name,
+                        'count' => $item->count
+                    ];
+                });
+
+            // 3. Loss Reports Trend (Monthly for current year) - Line Chart
+            $monthlyData = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $count = LossReport::whereMonth('loss_date', $month)
+                    ->whereYear('loss_date', now()->year)
+                    ->count();
+                
+                $monthlyData[] = [
+                    'month' => $month,
+                    'month_name' => now()->month($month)->format('F'),
+                    'month_short' => now()->month($month)->format('M'),
+                    'count' => $count
+                ];
+            }
+
+            // 4. Loss Reports by Cluster - Bar Chart
+            $clusterData = LossReport::selectRaw('cluster, COUNT(*) as count')
+                ->whereNotNull('cluster')
+                ->groupBy('cluster')
+                ->orderBy('count', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'name' => $item->cluster,
+                        'count' => $item->count
+                    ];
+                });
+
+            // 5. Daily Reports (Last 30 days) - for additional insights
+            $dailyData = [];
+            for ($i = 29; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $count = LossReport::whereDate('loss_date', $date->format('Y-m-d'))->count();
+                
+                $dailyData[] = [
+                    'date' => $date->format('Y-m-d'),
+                    'date_formatted' => $date->format('M j'),
+                    'day_name' => $date->format('D'),
+                    'count' => $count
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'locationData' => $locationData, // For bar chart
+                'projectData' => $projectData,   // For horizontal bar chart
+                'monthlyData' => $monthlyData,   // For line chart
+                'clusterData' => $clusterData,   // For column chart
+                'dailyData' => $dailyData,       // For trend line chart
+                'summary' => [
+                    'total_reports' => LossReport::count(),
+                    'current_month' => LossReport::whereMonth('loss_date', now()->month)->count(),
+                    'pending_count' => LossReport::where('status', 'pending')->count(),
+                    'completed_count' => LossReport::where('status', 'completed')->count(),
+                    'this_week' => LossReport::whereBetween('loss_date', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                    'last_week' => LossReport::whereBetween('loss_date', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->count()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading chart data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
+

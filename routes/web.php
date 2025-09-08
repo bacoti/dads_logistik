@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function () {
         // Loss Reports Management
         Route::get('/loss-reports', [\App\Http\Controllers\Admin\LossReportController::class, 'index'])->name('loss-reports.index');
         Route::get('/loss-reports/export', [\App\Http\Controllers\Admin\LossReportController::class, 'export'])->name('loss-reports.export');
+        Route::get('/loss-reports/chart-data', [\App\Http\Controllers\Admin\LossReportController::class, 'getChartData'])->name('loss-reports.chart-data');
         Route::get('/loss-reports/{lossReport}', [\App\Http\Controllers\Admin\LossReportController::class, 'show'])->name('loss-reports.show');
         Route::patch('/loss-reports/{lossReport}/update-status', [\App\Http\Controllers\Admin\LossReportController::class, 'updateStatus'])->name('loss-reports.update-status');
         Route::get('/loss-reports/{lossReport}/download', [\App\Http\Controllers\Admin\LossReportController::class, 'download'])->name('loss-reports.download');
