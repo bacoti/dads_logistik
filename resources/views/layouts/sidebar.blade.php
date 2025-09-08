@@ -261,60 +261,6 @@
                     @endif
                 </a>
 
-                <!-- 📦 MATERIAL TRACKING KATEGORI -->
-                <div class="space-y-1 mt-4">
-                    <!-- Category Header - Material Tracking -->
-                    <button @click="toggleCategory('materials')"
-                            class="group w-full flex items-center justify-between px-3 py-3 text-sm font-medium text-red-100 rounded-xl transition-all duration-200 hover:bg-red-500 hover:text-white">
-                        <div class="flex items-center">
-                            <div class="flex items-center justify-center w-6 h-6 mr-3">
-                                <i class="fas fa-warehouse text-red-200 group-hover:text-white"></i>
-                            </div>
-                            <span x-show="sidebarOpen" x-transition class="truncate">Material Tracking</span>
-                        </div>
-                        <i x-show="sidebarOpen" 
-                           x-transition
-                           :class="categories.materials ? 'fa-chevron-up' : 'fa-chevron-down'"
-                           class="fas text-red-200 group-hover:text-white text-xs"></i>
-                    </button>
-
-                    <!-- Category Items - Material Tracking -->
-                    <div x-show="sidebarOpen && categories.materials" 
-                         x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 transform scale-95"
-                         x-transition:enter-end="opacity-100 transform scale-100"
-                         class="ml-6 space-y-1">
-                        
-                        <!-- Material Dashboard -->
-                        <a href="{{ route('po.material-dashboard.index') }}"
-                           class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('po.material-dashboard.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
-                            <i class="fas fa-chart-bar w-4 h-4 mr-3 {{ request()->routeIs('po.material-dashboard.*') ? 'text-white' : 'text-red-300' }}"></i>
-                            <span class="truncate">Dashboard</span>
-                        </a>
-
-                        <!-- Material Receipt -->
-                        <a href="{{ route('po.material-receipt.index') }}"
-                           class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('po.material-receipt.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
-                            <i class="fas fa-truck-loading w-4 h-4 mr-3 {{ request()->routeIs('po.material-receipt.*') ? 'text-white' : 'text-red-300' }}"></i>
-                            <span class="truncate">Penerimaan Material</span>
-                        </a>
-
-                        <!-- Material Usage -->
-                        <a href="{{ route('po.material-usage.index') }}"
-                           class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('po.material-usage.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
-                            <i class="fas fa-hammer w-4 h-4 mr-3 {{ request()->routeIs('po.material-usage.*') ? 'text-white' : 'text-red-300' }}"></i>
-                            <span class="truncate">Penggunaan Material</span>
-                        </a>
-
-                        <!-- Material Stock -->
-                        <a href="{{ route('po.material-stock.index') }}"
-                           class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('po.material-stock.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
-                            <i class="fas fa-layer-group w-4 h-4 mr-3 {{ request()->routeIs('po.material-stock.*') ? 'text-white' : 'text-red-300' }}"></i>
-                            <span class="truncate">Stock Material</span>
-                        </a>
-                    </div>
-                </div>
-
             @else
                 <!-- User Navigation -->
                 <div x-show="sidebarOpen" class="px-3 py-2">
@@ -523,7 +469,6 @@ function sidebarCategories() {
         categories: {
             reports: true,    // Auto-expand if user in reports section
             po: false,        // Collapsed by default
-            materials: false, // Material tracking category
             system: false     // Collapsed by default
         },
 
