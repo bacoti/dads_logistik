@@ -87,7 +87,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/monthly-reports/export/excel', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'export'])->name('monthly-reports.export');
         Route::patch('/monthly-reports/{monthlyReport}/update-status', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'updateStatus'])->name('monthly-reports.update-status');
         Route::get('/monthly-reports/{monthlyReport}/download', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'download'])->name('monthly-reports.download');
-        Route::delete('/monthly-reports/{monthlyReport}', [\App\Http\Controllers\Admin\MonthlyReportController::class, 'destroy'])->name('monthly-reports.destroy');
 
         // Loss Reports Management
         Route::get('/loss-reports', [\App\Http\Controllers\Admin\LossReportController::class, 'index'])->name('loss-reports.index');
