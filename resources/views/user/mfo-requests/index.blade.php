@@ -88,6 +88,13 @@
                                                         </button>
                                                     </form>
                                                 @endif
+
+                                                @if($request->status === 'rejected')
+                                                    <button onclick="openResubmitModal({{ $request->id }})" 
+                                                            class="text-orange-600 hover:text-orange-900">
+                                                        Upload Ulang
+                                                    </button>
+                                                @endif
                                                 
                                                 @if($request->document_path)
                                                     <a href="{{ route('user.mfo-requests.download', $request) }}" 
@@ -120,4 +127,77 @@
             </div>
         </div>
     </div>
+
+    <!-- Resubmit Modal -->
+    <div id="resubmitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Upload Ulang Dokumen</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeResubmitModal()">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="resubmitForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-3">
+                            Pengajuan MFO Anda ditolak. Silakan upload dokumen yang sudah diperbaiki untuk diajukan kembali.
+                        </p>
+                        <label for="resubmit_document" class="block text-sm font-medium text-gray-700 mb-2">
+                            Dokumen Baru <span class="text-red-500">*</span>
+                        </label>
+                        <input type="file" 
+                               id="resubmit_document" 
+                               name="document" 
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 10MB.
+                        </p>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" 
+                                onclick="closeResubmitModal()" 
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                            Upload & Ajukan Ulang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openResubmitModal(mfoRequestId) {
+            const modal = document.getElementById('resubmitModal');
+            const form = document.getElementById('resubmitForm');
+            form.action = `/user/mfo-requests/${mfoRequestId}/resubmit`;
+            modal.style.display = 'block';
+        }
+
+        function closeResubmitModal() {
+            const modal = document.getElementById('resubmitModal');
+            modal.style.display = 'none';
+            // Reset form
+            document.getElementById('resubmitForm').reset();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('resubmitModal');
+            if (event.target === modal) {
+                closeResubmitModal();
+            }
+        }
+    </script>
 </x-app-layout>

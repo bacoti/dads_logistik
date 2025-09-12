@@ -11,15 +11,20 @@ class MfoRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'mfo_number',
         'project_id',
         'sub_project_id',
         'project_location',
         'cluster',
         'request_date',
+        'requester_name',
+        'department',
+        'priority',
         'description',
         'document_path',
         'status',
         'admin_notes',
+        'rejection_reason',
         'reviewed_at',
         'reviewed_by',
     ];

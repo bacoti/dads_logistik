@@ -158,6 +158,50 @@
                                 </div>
                             </div>
                         @endif
+
+                        @if($mfoRequest->status === 'rejected')
+                            <div class="bg-red-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4 text-red-900">Upload Ulang Dokumen</h3>
+                                <p class="text-sm text-red-700 mb-4">
+                                    Pengajuan MFO Anda ditolak. Silakan upload dokumen yang sudah diperbaiki untuk diajukan kembali.
+                                </p>
+                                
+                                @if($mfoRequest->admin_notes)
+                                    <div class="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded mb-4">
+                                        <strong>Catatan Admin:</strong><br>
+                                        {{ $mfoRequest->admin_notes }}
+                                    </div>
+                                @endif
+
+                                <form method="POST" action="{{ route('user.mfo-requests.resubmit', $mfoRequest) }}" enctype="multipart/form-data" class="space-y-4">
+                                    @csrf
+                                    <div>
+                                        <label for="document" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Dokumen Baru <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="file" 
+                                               id="document" 
+                                               name="document" 
+                                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                                               required>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 10MB.
+                                        </p>
+                                        @error('document')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-700 focus:bg-orange-700 active:bg-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        Upload & Ajukan Ulang
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

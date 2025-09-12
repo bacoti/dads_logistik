@@ -162,9 +162,10 @@ Route::middleware('auth')->group(function () {
         Route::get('loss-reports/{lossReport}/download', [\App\Http\Controllers\User\LossReportController::class, 'download'])->name('loss-reports.download');
 
         // MFO Requests for Users
+        Route::get('mfo-requests/ajax/sub-projects', [\App\Http\Controllers\User\MfoRequestController::class, 'getSubProjects'])->name('mfo-requests.ajax.sub-projects');
         Route::resource('mfo-requests', \App\Http\Controllers\User\MfoRequestController::class);
         Route::get('mfo-requests/{mfoRequest}/download', [\App\Http\Controllers\User\MfoRequestController::class, 'download'])->name('mfo-requests.download');
-        Route::get('ajax/sub-projects', [\App\Http\Controllers\User\MfoRequestController::class, 'getSubProjects'])->name('user.ajax.sub-projects');
+        Route::post('mfo-requests/{mfoRequest}/resubmit', [\App\Http\Controllers\User\MfoRequestController::class, 'resubmit'])->name('mfo-requests.resubmit');
 
         // PO Transports for Users
         Route::resource('po-transports', \App\Http\Controllers\User\PoTransportController::class);
