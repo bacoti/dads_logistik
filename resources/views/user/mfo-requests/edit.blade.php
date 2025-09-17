@@ -62,7 +62,7 @@
                     <form action="{{ route('user.mfo-requests.update', $mfoRequest) }}" method="POST" enctype="multipart/form-data" id="mfoForm">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="space-y-6">
                             <!-- Informasi Proyek -->
                             <div class="bg-gray-50 rounded-lg p-6">
@@ -79,7 +79,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="sub_project_id" class="block text-sm font-medium text-gray-700">Sub Proyek <span class="text-red-500">*</span></label>
                                         <select name="sub_project_id" id="sub_project_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
@@ -89,18 +89,18 @@
                                             @endif
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="project_location" class="block text-sm font-medium text-gray-700">Lokasi Proyek <span class="text-red-500">*</span></label>
-                                        <input type="text" name="project_location" id="project_location" value="{{ old('project_location', $mfoRequest->project_location) }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                        <input type="text" name="project_location" id="project_location" value="{{ old('project_location', $mfoRequest->project_location) }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                placeholder="Masukkan lokasi proyek" required>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="cluster" class="block text-sm font-medium text-gray-700">Cluster</label>
-                                        <input type="text" name="cluster" id="cluster" value="{{ old('cluster', $mfoRequest->cluster) }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                        <input type="text" name="cluster" id="cluster" value="{{ old('cluster', $mfoRequest->cluster) }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                placeholder="Masukkan cluster (opsional)">
                                     </div>
                                 </div>
@@ -112,23 +112,23 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="date_needed" class="block text-sm font-medium text-gray-700">Tanggal Dibutuhkan <span class="text-red-500">*</span></label>
-                                        <input type="text" name="date_needed" id="date_needed" value="{{ old('date_needed', $mfoRequest->date_needed) }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 flatpickr" 
+                                        <input type="text" name="date_needed" id="date_needed" value="{{ old('date_needed', $mfoRequest->date_needed) }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 flatpickr"
                                                placeholder="Pilih tanggal" required>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="purpose" class="block text-sm font-medium text-gray-700">Tujuan Penggunaan <span class="text-red-500">*</span></label>
-                                        <input type="text" name="purpose" id="purpose" value="{{ old('purpose', $mfoRequest->purpose) }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                        <input type="text" name="purpose" id="purpose" value="{{ old('purpose', $mfoRequest->purpose) }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                placeholder="Masukkan tujuan penggunaan" required>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-6">
                                     <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                                    <textarea name="description" id="description" rows="4" 
-                                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                    <textarea name="description" id="description" rows="4"
+                                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                               placeholder="Masukkan deskripsi tambahan (opsional)">{{ old('description', $mfoRequest->description) }}</textarea>
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
                             <!-- Dokumen Pendukung -->
                             <div class="bg-gray-50 rounded-lg p-6">
                                 <h3 class="text-lg font-semibold mb-4">Dokumen Pendukung</h3>
-                                
+
                                 @if($mfoRequest->document_path)
                                     <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                         <h4 class="text-sm font-medium text-blue-800 mb-2">Dokumen Saat Ini:</h4>
@@ -154,7 +154,7 @@
                                         <p class="text-xs text-blue-600 mt-2">Upload file baru untuk mengganti dokumen yang ada</p>
                                     </div>
                                 @endif
-                                
+
                                 <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer" id="uploadArea">
                                     <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -190,7 +190,7 @@
                                 <button type="button" id="resetBtn" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                     Reset Form
                                 </button>
-                                
+
                                 @if($mfoRequest->status === 'rejected')
                                     <button type="submit" id="submitBtn" class="inline-flex items-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,9 +238,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('project_id').addEventListener('change', function() {
         const projectId = this.value;
         const subProjectSelect = document.getElementById('sub_project_id');
-        
+
         subProjectSelect.innerHTML = '<option value="">Pilih Sub Proyek</option>';
-        
+
         if (projectId) {
             fetch(`{{ url('/user/mfo-requests/ajax/sub-projects') }}/${projectId}`)
                 .then(response => response.json())

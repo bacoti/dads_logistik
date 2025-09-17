@@ -101,19 +101,19 @@
                             </div>
                             <span x-show="sidebarOpen" x-transition class="truncate">Data & Laporan</span>
                         </div>
-                        <i x-show="sidebarOpen" 
+                        <i x-show="sidebarOpen"
                            x-transition
                            :class="categories.reports ? 'fa-chevron-up' : 'fa-chevron-down'"
                            class="fas text-red-200 group-hover:text-white text-xs"></i>
                     </button>
 
                     <!-- Category Items - Data & Laporan -->
-                    <div x-show="sidebarOpen && categories.reports" 
+                    <div x-show="sidebarOpen && categories.reports"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
                          class="ml-6 space-y-1">
-                        
+
                         <!-- Data Transaksi -->
                         <a href="{{ route('admin.transactions.index') }}"
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.transactions.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
@@ -133,6 +133,20 @@
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.loss-reports.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
                             <i class="fas fa-exclamation-triangle w-4 h-4 mr-3 {{ request()->routeIs('admin.loss-reports.*') ? 'text-white' : 'text-red-300' }}"></i>
                             <span class="truncate">Laporan Kehilangan</span>
+                        </a>
+
+                        <!-- BOQ Actual -->
+                        <a href="{{ route('admin.boq-actuals.index') }}"
+                           class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.boq-actuals.index', 'admin.boq-actuals.create', 'admin.boq-actuals.edit', 'admin.boq-actuals.show') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
+                            <i class="fas fa-clipboard-check w-4 h-4 mr-3 {{ request()->routeIs('admin.boq-actuals.*') ? 'text-white' : 'text-red-300' }}"></i>
+                            <span class="truncate">BOQ Actual</span>
+                        </a>
+
+                        <!-- Summary Material -->
+                        <a href="{{ route('admin.boq-actuals.summary') }}"
+                           class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.boq-actuals.summary') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
+                            <i class="fas fa-chart-pie w-4 h-4 mr-3 {{ request()->routeIs('admin.boq-actuals.summary') ? 'text-white' : 'text-red-300' }}"></i>
+                            <span class="truncate">Summary Material</span>
                         </a>
 
                         <!-- Pengajuan MFO -->
@@ -155,19 +169,19 @@
                             </div>
                             <span x-show="sidebarOpen" x-transition class="truncate">Purchase Order</span>
                         </div>
-                        <i x-show="sidebarOpen" 
+                        <i x-show="sidebarOpen"
                            x-transition
                            :class="categories.po ? 'fa-chevron-up' : 'fa-chevron-down'"
                            class="fas text-red-200 group-hover:text-white text-xs"></i>
                     </button>
 
                     <!-- Category Items - Purchase Order -->
-                    <div x-show="sidebarOpen && categories.po" 
+                    <div x-show="sidebarOpen && categories.po"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
                          class="ml-6 space-y-1">
-                        
+
                         <!-- PO Materials -->
                         <a href="{{ route('admin.po-materials.index') }}"
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.po-materials.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
@@ -195,19 +209,19 @@
                             </div>
                             <span x-show="sidebarOpen" x-transition class="truncate">Sistem Management</span>
                         </div>
-                        <i x-show="sidebarOpen" 
+                        <i x-show="sidebarOpen"
                            x-transition
                            :class="categories.system ? 'fa-chevron-up' : 'fa-chevron-down'"
                            class="fas text-red-200 group-hover:text-white text-xs"></i>
                     </button>
 
                     <!-- Category Items - Sistem Management -->
-                    <div x-show="sidebarOpen && categories.system" 
+                    <div x-show="sidebarOpen && categories.system"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
                          class="ml-6 space-y-1">
-                        
+
                         <!-- Master Data -->
                         <a href="{{ route('admin.master-data.index') }}"
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.master-data.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
@@ -290,19 +304,19 @@
                             </div>
                             <span x-show="sidebarOpen" x-transition class="truncate">Data & Laporan</span>
                         </div>
-                        <i x-show="sidebarOpen" 
+                        <i x-show="sidebarOpen"
                            x-transition
                            :class="userCategories.reports ? 'fa-chevron-up' : 'fa-chevron-down'"
                            class="fas text-red-200 group-hover:text-white text-xs"></i>
                     </button>
 
                     <!-- Category Items - Data & Laporan -->
-                    <div x-show="sidebarOpen && userCategories.reports" 
+                    <div x-show="sidebarOpen && userCategories.reports"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
                          class="ml-6 space-y-1">
-                        
+
                         <!-- Transaksi -->
                         <a href="{{ route('user.transactions.index') }}"
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('user.transactions.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
@@ -344,19 +358,19 @@
                             </div>
                             <span x-show="sidebarOpen" x-transition class="truncate">Purchase Order</span>
                         </div>
-                        <i x-show="sidebarOpen" 
+                        <i x-show="sidebarOpen"
                            x-transition
                            :class="userCategories.transport ? 'fa-chevron-up' : 'fa-chevron-down'"
                            class="fas text-red-200 group-hover:text-white text-xs"></i>
                     </button>
 
                     <!-- Category Items - Purchase Order -->
-                    <div x-show="sidebarOpen && userCategories.transport" 
+                    <div x-show="sidebarOpen && userCategories.transport"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
                          class="ml-6 space-y-1">
-                        
+
                         <!-- PO Transport -->
                         <a href="{{ route('user.po-transports.index') }}"
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('user.po-transports.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
@@ -377,19 +391,19 @@
                             </div>
                             <span x-show="sidebarOpen" x-transition class="truncate">Dokumen</span>
                         </div>
-                        <i x-show="sidebarOpen" 
+                        <i x-show="sidebarOpen"
                            x-transition
                            :class="userCategories.documents ? 'fa-chevron-up' : 'fa-chevron-down'"
                            class="fas text-red-200 group-hover:text-white text-xs"></i>
                     </button>
 
                     <!-- Category Items - Dokumen -->
-                    <div x-show="sidebarOpen && userCategories.documents" 
+                    <div x-show="sidebarOpen && userCategories.documents"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
                          class="ml-6 space-y-1">
-                        
+
                         <!-- Download Center -->
                         <a href="{{ route('user.documents.index') }}"
                            class="group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('user.documents.*') ? 'bg-red-400 text-white shadow-md' : 'text-red-100 hover:bg-red-500 hover:text-white' }}">
@@ -481,43 +495,43 @@ function sidebarCategories() {
         init() {
             // Auto-expand kategori berdasarkan route aktif
             const currentRoute = window.location.pathname;
-            
+
             // ADMIN AUTO-EXPAND LOGIC
             // Expand Data & Laporan jika user di halaman terkait
-            if (currentRoute.includes('/transactions') || 
-                currentRoute.includes('/monthly-reports') || 
+            if (currentRoute.includes('/transactions') ||
+                currentRoute.includes('/monthly-reports') ||
                 currentRoute.includes('/loss-reports') ||
                 currentRoute.includes('/mfo-requests')) {
                 this.categories.reports = true;
             }
-            
+
             // Expand Purchase Order jika user di halaman terkait
-            if (currentRoute.includes('/po-materials') || 
+            if (currentRoute.includes('/po-materials') ||
                 currentRoute.includes('/po-transports')) {
                 this.categories.po = true;
             }
-            
+
             // Expand Sistem Management jika user di halaman terkait
-            if (currentRoute.includes('/master-data') || 
-                currentRoute.includes('/users') || 
+            if (currentRoute.includes('/master-data') ||
+                currentRoute.includes('/users') ||
                 currentRoute.includes('/documents')) {
                 this.categories.system = true;
             }
 
             // USER AUTO-EXPAND LOGIC
             // Expand User Data & Laporan
-            if (currentRoute.includes('user/transactions') || 
-                currentRoute.includes('user/monthly-reports') || 
+            if (currentRoute.includes('user/transactions') ||
+                currentRoute.includes('user/monthly-reports') ||
                 currentRoute.includes('user/loss-reports') ||
                 currentRoute.includes('user/mfo-requests')) {
                 this.userCategories.reports = true;
             }
-            
+
             // Expand User Purchase Order
             if (currentRoute.includes('user/po-transports')) {
                 this.userCategories.transport = true;
             }
-            
+
             // Expand User Documents
             if (currentRoute.includes('user/documents')) {
                 this.userCategories.documents = true;
@@ -529,14 +543,14 @@ function sidebarCategories() {
 
         toggleCategory(category) {
             this.categories[category] = !this.categories[category];
-            
+
             // Save state to localStorage
             localStorage.setItem('sidebarCategories', JSON.stringify(this.categories));
         },
 
         toggleUserCategory(category) {
             this.userCategories[category] = !this.userCategories[category];
-            
+
             // Save state to localStorage
             localStorage.setItem('sidebarUserCategories', JSON.stringify(this.userCategories));
         },

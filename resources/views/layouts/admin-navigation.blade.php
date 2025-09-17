@@ -46,6 +46,16 @@
                         {{ __('PO Transportasi') }}
                     </x-nav-link>
 
+                    <!-- BOQ Actual -->
+                    <x-nav-link :href="route('admin.boq-actuals.index')" :active="request()->routeIs('admin.boq-actuals.*')">
+                        {{ __('BOQ Actual') }}
+                    </x-nav-link>
+
+                    <!-- Summary -->
+                    <x-nav-link :href="route('admin.boq-summary')" :active="request()->routeIs('admin.boq-summary')">
+                        {{ __('Summary') }}
+                    </x-nav-link>
+
                     <!-- Documents Management -->
                     <x-nav-link :href="route('admin.documents.index')" :active="request()->routeIs('admin.documents.*')">
                         {{ __('Manajemen Dokumen') }}
@@ -127,6 +137,14 @@
 
             <x-responsive-nav-link :href="route('admin.po-transports.index')" :active="request()->routeIs('admin.po-transports.*')">
                 {{ __('PO Transportasi') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('admin.boq-actuals.index')" :active="request()->routeIs('admin.boq-actuals.*')">
+                {{ __('BOQ Actual') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('admin.boq-summary')" :active="request()->routeIs('admin.boq-summary')">
+                {{ __('Summary') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('admin.documents.index')" :active="request()->routeIs('admin.documents.*')">

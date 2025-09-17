@@ -123,7 +123,7 @@ class MfoRequestController extends Controller
             if ($mfoRequest->document_path) {
                 Storage::disk('public')->delete($mfoRequest->document_path);
             }
-            
+
             $path = $request->file('document')->store('mfo-requests', 'public');
             $validated['document_path'] = $path;
         }
@@ -138,7 +138,7 @@ class MfoRequestController extends Controller
 
         $mfoRequest->update($validated);
 
-        $message = $action === 'resubmit' 
+        $message = $action === 'resubmit'
             ? 'Pengajuan MFO berhasil diresubmit dan akan ditinjau kembali!'
             : 'Pengajuan MFO berhasil diperbarui!';
 

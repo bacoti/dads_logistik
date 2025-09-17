@@ -10,6 +10,7 @@ use App\Models\SubProject;
 use App\Models\Category;
 use App\Models\Material;
 use App\Models\User;
+use App\Models\City;
 use App\Notifications\TransactionCreated;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -51,7 +52,10 @@ class TransactionController extends Controller
 
         $projects = Project::orderBy('name')->get();
 
-        return view('user.transactions.create', compact('type', 'projects'));
+        // Ambil kota-kota populer untuk dropdown
+        $cities = City::orderBy('name')->limit(50)->get();
+
+        return view('user.transactions.create', compact('type', 'projects', 'cities'));
     }
 
     /**
@@ -100,7 +104,7 @@ class TransactionController extends Controller
             'vendor_name' => 'nullable|string|max:255',
             'project_id' => 'required|exists:projects,id',
             'sub_project_id' => 'required|exists:sub_projects,id',
-            'location' => 'required|string|max:255',
+            'location' => 'required|exists:cities,id',
             'cluster' => 'nullable|string|max:255',
             'site_id' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
@@ -139,6 +143,10 @@ class TransactionController extends Controller
                 }
             }
 
+            // Get city name from city_id
+            $city = City::find($request->location);
+            $locationName = $city ? $city->full_name : '';
+
             // Buat transaksi
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
@@ -148,7 +156,7 @@ class TransactionController extends Controller
                 'vendor_name' => $request->vendor_name,
                 'project_id' => $request->project_id,
                 'sub_project_id' => $request->sub_project_id,
-                'location' => $request->location,
+                'location' => $locationName,
                 'cluster' => $request->cluster,
                 'site_id' => $request->site_id,
                 'notes' => $request->notes,
@@ -324,5 +332,44 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return redirect()->route('user.transactions.index')->with('success', 'Transaksi berhasil dihapus!');
+    }
+
+    /**
+     * Search cities for AJAX dropdown
+     */
+    public function searchCities(Request $request)
+    {
+        try {
+            $search = $request->get('q', '');
+
+            // If no search term, return some popular cities
+            if (empty($search)) {
+                $cities = City::whereIn('name', ['Jakarta', 'Surabaya', 'Bandung', 'Medan', 'Makassar', 'Semarang'])
+                    ->orderBy('name')
+                    ->get();
+            } else {
+                $cities = City::where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('province', 'LIKE', "%{$search}%")
+                    ->orderBy('name')
+                    ->limit(50)
+                    ->get();
+            }
+
+            $results = $cities->map(function ($city) {
+                return [
+                    'id' => $city->id,
+                    'text' => $city->full_name,
+                    'name' => $city->name,
+                    'province' => $city->province,
+                    'type' => $city->type
+                ];
+            });
+
+            return response()->json($results);
+
+        } catch (\Exception $e) {
+            \Log::error('Cities search error: ' . $e->getMessage());
+            return response()->json([]);
+        }
     }
 }

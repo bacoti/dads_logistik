@@ -34,7 +34,7 @@
                     <!-- Form -->
                     <form action="{{ route('user.mfo-requests.store') }}" method="POST" enctype="multipart/form-data" id="mfoForm">
                         @csrf
-                        
+
                         <div class="space-y-6">
                             <!-- Informasi Proyek -->
                             <div class="bg-gray-50 rounded-lg p-6">
@@ -51,25 +51,25 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="sub_project_id" class="block text-sm font-medium text-gray-700">Sub Proyek <span class="text-red-500">*</span></label>
                                         <select name="sub_project_id" id="sub_project_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
                                             <option value="">Pilih Sub Proyek</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="project_location" class="block text-sm font-medium text-gray-700">Lokasi Proyek <span class="text-red-500">*</span></label>
-                                        <input type="text" name="project_location" id="project_location" value="{{ old('project_location') }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                        <input type="text" name="project_location" id="project_location" value="{{ old('project_location') }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                placeholder="Masukkan lokasi proyek" required>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="cluster" class="block text-sm font-medium text-gray-700">Cluster</label>
-                                        <input type="text" name="cluster" id="cluster" value="{{ old('cluster') }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                        <input type="text" name="cluster" id="cluster" value="{{ old('cluster') }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                placeholder="Masukkan cluster (opsional)">
                                     </div>
                                 </div>
@@ -81,23 +81,23 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="date_needed" class="block text-sm font-medium text-gray-700">Tanggal Dibutuhkan <span class="text-red-500">*</span></label>
-                                        <input type="text" name="date_needed" id="date_needed" value="{{ old('date_needed') }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 flatpickr" 
+                                        <input type="text" name="date_needed" id="date_needed" value="{{ old('date_needed') }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 flatpickr"
                                                placeholder="Pilih tanggal" required>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="purpose" class="block text-sm font-medium text-gray-700">Tujuan Penggunaan <span class="text-red-500">*</span></label>
-                                        <input type="text" name="purpose" id="purpose" value="{{ old('purpose') }}" 
-                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                        <input type="text" name="purpose" id="purpose" value="{{ old('purpose') }}"
+                                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                placeholder="Masukkan tujuan penggunaan" required>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-6">
                                     <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                                    <textarea name="description" id="description" rows="4" 
-                                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
+                                    <textarea name="description" id="description" rows="4"
+                                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                               placeholder="Masukkan deskripsi tambahan (opsional)">{{ old('description') }}</textarea>
                                 </div>
                             </div>
@@ -178,9 +178,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('project_id').addEventListener('change', function() {
         const projectId = this.value;
         const subProjectSelect = document.getElementById('sub_project_id');
-        
+
         subProjectSelect.innerHTML = '<option value="">Pilih Sub Proyek</option>';
-        
+
         if (projectId) {
             fetch(`{{ url('/user/mfo-requests/ajax/sub-projects') }}/${projectId}`)
                 .then(response => response.json())

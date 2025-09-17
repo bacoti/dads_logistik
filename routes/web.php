@@ -118,6 +118,14 @@ Route::middleware('auth')->group(function () {
         Route::patch('/po-transports/{poTransport}/update-status', [\App\Http\Controllers\Admin\PoTransportController::class, 'updateStatus'])->name('po-transports.update-status');
         Route::get('/po-transports/{poTransport}/download', [\App\Http\Controllers\Admin\PoTransportController::class, 'download'])->name('po-transports.download');
 
+
+
+        // BOQ Actuals Management for Admin
+        Route::resource('boq-actuals', \App\Http\Controllers\Admin\BOQActualController::class);
+        Route::get('/boq-actuals/create/batch', [\App\Http\Controllers\Admin\BOQActualController::class, 'createBatch'])->name('boq-actuals.create-batch');
+        Route::post('/boq-actuals/store/batch', [\App\Http\Controllers\Admin\BOQActualController::class, 'storeBatch'])->name('boq-actuals.store-batch');
+        Route::get('/summary', [\App\Http\Controllers\Admin\BOQActualController::class, 'summary'])->name('boq-actuals.summary');
+
         // Document Management for Admin
         Route::resource('documents', \App\Http\Controllers\Admin\DocumentController::class);
         Route::get('/documents/{document}/download', [\App\Http\Controllers\Admin\DocumentController::class, 'download'])->name('documents.download');
@@ -152,6 +160,8 @@ Route::middleware('auth')->group(function () {
             ->name('projects.sub-projects');
         Route::get('projects/{project}/sub-projects/{subProject}/materials', [\App\Http\Controllers\User\TransactionController::class, 'getMaterialsByProject'])
             ->name('projects.sub-projects.materials');
+        Route::get('ajax/cities/search', [\App\Http\Controllers\User\TransactionController::class, 'searchCities'])
+            ->name('ajax.cities.search');
 
         // Monthly Reports for Users
         Route::resource('monthly-reports', \App\Http\Controllers\User\MonthlyReportController::class);

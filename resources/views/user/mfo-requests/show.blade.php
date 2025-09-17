@@ -83,7 +83,7 @@
                                         </div>
                                         <div class="text-sm text-gray-500">Dokumen pendukung</div>
                                     </div>
-                                    <a href="{{ route('user.mfo-requests.download', $mfoRequest) }}" 
+                                    <a href="{{ route('user.mfo-requests.download', $mfoRequest) }}"
                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         Download
                                     </a>
@@ -135,15 +135,15 @@
                             <div class="bg-yellow-50 rounded-lg p-6">
                                 <h3 class="text-lg font-semibold mb-4 text-yellow-900">Aksi</h3>
                                 <div class="flex space-x-3">
-                                    <a href="{{ route('user.mfo-requests.edit', $mfoRequest) }}" 
+                                    <a href="{{ route('user.mfo-requests.edit', $mfoRequest) }}"
                                        class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 focus:bg-yellow-700 active:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
                                         Edit Pengajuan
                                     </a>
-                                    
-                                    <form method="POST" action="{{ route('user.mfo-requests.destroy', $mfoRequest) }}" 
+
+                                    <form method="POST" action="{{ route('user.mfo-requests.destroy', $mfoRequest) }}"
                                           class="inline"
                                           onsubmit="return confirm('Yakin ingin menghapus pengajuan ini?')">
                                         @csrf
@@ -165,7 +165,7 @@
                                 <p class="text-sm text-red-700 mb-4">
                                     Pengajuan MFO Anda ditolak. Silakan upload dokumen yang sudah diperbaiki untuk diajukan kembali.
                                 </p>
-                                
+
                                 @if($mfoRequest->admin_notes)
                                     <div class="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded mb-4">
                                         <strong>Catatan Admin:</strong><br>
@@ -179,9 +179,9 @@
                                         <label for="document" class="block text-sm font-medium text-gray-700 mb-2">
                                             Dokumen Baru <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="file" 
-                                               id="document" 
-                                               name="document" 
+                                        <input type="file"
+                                               id="document"
+                                               name="document"
                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                                                required>
@@ -192,7 +192,7 @@
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    
+
                                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-700 focus:bg-orange-700 active:bg-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>

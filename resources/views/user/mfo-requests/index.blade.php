@@ -71,14 +71,14 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex items-center space-x-2">
-                                                <a href="{{ route('user.mfo-requests.show', $request) }}" 
+                                                <a href="{{ route('user.mfo-requests.show', $request) }}"
                                                    class="text-indigo-600 hover:text-indigo-900">Detail</a>
-                                                
+
                                                 @if($request->status === 'pending')
-                                                    <a href="{{ route('user.mfo-requests.edit', $request) }}" 
+                                                    <a href="{{ route('user.mfo-requests.edit', $request) }}"
                                                        class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                                    
-                                                    <form method="POST" action="{{ route('user.mfo-requests.destroy', $request) }}" 
+
+                                                    <form method="POST" action="{{ route('user.mfo-requests.destroy', $request) }}"
                                                           class="inline"
                                                           onsubmit="return confirm('Yakin ingin menghapus pengajuan ini?')">
                                                         @csrf
@@ -90,14 +90,14 @@
                                                 @endif
 
                                                 @if($request->status === 'rejected')
-                                                    <button onclick="openResubmitModal({{ $request->id }})" 
+                                                    <button onclick="openResubmitModal({{ $request->id }})"
                                                             class="text-orange-600 hover:text-orange-900">
                                                         Upload Ulang
                                                     </button>
                                                 @endif
-                                                
+
                                                 @if($request->document_path)
-                                                    <a href="{{ route('user.mfo-requests.download', $request) }}" 
+                                                    <a href="{{ route('user.mfo-requests.download', $request) }}"
                                                        class="text-green-600 hover:text-green-900">Download</a>
                                                 @endif
                                             </div>
@@ -106,7 +106,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                            Belum ada pengajuan MFO. 
+                                            Belum ada pengajuan MFO.
                                             <a href="{{ route('user.mfo-requests.create') }}" class="text-indigo-600 hover:text-indigo-900">
                                                 Buat pengajuan pertama Anda
                                             </a>
@@ -140,7 +140,7 @@
                         </svg>
                     </button>
                 </div>
-                
+
                 <form id="resubmitForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
@@ -150,9 +150,9 @@
                         <label for="resubmit_document" class="block text-sm font-medium text-gray-700 mb-2">
                             Dokumen Baru <span class="text-red-500">*</span>
                         </label>
-                        <input type="file" 
-                               id="resubmit_document" 
-                               name="document" 
+                        <input type="file"
+                               id="resubmit_document"
+                               name="document"
                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                                required>
@@ -160,14 +160,14 @@
                             Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 10MB.
                         </p>
                     </div>
-                    
+
                     <div class="flex justify-end space-x-3">
-                        <button type="button" 
-                                onclick="closeResubmitModal()" 
+                        <button type="button"
+                                onclick="closeResubmitModal()"
                                 class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
                             Batal
                         </button>
-                        <button type="submit" 
+                        <button type="submit"
                                 class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
                             Upload & Ajukan Ulang
                         </button>

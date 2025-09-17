@@ -107,9 +107,15 @@
                                     <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
                                         Lokasi <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="location" id="location"
-                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                           value="{{ old('location') }}" placeholder="Masukkan lokasi" required>
+                                    <select name="location" id="location" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                        <option value="">Pilih Lokasi</option>
+                                        @foreach($cities as $city)
+                                            <option value="{{ $city->id }}" {{ old('location') == $city->id ? 'selected' : '' }}>
+                                                {{ $city->full_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-gray-500">Menampilkan 20 kota teratas. Gunakan search untuk mencari kota lainnya.</small>
                                     @error('location')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
@@ -607,3 +613,67 @@
         });
     </script>
 </x-app-layout>
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 42px;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 14px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 26px;
+        color: #374151;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px;
+    }
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        console.log('Initializing Select2 for location...');
+        
+        // Setup CSRF token for all AJAX requests
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        $('#location').select2({
+            placeholder: "Ketik nama kota untuk mencari...",
+            allowClear: true,
+            width: '100%',
+            matcher: function(params, data) {
+                // Jika tidak ada search term, tampilkan semua
+                if ($.trim(params.term) === '') {
+                    return data;
+                }
+                
+                // Ubah ke lowercase untuk search case-insensitive
+                var term = params.term.toLowerCase();
+                var text = data.text.toLowerCase();
+                
+                // Cari di nama kota atau provinsi
+                if (text.indexOf(term) > -1) {
+                    return data;
+                }
+                
+                // Return null jika tidak cocok
+                return null;
+            }
+    });
+</script>
+@endpush
