@@ -15,6 +15,9 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
+// Load performance helper functions
+require_once app_path('Helpers/ExportHelper.php');
+
 class MfoRequestsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
@@ -84,17 +87,17 @@ class MfoRequestsExport implements FromQuery, WithHeadings, WithMapping, WithSty
         return [
             $no++,
             $mfoRequest->created_at ? $mfoRequest->created_at->format('d/m/Y H:i:s') : '',
-            $mfoRequest->user ? $mfoRequest->user->name : '',
-            $mfoRequest->project ? $mfoRequest->project->name : '',
-            $mfoRequest->subProject ? $mfoRequest->subProject->name : '',
-            $mfoRequest->project_location ?? '',
-            $mfoRequest->cluster ?? '',
+            $mfoRequest->user ? sanitizeForSpreadsheet($mfoRequest->user->name) : '',
+            $mfoRequest->project ? sanitizeForSpreadsheet($mfoRequest->project->name) : '',
+            $mfoRequest->subProject ? sanitizeForSpreadsheet($mfoRequest->subProject->name) : '',
+            sanitizeForSpreadsheet($mfoRequest->project_location ?? ''),
+            sanitizeForSpreadsheet($mfoRequest->cluster ?? ''),
             $mfoRequest->request_date ? $mfoRequest->request_date->format('d/m/Y') : '',
-            $mfoRequest->description ?? '',
-            $this->getStatusLabel($mfoRequest->status),
-            $mfoRequest->reviewer ? $mfoRequest->reviewer->name : '',
+            sanitizeForSpreadsheet($mfoRequest->description ?? ''),
+            sanitizeForSpreadsheet($this->getStatusLabel($mfoRequest->status)),
+            $mfoRequest->reviewer ? sanitizeForSpreadsheet($mfoRequest->reviewer->name) : '',
             $mfoRequest->reviewed_at ? $mfoRequest->reviewed_at->format('d/m/Y H:i:s') : '',
-            $mfoRequest->admin_notes ?? '',
+            sanitizeForSpreadsheet($mfoRequest->admin_notes ?? ''),
             $mfoRequest->document_path ? 'Ada Dokumen' : 'Tidak Ada',
             $mfoRequest->created_at ? $mfoRequest->created_at->format('d/m/Y H:i:s') : '',
             $mfoRequest->updated_at ? $mfoRequest->updated_at->format('d/m/Y H:i:s') : ''

@@ -15,6 +15,9 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
+// Load performance helper functions
+require_once app_path('Helpers/ExportHelper.php');
+
 class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
@@ -93,8 +96,8 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
         
         // Format materials dengan rapi - setiap material di baris baru
         $materialDetails = $transaction->details->map(function($detail) {
-            $materialName = $detail->material ? $detail->material->name : 'Unknown Material';
-            $unit = $detail->material && $detail->material->unit ? $detail->material->unit : 'unit';
+            $materialName = $detail->material ? sanitizeForSpreadsheet($detail->material->name) : 'Unknown Material';
+            $unit = $detail->material && $detail->material->unit ? sanitizeForSpreadsheet($detail->material->unit) : 'unit';
             return "• " . $materialName . ": " . number_format($detail->quantity) . " " . $unit;
         });
         
@@ -105,33 +108,33 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
         // Menentukan vendor/tujuan berdasarkan tipe transaksi
         $vendorDestination = '';
         if ($transaction->type == 'pengembalian' && $transaction->return_destination) {
-            $vendorDestination = 'Tujuan: ' . $transaction->return_destination;
+            $vendorDestination = 'Tujuan: ' . sanitizeForSpreadsheet($transaction->return_destination);
         } elseif ($transaction->vendor) {
-            $vendorDestination = 'Vendor: ' . $transaction->vendor->name;
+            $vendorDestination = 'Vendor: ' . sanitizeForSpreadsheet($transaction->vendor->name);
         } elseif ($transaction->vendor_name) {
-            $vendorDestination = 'Vendor: ' . $transaction->vendor_name;
+            $vendorDestination = 'Vendor: ' . sanitizeForSpreadsheet($transaction->vendor_name);
         }
         
         return [
             $no++,
-            $transaction->id,
+            sanitizeForSpreadsheet($transaction->id),
             $transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '',
             $transaction->transaction_date ? $transaction->transaction_date->format('H:i:s') : '',
-            ucfirst($transaction->type ?? ''),
-            $transaction->user ? $transaction->user->name : '',
-            $transaction->project ? $transaction->project->name : '',
-            $transaction->subProject ? $transaction->subProject->name : '',
-            $transaction->location ?? '',
-            $transaction->cluster ?? '',
+            ucfirst(sanitizeForSpreadsheet($transaction->type ?? '')),
+            $transaction->user ? sanitizeForSpreadsheet($transaction->user->name) : '',
+            $transaction->project ? sanitizeForSpreadsheet($transaction->project->name) : '',
+            $transaction->subProject ? sanitizeForSpreadsheet($transaction->subProject->name) : '',
+            sanitizeForSpreadsheet($transaction->location ?? ''),
+            sanitizeForSpreadsheet($transaction->cluster ?? ''),
             $vendorDestination,
-            $transaction->delivery_order_no ?? '',
-            $transaction->delivery_note_no ?? '',
-            $transaction->delivery_return_no ?? '',
-            $transaction->site_id ?? '',
+            sanitizeForSpreadsheet($transaction->delivery_order_no ?? ''),
+            sanitizeForSpreadsheet($transaction->delivery_note_no ?? ''),
+            sanitizeForSpreadsheet($transaction->delivery_return_no ?? ''),
+            sanitizeForSpreadsheet($transaction->site_id ?? ''),
             $materialsString,
             number_format($totalQuantity),
             $totalItems,
-            $transaction->notes ?? '',
+            sanitizeForSpreadsheet($transaction->notes ?? ''),
             $transaction->created_at ? $transaction->created_at->format('d/m/Y H:i:s') : ''
         ];
     }

@@ -9,9 +9,15 @@ use App\Models\SubProject;
 use App\Models\Material;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
+use App\Exports\BOQSummaryMatrixExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+
+use Maatwebsite\Excel\Facades\Excel;
+
+// Load performance helper functions
+require_once app_path('Helpers/ExportHelper.php');
 
 class BOQActualController extends Controller
 {
@@ -63,7 +69,7 @@ class BOQActualController extends Controller
             $projectKey = $boq->project->id . '-' . $boq->project->name;
             $clusterKey = $boq->cluster ?: 'Tidak Ada Cluster';
             $dnKey = $boq->dn_number ?: 'Tidak Ada DN';
-            
+
             if (!isset($hierarchyData[$projectKey])) {
                 $hierarchyData[$projectKey] = [
                     'project' => $boq->project,
@@ -72,7 +78,7 @@ class BOQActualController extends Controller
                     'totalDNs' => 0
                 ];
             }
-            
+
             if (!isset($hierarchyData[$projectKey]['clusters'][$clusterKey])) {
                 $hierarchyData[$projectKey]['clusters'][$clusterKey] = [
                     'cluster_name' => $clusterKey,
@@ -80,7 +86,7 @@ class BOQActualController extends Controller
                     'totalMaterials' => 0
                 ];
             }
-            
+
             if (!isset($hierarchyData[$projectKey]['clusters'][$clusterKey]['dns'][$dnKey])) {
                 $hierarchyData[$projectKey]['clusters'][$clusterKey]['dns'][$dnKey] = [
                     'dn_number' => $dnKey,
@@ -89,7 +95,7 @@ class BOQActualController extends Controller
                     'user' => $boq->user
                 ];
             }
-            
+
             $hierarchyData[$projectKey]['clusters'][$clusterKey]['dns'][$dnKey]['materials'][] = $boq;
             $hierarchyData[$projectKey]['clusters'][$clusterKey]['totalMaterials']++;
             $hierarchyData[$projectKey]['totalMaterials']++;
@@ -307,7 +313,7 @@ class BOQActualController extends Controller
                             ->with('category')
                             ->orderBy('name')
                             ->get();
-                            
+
         return view('admin.boq-actuals.edit', compact('boqActual', 'projects', 'materials'));
     }
 
@@ -377,7 +383,7 @@ class BOQActualController extends Controller
         $subProjects = SubProject::where('project_id', $projectId)
                                 ->orderBy('name')
                                 ->get(['id', 'name']);
-        
+
         return response()->json($subProjects);
     }
 
@@ -454,86 +460,95 @@ class BOQActualController extends Controller
     }
 
     /**
-     * Summary page for material usage analysis
+     * Summary page for material usage analysis - Optimized version
      */
     public function summary(Request $request)
     {
-        $query = DB::table('materials')
+        // Increase memory limit for large data processing
+        ini_set('memory_limit', '256M');
+        
+        // Optimized single query approach to prevent timeout
+        $summaryQuery = DB::table('materials')
             ->leftJoin('categories', 'materials.category_id', '=', 'categories.id')
             ->leftJoin('sub_projects', 'materials.sub_project_id', '=', 'sub_projects.id')
             ->leftJoin('projects', 'sub_projects.project_id', '=', 'projects.id')
+            ->leftJoin('transaction_details', 'materials.id', '=', 'transaction_details.material_id')
+            ->leftJoin('transactions', function($join) {
+                $join->on('transaction_details.transaction_id', '=', 'transactions.id')
+                     ->where('transactions.type', '=', 'penerimaan');
+            })
+            ->leftJoin('boq_actuals', function($join) {
+                $join->on('materials.id', '=', 'boq_actuals.material_id');
+            })
             ->select(
                 'materials.id as material_id',
                 'materials.name as material_name',
                 'materials.unit',
                 'categories.name as category_name',
                 'projects.name as project_name',
-                'sub_projects.name as sub_project_name'
+                'sub_projects.name as sub_project_name',
+                DB::raw('COALESCE(transactions.cluster, boq_actuals.cluster) as cluster'),
+                DB::raw('COALESCE(transactions.delivery_note_no, boq_actuals.dn_number) as dn_number'),
+                DB::raw('SUM(COALESCE(transaction_details.quantity, 0)) as received_quantity'),
+                DB::raw('SUM(COALESCE(boq_actuals.actual_quantity, 0)) as actual_usage')
             );
 
         // Apply filters
         if ($request->filled('project_id')) {
-            $query->where('projects.id', $request->project_id);
+            $summaryQuery->where('projects.id', $request->project_id);
         }
 
         if ($request->filled('sub_project_id')) {
-            $query->where('sub_projects.id', $request->sub_project_id);
+            $summaryQuery->where('sub_projects.id', $request->sub_project_id);
         }
 
-        $materials = $query->get();
+        if ($request->filled('cluster')) {
+            $summaryQuery->where(function($query) use ($request) {
+                $query->where('transactions.cluster', $request->cluster)
+                      ->orWhere('boq_actuals.cluster', $request->cluster);
+            });
+        }
 
-        // Get summary data for each material
+        // Group by all necessary fields
+        $summaryQuery->groupBy(
+            'materials.id',
+            'materials.name',
+            'materials.unit',
+            'categories.name',
+            'projects.name',
+            'sub_projects.name',
+            DB::raw('COALESCE(transactions.cluster, boq_actuals.cluster)'),
+            DB::raw('COALESCE(transactions.delivery_note_no, boq_actuals.dn_number)')
+        );
+
+        // Execute query and get results
+        $results = $summaryQuery->get();
+
+        // Transform results to summary data format
         $summaryData = [];
-        foreach ($materials as $material) {
-            // Total material received (DO) from transactions
-            $receivedQuantity = DB::table('transaction_details')
-                ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-                ->where('transaction_details.material_id', $material->material_id)
-                ->where('transactions.type', 'penerimaan')
-                ->when($request->filled('project_id'), function($q) use ($request) {
-                    return $q->where('transactions.project_id', $request->project_id);
-                })
-                ->when($request->filled('sub_project_id'), function($q) use ($request) {
-                    return $q->where('transactions.sub_project_id', $request->sub_project_id);
-                })
-                ->when($request->filled('cluster'), function($q) use ($request) {
-                    return $q->where('transactions.cluster', $request->cluster);
-                })
-                ->sum('transaction_details.quantity') ?? 0;
-
-            // Total BOQ Actual usage
-            $actualUsage = BOQActual::where('material_id', $material->material_id)
-                ->when($request->filled('project_id'), function($q) use ($request) {
-                    return $q->where('project_id', $request->project_id);
-                })
-                ->when($request->filled('sub_project_id'), function($q) use ($request) {
-                    return $q->where('sub_project_id', $request->sub_project_id);
-                })
-                ->when($request->filled('cluster'), function($q) use ($request) {
-                    return $q->where('cluster', $request->cluster);
-                })
-                ->sum('actual_quantity') ?? 0;
-
-            // Remaining stock
+        foreach ($results as $result) {
+            $receivedQuantity = (float) $result->received_quantity;
+            $actualUsage = (float) $result->actual_usage;
             $remainingStock = $receivedQuantity - $actualUsage;
 
-            $summaryData[] = [
-                'material_name' => $material->material_name,
-                'category_name' => $material->category_name,
-                'unit' => $material->unit,
-                'project_name' => $material->project_name,
-                'sub_project_name' => $material->sub_project_name,
-                'received_quantity' => $receivedQuantity,
-                'actual_usage' => $actualUsage,
-                'remaining_stock' => $remainingStock
-            ];
-        }
+            // Only include if there's meaningful data or hide_no_data is not set
+            $hasData = $receivedQuantity > 0 || $actualUsage > 0;
+            $shouldInclude = $hasData || !($request->filled('hide_no_data') && $request->hide_no_data == '1');
 
-        // Filter out materials with no data if needed
-        if ($request->filled('hide_no_data') && $request->hide_no_data == '1') {
-            $summaryData = array_filter($summaryData, function($item) {
-                return $item['received_quantity'] > 0 || $item['actual_usage'] > 0;
-            });
+            if ($shouldInclude) {
+                $summaryData[] = [
+                    'material_name' => $result->material_name,
+                    'category_name' => $result->category_name,
+                    'unit' => $result->unit,
+                    'project_name' => $result->project_name,
+                    'sub_project_name' => $result->sub_project_name,
+                    'cluster' => $result->cluster ?: 'No Cluster',
+                    'dn_number' => $result->dn_number ?: 'No DN',
+                    'received_quantity' => $receivedQuantity,
+                    'actual_usage' => $actualUsage,
+                    'remaining_stock' => $remainingStock
+                ];
+            }
         }
 
         // Get data for filters
@@ -547,4 +562,211 @@ class BOQActualController extends Controller
 
         return view('admin.boq-actuals.summary', compact('summaryData', 'projects', 'subProjects', 'clusters'));
     }
+
+    /**
+     * Export summary data to Excel (Matrix format) - Super Optimized version
+     */
+    public function exportSummary(Request $request)
+    {
+        $startTime = microtime(true);
+        
+        // Get optimized configuration
+        $config = getExportDatabaseConfig();
+        
+        // Maximum performance settings
+        ini_set('memory_limit', $config['memory_limit']);
+        set_time_limit($config['max_execution_time']);
+        
+        // Skip database optimizations that cause errors
+        // optimizeDatabaseConnections(); // Commented out to avoid MySQL errors
+        preloadExportData();
+        optimizeMemoryForExport();
+        
+        // Cache key for query results (include user filters)
+        $cacheKey = 'summary_export_' . md5(serialize($request->all()) . auth()->id());
+        
+        // Try to get cached results first (cache for 5 minutes)
+        $summaryData = cache()->remember($cacheKey, $config['cache_ttl'], function() use ($request) {
+            return $this->getOptimizedSummaryData($request);
+        });
+
+        // Log performance metrics
+        $queryTime = microtime(true) - $startTime;
+        $metrics = getExportPerformanceMetrics($startTime, count($summaryData));
+        logExportPerformance('Summary Export Query', array_merge($metrics, [
+            'cache_hit' => cache()->has($cacheKey),
+            'query_time_ms' => round($queryTime * 1000, 2)
+        ]));
+
+        // Generate filename
+        $filename = 'BOQ_Summary_Matrix_' . date('Y-m-d_H-i-s');
+        if ($request->filled('project_id')) {
+            $project = Project::find($request->project_id);
+            if ($project) {
+                $filename .= '_' . str_replace(' ', '_', sanitizeForExcel($project->name));
+            }
+        }
+        $filename .= '.xlsx';
+
+        // Clean data before export
+        $summaryData = $this->cleanDataForExport($summaryData);
+        
+        // Log final performance metrics
+        $finalMetrics = getExportPerformanceMetrics($startTime, count($summaryData));
+        logExportPerformance('Summary Export Complete', array_merge($finalMetrics, [
+            'filename' => $filename,
+            'data_processed' => count($summaryData)
+        ]));
+
+        return Excel::download(new BOQSummaryMatrixExport($summaryData), $filename);
+    }
+
+    /**
+     * Get optimized summary data using raw SQL for maximum performance
+     */
+    private function getOptimizedSummaryData(Request $request)
+    {
+        // Build dynamic WHERE clauses
+        $whereConditions = [];
+        $bindings = [];
+        
+        if ($request->filled('project_id')) {
+            $whereConditions[] = "p.id = ?";
+            $bindings[] = $request->project_id;
+        }
+        
+        if ($request->filled('sub_project_id')) {
+            $whereConditions[] = "sp.id = ?";
+            $bindings[] = $request->sub_project_id;
+        }
+        
+        if ($request->filled('cluster')) {
+            $whereConditions[] = "(t.cluster = ? OR boq.cluster = ?)";
+            $bindings[] = $request->cluster;
+            $bindings[] = $request->cluster;
+        }
+        
+        $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+        
+        // Super optimized raw SQL query with proper GROUP BY
+        $sql = "
+            SELECT 
+                m.id as material_id,
+                m.name as material_name,
+                m.unit,
+                c.name as category_name,
+                p.name as project_name,
+                sp.name as sub_project_name,
+                COALESCE(t.cluster, boq.cluster, 'No Cluster') as cluster,
+                COALESCE(t.delivery_note_no, boq.dn_number, 'No DN') as dn_number,
+                COALESCE(SUM(td.quantity), 0) as received_quantity,
+                COALESCE(SUM(boq.actual_quantity), 0) as actual_usage
+            FROM materials m
+            LEFT JOIN categories c ON m.category_id = c.id
+            LEFT JOIN sub_projects sp ON m.sub_project_id = sp.id  
+            LEFT JOIN projects p ON sp.project_id = p.id
+            LEFT JOIN transaction_details td ON m.id = td.material_id
+            LEFT JOIN transactions t ON td.transaction_id = t.id AND t.type = 'penerimaan'
+            LEFT JOIN boq_actuals boq ON m.id = boq.material_id
+            {$whereClause}
+            GROUP BY 
+                m.id, m.name, m.unit, c.name, p.name, sp.name,
+                t.cluster, t.delivery_note_no, boq.cluster, boq.dn_number
+            HAVING (COALESCE(SUM(td.quantity), 0) + COALESCE(SUM(boq.actual_quantity), 0)) > 0
+            ORDER BY p.name, sp.name, m.name
+        ";
+        
+        $results = DB::select($sql, $bindings);
+        
+        // Transform to array format for better performance
+        $summaryData = [];
+        foreach ($results as $result) {
+            $receivedQuantity = (float) $result->received_quantity;
+            $actualUsage = (float) $result->actual_usage;
+            $remainingStock = $receivedQuantity - $actualUsage;
+
+            $summaryData[] = [
+                'material_name' => $result->material_name,
+                'category_name' => $result->category_name,
+                'unit' => $result->unit,
+                'project_name' => $result->project_name,
+                'sub_project_name' => $result->sub_project_name,
+                'cluster' => $result->cluster,
+                'dn_number' => $result->dn_number,
+                'received_quantity' => $receivedQuantity,
+                'actual_usage' => $actualUsage,
+                'remaining_stock' => $remainingStock
+            ];
+        }
+        
+        return $summaryData;
+    }
+
+    /**
+     * Clean and optimize data for export
+     */
+    private function cleanDataForExport(array $summaryData): array
+    {
+        // First sanitize the entire array to prevent UTF-8 issues
+        $summaryData = sanitizeArrayForJson($summaryData);
+
+        return array_map(function($item) {
+            return [
+                'material_name' => sanitizeForSpreadsheet($item['material_name'] ?? ''),
+                'category_name' => sanitizeForSpreadsheet($item['category_name'] ?? ''),
+                'unit' => sanitizeForSpreadsheet($item['unit'] ?? ''),
+                'project_name' => sanitizeForSpreadsheet($item['project_name'] ?? ''),
+                'sub_project_name' => sanitizeForSpreadsheet($item['sub_project_name'] ?? ''),
+                'cluster' => sanitizeForSpreadsheet($item['cluster'] ?? ''),
+                'dn_number' => sanitizeForSpreadsheet($item['dn_number'] ?? ''),
+                'received_quantity' => is_numeric($item['received_quantity'] ?? 0) ? (float)$item['received_quantity'] : 0,
+                'actual_usage' => is_numeric($item['actual_usage'] ?? 0) ? (float)$item['actual_usage'] : 0,
+                'remaining_stock' => is_numeric($item['remaining_stock'] ?? 0) ? (float)$item['remaining_stock'] : 0
+            ];
+        }, array_filter($summaryData, function($item) {
+            return !empty($item['material_name'] ?? '') &&
+                   is_string($item['material_name'] ?? '') &&
+                   mb_check_encoding($item['material_name'] ?? '', 'UTF-8');
+        }));
+    }
+
+    /**
+     * Sanitize UTF-8 encoding for Excel export
+     */
+    private function sanitizeUtf8($string)
+    {
+        if (empty($string) || is_null($string)) {
+            return '';
+        }
+        
+        // Convert to string if not already
+        $string = (string) $string;
+        
+        // First, try to detect and fix encoding
+        $encoding = mb_detect_encoding($string, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+        if ($encoding && $encoding !== 'UTF-8') {
+            $string = mb_convert_encoding($string, 'UTF-8', $encoding);
+        }
+        
+        // Remove any problematic bytes that could cause coordinate issues
+        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/', '', $string);
+        
+        // Remove specific problematic UTF-8 sequences that PhpSpreadsheet doesn't like
+        $string = preg_replace('/[\xCE\x89]/', '', $string);
+        $string = preg_replace('/[\x80-\xFF][\x80-\xBF]*/', '', $string);
+        
+        // Clean up any remaining non-printable characters
+        $string = filter_var($string, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+        
+        // Final UTF-8 validation and cleanup
+        if (!mb_check_encoding($string, 'UTF-8')) {
+            $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+        }
+        
+        // Replace any remaining problematic characters with safe alternatives
+        $string = str_replace(['�', '�'], '', $string);
+        
+        return trim($string);
+    }
+    
 }

@@ -16,6 +16,9 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
+// Load performance helper functions
+require_once app_path('Helpers/ExportHelper.php');
+
 class LossReportsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
@@ -86,19 +89,19 @@ class LossReportsExport implements FromQuery, WithHeadings, WithMapping, WithSty
         return [
             $no++,
             $lossReport->created_at ? $lossReport->created_at->format('d/m/Y H:i:s') : '',
-            $lossReport->user ? $lossReport->user->name : '',
-            $lossReport->project ? $lossReport->project->name : '',
-            $lossReport->subProject ? $lossReport->subProject->name : '',
-            $lossReport->project_location ?? '',
-            $lossReport->cluster ?? '',
+            $lossReport->user ? sanitizeForSpreadsheet($lossReport->user->name) : '',
+            $lossReport->project ? sanitizeForSpreadsheet($lossReport->project->name) : '',
+            $lossReport->subProject ? sanitizeForSpreadsheet($lossReport->subProject->name) : '',
+            sanitizeForSpreadsheet($lossReport->project_location ?? ''),
+            sanitizeForSpreadsheet($lossReport->cluster ?? ''),
             $lossReport->loss_date ? $lossReport->loss_date->format('d/m/Y') : '',
-            $lossReport->material_type ?? '',
-            $lossReport->loss_chronology ?? '',
-            $lossReport->additional_notes ?? '',
-            $this->getStatusLabel($lossReport->status),
-            $lossReport->reviewer ? $lossReport->reviewer->name : '',
+            sanitizeForSpreadsheet($lossReport->material_type ?? ''),
+            sanitizeForSpreadsheet($lossReport->loss_chronology ?? ''),
+            sanitizeForSpreadsheet($lossReport->additional_notes ?? ''),
+            sanitizeForSpreadsheet($this->getStatusLabel($lossReport->status)),
+            $lossReport->reviewer ? sanitizeForSpreadsheet($lossReport->reviewer->name) : '',
             $lossReport->reviewed_at ? $lossReport->reviewed_at->format('d/m/Y H:i:s') : '',
-            $lossReport->admin_notes ?? '',
+            sanitizeForSpreadsheet($lossReport->admin_notes ?? ''),
             $lossReport->supporting_document_path ? 'Ada Dokumen' : 'Tidak Ada',
             $lossReport->created_at ? $lossReport->created_at->format('d/m/Y H:i:s') : ''
         ];

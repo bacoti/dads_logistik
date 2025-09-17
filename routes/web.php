@@ -125,6 +125,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/boq-actuals/create/batch', [\App\Http\Controllers\Admin\BOQActualController::class, 'createBatch'])->name('boq-actuals.create-batch');
         Route::post('/boq-actuals/store/batch', [\App\Http\Controllers\Admin\BOQActualController::class, 'storeBatch'])->name('boq-actuals.store-batch');
         Route::get('/summary', [\App\Http\Controllers\Admin\BOQActualController::class, 'summary'])->name('boq-actuals.summary');
+        Route::get('/summary/export', [\App\Http\Controllers\Admin\BOQActualController::class, 'exportSummary'])->name('boq-actuals.export-summary');
 
         // Document Management for Admin
         Route::resource('documents', \App\Http\Controllers\Admin\DocumentController::class);

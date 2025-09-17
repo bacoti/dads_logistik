@@ -52,7 +52,7 @@
                     </x-nav-link>
 
                     <!-- Summary -->
-                    <x-nav-link :href="route('admin.boq-summary')" :active="request()->routeIs('admin.boq-summary')">
+                    <x-nav-link :href="route('admin.boq-actuals.summary')" :active="request()->routeIs('admin.boq-actuals.summary')">
                         {{ __('Summary') }}
                     </x-nav-link>
 
@@ -143,7 +143,7 @@
                 {{ __('BOQ Actual') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('admin.boq-summary')" :active="request()->routeIs('admin.boq-summary')">
+            <x-responsive-nav-link :href="route('admin.boq-actuals.summary')" :active="request()->routeIs('admin.boq-actuals.summary')">
                 {{ __('Summary') }}
             </x-responsive-nav-link>
 

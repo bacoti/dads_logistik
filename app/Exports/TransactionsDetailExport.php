@@ -14,6 +14,9 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
+// Load performance helper functions
+require_once app_path('Helpers/ExportHelper.php');
+
 class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
@@ -71,34 +74,34 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
                     // Menentukan vendor/tujuan berdasarkan tipe transaksi
                     $vendorDestination = '';
                     if ($transaction->type == 'pengembalian' && $transaction->return_destination) {
-                        $vendorDestination = 'Tujuan: ' . $transaction->return_destination;
+                        $vendorDestination = 'Tujuan: ' . sanitizeForSpreadsheet($transaction->return_destination);
                     } elseif ($transaction->vendor) {
-                        $vendorDestination = 'Vendor: ' . $transaction->vendor->name;
+                        $vendorDestination = 'Vendor: ' . sanitizeForSpreadsheet($transaction->vendor->name);
                     } elseif ($transaction->vendor_name) {
-                        $vendorDestination = 'Vendor: ' . $transaction->vendor_name;
+                        $vendorDestination = 'Vendor: ' . sanitizeForSpreadsheet($transaction->vendor_name);
                     }
                     
                     $exportData->push([
                         'no' => $isFirstDetail ? $no : '', // Nomor hanya di baris pertama
-                        'transaction_id' => $isFirstDetail ? $transaction->id : '',
+                        'transaction_id' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->id) : '',
                         'transaction_date' => $isFirstDetail ? ($transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '') : '',
                         'transaction_time' => $isFirstDetail ? ($transaction->transaction_date ? $transaction->transaction_date->format('H:i:s') : '') : '',
-                        'type' => $isFirstDetail ? ucfirst($transaction->type ?? '') : '',
-                        'user_name' => $isFirstDetail ? ($transaction->user ? $transaction->user->name : '') : '',
-                        'project_name' => $isFirstDetail ? ($transaction->project ? $transaction->project->name : '') : '',
-                        'sub_project_name' => $isFirstDetail ? ($transaction->subProject ? $transaction->subProject->name : '') : '',
-                        'location' => $isFirstDetail ? ($transaction->location ?? '') : '',
-                        'cluster' => $isFirstDetail ? ($transaction->cluster ?? '') : '',
+                        'type' => $isFirstDetail ? ucfirst(sanitizeForSpreadsheet($transaction->type ?? '')) : '',
+                        'user_name' => $isFirstDetail ? ($transaction->user ? sanitizeForSpreadsheet($transaction->user->name) : '') : '',
+                        'project_name' => $isFirstDetail ? ($transaction->project ? sanitizeForSpreadsheet($transaction->project->name) : '') : '',
+                        'sub_project_name' => $isFirstDetail ? ($transaction->subProject ? sanitizeForSpreadsheet($transaction->subProject->name) : '') : '',
+                        'location' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->location ?? '') : '',
+                        'cluster' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->cluster ?? '') : '',
                         'vendor_destination' => $isFirstDetail ? $vendorDestination : '',
-                        'delivery_order_no' => $isFirstDetail ? ($transaction->delivery_order_no ?? '') : '',
-                        'delivery_note_no' => $isFirstDetail ? ($transaction->delivery_note_no ?? '') : '',
-                        'delivery_return_no' => $isFirstDetail ? ($transaction->delivery_return_no ?? '') : '',
-                        'site_id' => $isFirstDetail ? ($transaction->site_id ?? '') : '',
-                        'material_category' => $detail->material && $detail->material->category ? $detail->material->category->name : '-',
-                        'material_name' => $detail->material ? $detail->material->name : 'Unknown Material',
+                        'delivery_order_no' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->delivery_order_no ?? '') : '',
+                        'delivery_note_no' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->delivery_note_no ?? '') : '',
+                        'delivery_return_no' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->delivery_return_no ?? '') : '',
+                        'site_id' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->site_id ?? '') : '',
+                        'material_category' => $detail->material && $detail->material->category ? sanitizeForSpreadsheet($detail->material->category->name) : '-',
+                        'material_name' => $detail->material ? sanitizeForSpreadsheet($detail->material->name) : 'Unknown Material',
                         'quantity' => number_format($detail->quantity),
-                        'unit' => $detail->material && $detail->material->unit ? $detail->material->unit : 'unit',
-                        'notes' => $isFirstDetail ? ($transaction->notes ?? '') : '',
+                        'unit' => $detail->material && $detail->material->unit ? sanitizeForSpreadsheet($detail->material->unit) : 'unit',
+                        'notes' => $isFirstDetail ? sanitizeForSpreadsheet($transaction->notes ?? '') : '',
                         'created_at' => $isFirstDetail ? ($transaction->created_at ? $transaction->created_at->format('d/m/Y H:i:s') : '') : ''
                     ]);
                 }
@@ -106,34 +109,34 @@ class TransactionsDetailExport implements FromCollection, WithHeadings, WithStyl
                 // Jika tidak ada detail material
                 $vendorDestination = '';
                 if ($transaction->type == 'pengembalian' && $transaction->return_destination) {
-                    $vendorDestination = 'Tujuan: ' . $transaction->return_destination;
+                    $vendorDestination = 'Tujuan: ' . sanitizeForSpreadsheet($transaction->return_destination);
                 } elseif ($transaction->vendor) {
-                    $vendorDestination = 'Vendor: ' . $transaction->vendor->name;
+                    $vendorDestination = 'Vendor: ' . sanitizeForSpreadsheet($transaction->vendor->name);
                 } elseif ($transaction->vendor_name) {
-                    $vendorDestination = 'Vendor: ' . $transaction->vendor_name;
+                    $vendorDestination = 'Vendor: ' . sanitizeForSpreadsheet($transaction->vendor_name);
                 }
                 
                 $exportData->push([
                     'no' => $no,
-                    'transaction_id' => $transaction->id,
+                    'transaction_id' => sanitizeForSpreadsheet($transaction->id),
                     'transaction_date' => $transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '',
                     'transaction_time' => $transaction->transaction_date ? $transaction->transaction_date->format('H:i:s') : '',
-                    'type' => ucfirst($transaction->type ?? ''),
-                    'user_name' => $transaction->user ? $transaction->user->name : '',
-                    'project_name' => $transaction->project ? $transaction->project->name : '',
-                    'sub_project_name' => $transaction->subProject ? $transaction->subProject->name : '',
-                    'location' => $transaction->location ?? '',
-                    'cluster' => $transaction->cluster ?? '',
+                    'type' => ucfirst(sanitizeForSpreadsheet($transaction->type ?? '')),
+                    'user_name' => $transaction->user ? sanitizeForSpreadsheet($transaction->user->name) : '',
+                    'project_name' => $transaction->project ? sanitizeForSpreadsheet($transaction->project->name) : '',
+                    'sub_project_name' => $transaction->subProject ? sanitizeForSpreadsheet($transaction->subProject->name) : '',
+                    'location' => sanitizeForSpreadsheet($transaction->location ?? ''),
+                    'cluster' => sanitizeForSpreadsheet($transaction->cluster ?? ''),
                     'vendor_destination' => $vendorDestination,
-                    'delivery_order_no' => $transaction->delivery_order_no ?? '',
-                    'delivery_note_no' => $transaction->delivery_note_no ?? '',
-                    'delivery_return_no' => $transaction->delivery_return_no ?? '',
-                    'site_id' => $transaction->site_id ?? '',
+                    'delivery_order_no' => sanitizeForSpreadsheet($transaction->delivery_order_no ?? ''),
+                    'delivery_note_no' => sanitizeForSpreadsheet($transaction->delivery_note_no ?? ''),
+                    'delivery_return_no' => sanitizeForSpreadsheet($transaction->delivery_return_no ?? ''),
+                    'site_id' => sanitizeForSpreadsheet($transaction->site_id ?? ''),
                     'material_category' => '-',
                     'material_name' => 'No Materials',
                     'quantity' => '-',
                     'unit' => '-',
-                    'notes' => $transaction->notes ?? '',
+                    'notes' => sanitizeForSpreadsheet($transaction->notes ?? ''),
                     'created_at' => $transaction->created_at ? $transaction->created_at->format('d/m/Y H:i:s') : ''
                 ]);
             }

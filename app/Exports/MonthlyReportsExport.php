@@ -15,6 +15,9 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
+// Load performance helper functions
+require_once app_path('Helpers/ExportHelper.php');
+
 class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     use Exportable;
@@ -74,15 +77,15 @@ class MonthlyReportsExport implements FromQuery, WithHeadings, WithMapping, With
         
         return [
             $no++,
-            $report->user ? $report->user->name : '',
-            $this->getMonthName($report->month),
+            $report->user ? sanitizeForSpreadsheet($report->user->name) : '',
+            sanitizeForSpreadsheet($this->getMonthName($report->month)),
             $report->year,
-            $report->title ?? '',
-            $report->description ?? '',
-            $this->getStatusLabel($report->status),
-            $report->reviewer ? $report->reviewer->name : '',
+            sanitizeForSpreadsheet($report->title ?? ''),
+            sanitizeForSpreadsheet($report->description ?? ''),
+            sanitizeForSpreadsheet($this->getStatusLabel($report->status)),
+            $report->reviewer ? sanitizeForSpreadsheet($report->reviewer->name) : '',
             $report->reviewed_at ? $report->reviewed_at->format('d/m/Y H:i:s') : '',
-            $report->admin_notes ?? '',
+            sanitizeForSpreadsheet($report->admin_notes ?? ''),
             $report->file_path ? 'Ada File' : 'Tidak Ada',
             $report->created_at ? $report->created_at->format('d/m/Y H:i:s') : '',
             $report->updated_at ? $report->updated_at->format('d/m/Y H:i:s') : ''
