@@ -27,6 +27,15 @@ class DatabaseSeeder extends Seeder
             ComprehensiveMasterDataSeeder::class,
             TransactionReceivingSeeder::class,
             AllTransactionTypesSeeder::class,
+            // Bulk realistic transactions (150)
+            BulkTransactionSeeder::class,
+            // Monthly reports test data
+            MonthlyReportSeeder::class,
+            LossReportSeeder::class,
+            // MFO requests test data
+            MfoRequestSeeder::class,
+            // Bulk documents for document management (70)
+            BulkDocumentSeeder::class,
         ]);
     }
 }
