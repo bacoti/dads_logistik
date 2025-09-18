@@ -235,7 +235,7 @@
                 successMessage: '',
                 errorMessage: '',
 
-                async onProjectChange() {
+                    async onProjectChange() {
                     this.selectedSubProject = '';
                     this.selectedCluster = '';
                     this.selectedDNNumber = '';
@@ -249,9 +249,20 @@
 
                     this.isLoadingSubProjects = true;
                     try {
-                        const response = await fetch(`/admin/boq-actuals/ajax/sub-projects/${this.selectedProject}`);
-                        this.subProjects = await response.json();
+                        const response = await fetch(`/admin/boq-actuals/ajax/sub-projects/${this.selectedProject}`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Failed loading sub-projects', response.status, text);
+                            this.showError('Gagal memuat sub projects');
+                        } else {
+                            this.subProjects = await response.json();
+                        }
+
                     } catch (error) {
+                        console.error('Error fetching sub-projects', error);
                         this.showError('Gagal memuat sub projects');
                     }
                     this.isLoadingSubProjects = false;
@@ -269,9 +280,19 @@
 
                     this.isLoadingClusters = true;
                     try {
-                        const response = await fetch(`/admin/boq-actuals/ajax/clusters?project_id=${this.selectedProject}&sub_project_id=${this.selectedSubProject}`);
-                        this.clusters = await response.json();
+                        const response = await fetch(`/admin/boq-actuals/ajax/clusters?project_id=${this.selectedProject}&sub_project_id=${this.selectedSubProject}`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Failed loading clusters', response.status, text);
+                            this.showError('Gagal memuat clusters');
+                        } else {
+                            this.clusters = await response.json();
+                        }
                     } catch (error) {
+                        console.error('Error fetching clusters', error);
                         this.showError('Gagal memuat clusters');
                     }
                     this.isLoadingClusters = false;
@@ -287,9 +308,19 @@
 
                     this.isLoadingDNNumbers = true;
                     try {
-                        const response = await fetch(`/admin/boq-actuals/ajax/dn-numbers?project_id=${this.selectedProject}&sub_project_id=${this.selectedSubProject}&cluster=${this.selectedCluster}`);
-                        this.dnNumbers = await response.json();
+                        const response = await fetch(`/admin/boq-actuals/ajax/dn-numbers?project_id=${this.selectedProject}&sub_project_id=${this.selectedSubProject}&cluster=${this.selectedCluster}`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Failed loading DN numbers', response.status, text);
+                            this.showError('Gagal memuat DN numbers');
+                        } else {
+                            this.dnNumbers = await response.json();
+                        }
                     } catch (error) {
+                        console.error('Error fetching DN numbers', error);
                         this.showError('Gagal memuat DN numbers');
                     }
                     this.isLoadingDNNumbers = false;
@@ -309,15 +340,24 @@
                     this.showMaterialsTable = true;
 
                     try {
-                        const response = await fetch(`/admin/boq-actuals/ajax/materials-with-quantities?project_id=${this.selectedProject}&sub_project_id=${this.selectedSubProject}&cluster=${this.selectedCluster}&dn_number=${this.selectedDNNumber}`);
-                        this.materials = await response.json();
-                        
-                        // Initialize actual_quantity and calculate remaining stock
-                        this.materials.forEach((material, index) => {
-                            material.actual_quantity = 0;
-                            this.calculateRemainingStock(index);
+                        const response = await fetch(`/admin/boq-actuals/ajax/materials-with-quantities?project_id=${this.selectedProject}&sub_project_id=${this.selectedSubProject}&cluster=${this.selectedCluster}&dn_number=${this.selectedDNNumber}`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                         });
+
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Failed loading materials', response.status, text);
+                            this.showError('Gagal memuat materials');
+                        } else {
+                            this.materials = await response.json();
+                            // Initialize actual_quantity and calculate remaining stock
+                            this.materials.forEach((material, index) => {
+                                material.actual_quantity = 0;
+                                this.calculateRemainingStock(index);
+                            });
+                        }
                     } catch (error) {
+                        console.error('Error fetching materials', error);
                         this.showError('Gagal memuat materials');
                     }
                     this.isLoadingMaterials = false;

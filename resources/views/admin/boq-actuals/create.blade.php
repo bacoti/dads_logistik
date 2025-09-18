@@ -253,16 +253,21 @@
 
                     this.loadingSubProjects = true;
                     try {
-                        const response = await fetch(`/admin/boq-actuals/ajax/sub-projects/${this.selectedProject}`);
-                        const data = await response.json();
-                        this.subProjects = data;
+                        const response = await fetch(`/admin/boq-actuals/ajax/sub-projects/${this.selectedProject}`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Failed loading sub-projects', response.status, text);
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data sub proyek. Silakan coba lagi.' });
+                        } else {
+                            const data = await response.json();
+                            this.subProjects = data;
+                        }
                     } catch (error) {
                         console.error('Error loading sub projects:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Gagal memuat data sub proyek. Silakan coba lagi.',
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data sub proyek. Silakan coba lagi.' });
                     } finally {
                         this.loadingSubProjects = false;
                     }
@@ -277,16 +282,21 @@
 
                     this.loadingMaterials = true;
                     try {
-                        const response = await fetch(`/admin/boq-actuals/ajax/materials/${this.selectedSubProject}`);
-                        const data = await response.json();
-                        this.materials = data;
+                        const response = await fetch(`/admin/boq-actuals/ajax/materials/${this.selectedSubProject}`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Failed loading materials', response.status, text);
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data material. Silakan coba lagi.' });
+                        } else {
+                            const data = await response.json();
+                            this.materials = data;
+                        }
                     } catch (error) {
                         console.error('Error loading materials:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Gagal memuat data material. Silakan coba lagi.',
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data material. Silakan coba lagi.' });
                     } finally {
                         this.loadingMaterials = false;
                     }

@@ -128,6 +128,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/summary', [\App\Http\Controllers\Admin\BOQActualController::class, 'summary'])->name('boq-actuals.summary');
         Route::get('/summary/export', [\App\Http\Controllers\Admin\BOQActualController::class, 'exportSummary'])->name('boq-actuals.export-summary');
 
+    // AJAX endpoints for BOQ Actuals (used by admin views)
+    Route::get('boq-actuals/ajax/sub-projects/{project}', [\App\Http\Controllers\Admin\BOQActualController::class, 'getSubProjects'])->name('boq-actuals.ajax.sub-projects');
+    Route::get('boq-actuals/ajax/materials/{subProject}', [\App\Http\Controllers\Admin\BOQActualController::class, 'getMaterials'])->name('boq-actuals.ajax.materials');
+    Route::get('boq-actuals/ajax/clusters', [\App\Http\Controllers\Admin\BOQActualController::class, 'getClusters'])->name('boq-actuals.ajax.clusters');
+    Route::get('boq-actuals/ajax/dn-numbers', [\App\Http\Controllers\Admin\BOQActualController::class, 'getDNNumbers'])->name('boq-actuals.ajax.dn-numbers');
+    Route::get('boq-actuals/ajax/materials-with-quantities', [\App\Http\Controllers\Admin\BOQActualController::class, 'getMaterialsWithQuantities'])->name('boq-actuals.ajax.materials-with-quantities');
+
         // Document Management for Admin
         Route::resource('documents', \App\Http\Controllers\Admin\DocumentController::class);
         Route::get('/documents/{document}/download', [\App\Http\Controllers\Admin\DocumentController::class, 'download'])->name('documents.download');
