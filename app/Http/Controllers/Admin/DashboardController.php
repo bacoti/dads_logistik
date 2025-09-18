@@ -245,9 +245,28 @@ class DashboardController extends Controller
         $endDate = $request->get('end_date');
 
         $fileName = 'ringkasan_admin_' . date('Y-m-d_H-i-s') . '.xlsx';
-        
+
         return Excel::download(
-            new AdminSummaryExport($startDate, $endDate), 
+            new AdminSummaryExport($startDate, $endDate),
+            $fileName
+        );
+    }
+
+    /**
+     * Export hybrid comprehensive data (Opsi 5: Multi-Purpose Format)
+     */
+    public function exportHybrid(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $projectId = $request->get('project_id');
+        $location = $request->get('location');
+        $cluster = $request->get('cluster');
+
+        $fileName = 'hybrid_transaction_report_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(
+            new \App\Exports\HybridTransactionExport($startDate, $endDate, $projectId, $location, $cluster),
             $fileName
         );
     }

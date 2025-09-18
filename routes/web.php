@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         // Export Routes
         Route::get('/export/transactions', [\App\Http\Controllers\Admin\DashboardController::class, 'exportTransactions'])->name('export.transactions');
         Route::get('/export/transactions-detail', [\App\Http\Controllers\Admin\DashboardController::class, 'exportTransactionsDetail'])->name('export.transactions-detail');
+        Route::get('/export/hybrid', [\App\Http\Controllers\Admin\DashboardController::class, 'exportHybrid'])->name('export.hybrid');
         Route::get('/export/monthly-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'exportMonthlyReports'])->name('export.monthly-reports');
         Route::get('/export/loss-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'exportLossReports'])->name('export.loss-reports');
         Route::get('/export/mfo-requests', [\App\Http\Controllers\Admin\DashboardController::class, 'exportMfoRequests'])->name('export.mfo-requests');
