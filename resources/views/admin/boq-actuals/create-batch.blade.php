@@ -399,8 +399,8 @@
                         }))
                     };
 
-                    try {
-                        const response = await fetch('/admin/boq-actuals/batch-store', {
+                        try {
+                        const response = await fetch("{{ route('admin.boq-actuals.store-batch') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -408,19 +408,26 @@
                             },
                             body: JSON.stringify(inputData)
                         });
-
-                        const result = await response.json();
+                        let result = null;
+                        try {
+                            result = await response.json();
+                        } catch (jsonError) {
+                            console.error('Failed to parse JSON response', jsonError);
+                        }
 
                         if (response.ok) {
-                            this.showSuccess(result.message || 'Data BOQ Actual berhasil disimpan!');
+                            this.showSuccess((result && result.message) ? result.message : 'Data BOQ Actual berhasil disimpan!');
                             setTimeout(() => {
                                 window.location.href = '/admin/boq-actuals';
                             }, 2000);
                         } else {
-                            this.showError(result.message || 'Terjadi kesalahan saat menyimpan data');
+                            const serverMessage = result && result.message ? result.message : null;
+                            console.error('Server returned error', response.status, serverMessage, result);
+                            this.showError(serverMessage || ('Terjadi kesalahan saat menyimpan data (HTTP ' + response.status + ')'));
                         }
                     } catch (error) {
-                        this.showError('Terjadi kesalahan saat menyimpan data');
+                        console.error('Network or unexpected error when saving batch', error);
+                        this.showError('Terjadi kesalahan saat menyimpan data: ' + (error.message || error));
                     }
                     this.isSaving = false;
                 },

@@ -187,6 +187,14 @@ class BOQActualController extends Controller
     }
 
     /**
+     * Compatibility wrapper for route expecting `storeBatch`.
+     */
+    public function storeBatch(Request $request)
+    {
+        return $this->batchStore($request);
+    }
+
+    /**
      * Get materials with received quantities for batch input
      */
     public function getMaterialsWithQuantities(Request $request)
