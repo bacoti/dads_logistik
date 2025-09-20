@@ -23,13 +23,15 @@ class BOQActual extends Model
         'cluster',
         'dn_number',
         'actual_quantity',
+        'actual_usage',
         'usage_date',
         'notes'
     ];
 
     protected $casts = [
         'usage_date' => 'date',
-        'actual_quantity' => 'decimal:2'
+        'actual_quantity' => 'decimal:2',
+        'actual_usage' => 'decimal:2'
     ];
 
     /**

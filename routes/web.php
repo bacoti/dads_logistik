@@ -123,6 +123,7 @@ Route::middleware('auth')->group(function () {
 
         // BOQ Actuals Management for Admin
         Route::resource('boq-actuals', \App\Http\Controllers\Admin\BOQActualController::class);
+        Route::post('/boq-actuals/{boqActual}/update-usage', [\App\Http\Controllers\Admin\BOQActualController::class, 'updateUsage'])->name('boq-actuals.update-usage');
         Route::get('/boq-actuals/create/batch', [\App\Http\Controllers\Admin\BOQActualController::class, 'createBatch'])->name('boq-actuals.create-batch');
         Route::post('/boq-actuals/store/batch', [\App\Http\Controllers\Admin\BOQActualController::class, 'storeBatch'])->name('boq-actuals.store-batch');
         Route::get('/summary', [\App\Http\Controllers\Admin\BOQActualController::class, 'summary'])->name('boq-actuals.summary');

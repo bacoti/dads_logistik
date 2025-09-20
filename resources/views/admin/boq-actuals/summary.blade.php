@@ -40,14 +40,14 @@
                 <div class="px-8 py-6 bg-white border-b border-gray-200">
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center space-x-4">
-                            <a href="{{ route('admin.boq-actuals.index') }}" 
+                            <a href="{{ route('admin.boq-actuals.index') }}"
                                class="inline-flex items-center px-6 py-3 bg-green-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out transform hover:scale-105">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
                                 Kelola BOQ Actual
                             </a>
-                            <a href="{{ route('admin.boq-actuals.create') }}" 
+                            <a href="{{ route('admin.boq-actuals.create') }}"
                                class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out transform hover:scale-105">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -55,7 +55,7 @@
                                 Tambah BOQ Actual
                             </a>
                             @if(count($summaryData) > 0)
-                                <a href="{{ route('admin.boq-actuals.export-summary', request()->all()) }}" 
+                                <a href="{{ route('admin.boq-actuals.export-summary', request()->all()) }}"
                                    class="inline-flex items-center px-6 py-3 bg-orange-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-150 ease-in-out transform hover:scale-105">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -64,7 +64,7 @@
                                 </a>
                             @endif
                         </div>
-                        <button @click="showFilters = !showFilters" 
+                        <button @click="showFilters = !showFilters"
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
@@ -76,7 +76,7 @@
             </div>
 
             <!-- Filters Section -->
-            <div x-show="showFilters" 
+            <div x-show="showFilters"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 transform -translate-y-2"
                  x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -136,16 +136,16 @@
                     </div>
 
                     <div class="mt-6 flex flex-wrap items-center gap-4">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="inline-flex items-center px-6 py-2 bg-blue-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             Terapkan Filter
                         </button>
-                        
+
                         @if(request()->hasAny(['project_id', 'sub_project_id', 'cluster', 'hide_no_data']))
-                            <a href="{{ route('admin.boq-actuals.summary') }}" 
+                            <a href="{{ route('admin.boq-actuals.summary') }}"
                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -158,7 +158,7 @@
             </div>
 
             <!-- Summary Hierarchical Card View -->
-            <div x-data="{ 
+            <div x-data="{
                 expandedProjects: {},
                 expandedSubProjects: {},
                 expandedClusters: {},
@@ -193,11 +193,11 @@
                     @foreach($groupedData as $projectName => $subProjects)
                         <!-- Project Level Card -->
                         <div class="bg-white rounded-xl shadow-lg border border-blue-200 overflow-hidden">
-                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 cursor-pointer" 
+                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 cursor-pointer"
                                  @click="toggleProject('{{ Str::slug($projectName) }}')">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
-                                        <svg class="w-6 h-6 text-white transition-transform duration-200" 
+                                        <svg class="w-6 h-6 text-white transition-transform duration-200"
                                              :class="expandedProjects['{{ Str::slug($projectName) }}'] ? 'rotate-90' : ''"
                                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -213,21 +213,21 @@
                             </div>
 
                             <!-- Sub Projects Container -->
-                            <div x-show="expandedProjects['{{ Str::slug($projectName) }}']" 
+                            <div x-show="expandedProjects['{{ Str::slug($projectName) }}']"
                                  x-transition:enter="transition ease-out duration-300"
                                  x-transition:enter-start="opacity-0 max-h-0"
                                  x-transition:enter-end="opacity-100 max-h-screen"
                                  class="overflow-hidden">
-                                
+
                                 @foreach($subProjects as $subProjectName => $clusters)
                                     <!-- Sub Project Level -->
                                     <div class="border-l-4 border-blue-300 ml-6">
                                         <div class="bg-green-50 border border-green-200 mx-4 my-2 rounded-lg">
-                                            <div class="px-4 py-3 cursor-pointer border-green-300 bg-green-100" 
+                                            <div class="px-4 py-3 cursor-pointer border-green-300 bg-green-100"
                                                  @click="toggleSubProject('{{ Str::slug($projectName.$subProjectName) }}')">
                                                 <div class="flex items-center justify-between">
                                                     <div class="flex items-center space-x-3">
-                                                        <svg class="w-5 h-5 text-green-600 transition-transform duration-200" 
+                                                        <svg class="w-5 h-5 text-green-600 transition-transform duration-200"
                                                              :class="expandedSubProjects['{{ Str::slug($projectName.$subProjectName) }}'] ? 'rotate-90' : ''"
                                                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -241,20 +241,20 @@
                                             </div>
 
                                             <!-- Clusters Container -->
-                                            <div x-show="expandedSubProjects['{{ Str::slug($projectName.$subProjectName) }}']" 
+                                            <div x-show="expandedSubProjects['{{ Str::slug($projectName.$subProjectName) }}']"
                                                  x-transition:enter="transition ease-out duration-300"
                                                  x-transition:enter-start="opacity-0 max-h-0"
                                                  x-transition:enter-end="opacity-100 max-h-screen"
                                                  class="overflow-hidden p-4 space-y-3">
-                                                
+
                                                 @foreach($clusters as $clusterName => $dns)
                                                     <!-- Cluster Level -->
                                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg">
-                                                        <div class="px-4 py-3 cursor-pointer bg-yellow-100 rounded-t-lg" 
+                                                        <div class="px-4 py-3 cursor-pointer bg-yellow-100 rounded-t-lg"
                                                              @click="toggleCluster('{{ Str::slug($projectName.$subProjectName.$clusterName) }}')">
                                                             <div class="flex items-center justify-between">
                                                                 <div class="flex items-center space-x-3">
-                                                                    <svg class="w-4 h-4 text-yellow-600 transition-transform duration-200" 
+                                                                    <svg class="w-4 h-4 text-yellow-600 transition-transform duration-200"
                                                                          :class="expandedClusters['{{ Str::slug($projectName.$subProjectName.$clusterName) }}'] ? 'rotate-90' : ''"
                                                                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -268,20 +268,20 @@
                                                         </div>
 
                                                         <!-- DN Numbers Container -->
-                                                        <div x-show="expandedClusters['{{ Str::slug($projectName.$subProjectName.$clusterName) }}']" 
+                                                        <div x-show="expandedClusters['{{ Str::slug($projectName.$subProjectName.$clusterName) }}']"
                                                              x-transition:enter="transition ease-out duration-300"
                                                              x-transition:enter-start="opacity-0 max-h-0"
                                                              x-transition:enter-end="opacity-100 max-h-screen"
                                                              class="overflow-hidden p-3 space-y-2">
-                                                            
+
                                                             @foreach($dns as $dnNumber => $materials)
                                                                 <!-- DN Level -->
                                                                 <div class="bg-gray-50 border border-gray-200 rounded-lg">
-                                                                    <div class="px-3 py-2 cursor-pointer bg-gray-100 rounded-t-lg" 
+                                                                    <div class="px-3 py-2 cursor-pointer bg-gray-100 rounded-t-lg"
                                                                          @click="toggleDN('{{ Str::slug($projectName.$subProjectName.$clusterName.$dnNumber) }}')">
                                                                         <div class="flex items-center justify-between">
                                                                             <div class="flex items-center space-x-2">
-                                                                                <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" 
+                                                                                <svg class="w-4 h-4 text-gray-600 transition-transform duration-200"
                                                                                      :class="expandedDNs['{{ Str::slug($projectName.$subProjectName.$clusterName.$dnNumber) }}'] ? 'rotate-90' : ''"
                                                                                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -295,12 +295,12 @@
                                                                     </div>
 
                                                                     <!-- Material Cards -->
-                                                                    <div x-show="expandedDNs['{{ Str::slug($projectName.$subProjectName.$clusterName.$dnNumber) }}']" 
+                                                                    <div x-show="expandedDNs['{{ Str::slug($projectName.$subProjectName.$clusterName.$dnNumber) }}']"
                                                                          x-transition:enter="transition ease-out duration-300"
                                                                          x-transition:enter-start="opacity-0 max-h-0"
                                                                          x-transition:enter-end="opacity-100 max-h-screen"
                                                                          class="overflow-hidden p-3 space-y-2">
-                                                                        
+
                                                                         @foreach($materials as $material)
                                                                             <!-- Material Card -->
                                                                             <div class="bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -334,7 +334,7 @@
                                                                                             <div class="text-lg font-bold text-blue-600">{{ number_format($material['received_quantity'], 2) }}</div>
                                                                                             <div class="text-xs text-blue-800 font-medium">Diterima</div>
                                                                                         </div>
-                                                                                        
+
                                                                                         <!-- Terpakai -->
                                                                                         <div class="bg-green-50 p-2 rounded-lg">
                                                                                             <div class="text-lg font-bold text-green-600">{{ number_format($material['actual_usage'], 2) }}</div>
@@ -343,7 +343,7 @@
 
                                                                                         <!-- BOQ Actual -->
                                                                                         <div class="bg-purple-50 p-2 rounded-lg">
-                                                                                            <div class="text-lg font-bold text-purple-600">{{ number_format($material['actual_usage'], 2) }}</div>
+                                                                                            <div class="text-lg font-bold text-purple-600">{{ number_format($material['boq_actual_quantity'] ?? 0, 2) }}</div>
                                                                                             <div class="text-xs text-purple-800 font-medium">BOQ Actual</div>
                                                                                         </div>
 
@@ -432,14 +432,14 @@
                                 Data summary akan muncul setelah ada transaksi penerimaan material dan BOQ Actual yang telah diinput.
                             </p>
                             <div class="mt-8 flex justify-center space-x-4">
-                                <a href="{{ route('admin.boq-actuals.create') }}" 
+                                <a href="{{ route('admin.boq-actuals.create') }}"
                                    class="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out transform hover:scale-105">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                     </svg>
                                     Tambah BOQ Actual
                                 </a>
-                                <a href="{{ route('admin.boq-actuals.index') }}" 
+                                <a href="{{ route('admin.boq-actuals.index') }}"
                                    class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>

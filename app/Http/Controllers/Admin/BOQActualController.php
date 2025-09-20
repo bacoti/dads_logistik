@@ -168,6 +168,7 @@ class BOQActualController extends Controller
                     'cluster' => $request->cluster,
                     'dn_number' => $request->dn_number,
                     'actual_quantity' => $materialData['actual_quantity'],
+                    'actual_usage' => 0, // Start with 0 usage
                     'usage_date' => $request->usage_date,
                     'notes' => $request->notes
                 ]);
@@ -289,6 +290,7 @@ class BOQActualController extends Controller
                 'cluster' => $request->cluster,
                 'dn_number' => $request->dn_number,
                 'actual_quantity' => $request->actual_quantity,
+                'actual_usage' => 0, // Start with 0 usage
                 'usage_date' => $request->usage_date,
                 'notes' => $request->notes
             ]);
@@ -355,6 +357,7 @@ class BOQActualController extends Controller
                 'cluster' => $request->cluster,
                 'dn_number' => $request->dn_number,
                 'actual_quantity' => $request->actual_quantity,
+                // Don't update actual_usage here - it should be updated separately
                 'usage_date' => $request->usage_date,
                 'notes' => $request->notes
             ]);
@@ -474,7 +477,7 @@ class BOQActualController extends Controller
     {
         // Increase memory limit for large data processing
         ini_set('memory_limit', '256M');
-        
+
         // Optimized single query approach to prevent timeout
         $summaryQuery = DB::table('materials')
             ->leftJoin('categories', 'materials.category_id', '=', 'categories.id')
@@ -498,7 +501,8 @@ class BOQActualController extends Controller
                 DB::raw('COALESCE(transactions.cluster, boq_actuals.cluster) as cluster'),
                 DB::raw('COALESCE(transactions.delivery_note_no, boq_actuals.dn_number) as dn_number'),
                 DB::raw('SUM(COALESCE(transaction_details.quantity, 0)) as received_quantity'),
-                DB::raw('SUM(COALESCE(boq_actuals.actual_quantity, 0)) as actual_usage')
+                DB::raw('SUM(COALESCE(boq_actuals.actual_usage, 0)) as actual_usage'),
+                DB::raw('SUM(COALESCE(boq_actuals.actual_quantity, 0)) as boq_actual_quantity')
             );
 
         // Apply filters
@@ -537,10 +541,11 @@ class BOQActualController extends Controller
         foreach ($results as $result) {
             $receivedQuantity = (float) $result->received_quantity;
             $actualUsage = (float) $result->actual_usage;
+            $boqActualQuantity = (float) $result->boq_actual_quantity;
             $remainingStock = $receivedQuantity - $actualUsage;
 
             // Only include if there's meaningful data or hide_no_data is not set
-            $hasData = $receivedQuantity > 0 || $actualUsage > 0;
+            $hasData = $receivedQuantity > 0 || $actualUsage > 0 || $boqActualQuantity > 0;
             $shouldInclude = $hasData || !($request->filled('hide_no_data') && $request->hide_no_data == '1');
 
             if ($shouldInclude) {
@@ -554,6 +559,7 @@ class BOQActualController extends Controller
                     'dn_number' => $result->dn_number ?: 'No DN',
                     'received_quantity' => $receivedQuantity,
                     'actual_usage' => $actualUsage,
+                    'boq_actual_quantity' => $boqActualQuantity,
                     'remaining_stock' => $remainingStock
                 ];
             }
@@ -577,22 +583,22 @@ class BOQActualController extends Controller
     public function exportSummary(Request $request)
     {
         $startTime = microtime(true);
-        
+
         // Get optimized configuration
         $config = getExportDatabaseConfig();
-        
+
         // Maximum performance settings
         ini_set('memory_limit', $config['memory_limit']);
         set_time_limit($config['max_execution_time']);
-        
+
         // Skip database optimizations that cause errors
         // optimizeDatabaseConnections(); // Commented out to avoid MySQL errors
         preloadExportData();
         optimizeMemoryForExport();
-        
+
         // Cache key for query results (include user filters)
         $cacheKey = 'summary_export_' . md5(serialize($request->all()) . auth()->id());
-        
+
         // Try to get cached results first (cache for 5 minutes)
         $summaryData = cache()->remember($cacheKey, $config['cache_ttl'], function() use ($request) {
             return $this->getOptimizedSummaryData($request);
@@ -618,7 +624,7 @@ class BOQActualController extends Controller
 
         // Clean data before export
         $summaryData = $this->cleanDataForExport($summaryData);
-        
+
         // Log final performance metrics
         $finalMetrics = getExportPerformanceMetrics($startTime, count($summaryData));
         logExportPerformance('Summary Export Complete', array_merge($finalMetrics, [
@@ -637,28 +643,28 @@ class BOQActualController extends Controller
         // Build dynamic WHERE clauses
         $whereConditions = [];
         $bindings = [];
-        
+
         if ($request->filled('project_id')) {
             $whereConditions[] = "p.id = ?";
             $bindings[] = $request->project_id;
         }
-        
+
         if ($request->filled('sub_project_id')) {
             $whereConditions[] = "sp.id = ?";
             $bindings[] = $request->sub_project_id;
         }
-        
+
         if ($request->filled('cluster')) {
             $whereConditions[] = "(t.cluster = ? OR boq.cluster = ?)";
             $bindings[] = $request->cluster;
             $bindings[] = $request->cluster;
         }
-        
+
         $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
-        
+
         // Super optimized raw SQL query with proper GROUP BY
         $sql = "
-            SELECT 
+            SELECT
                 m.id as material_id,
                 m.name as material_name,
                 m.unit,
@@ -668,29 +674,31 @@ class BOQActualController extends Controller
                 COALESCE(t.cluster, boq.cluster, 'No Cluster') as cluster,
                 COALESCE(t.delivery_note_no, boq.dn_number, 'No DN') as dn_number,
                 COALESCE(SUM(td.quantity), 0) as received_quantity,
-                COALESCE(SUM(boq.actual_quantity), 0) as actual_usage
+                COALESCE(SUM(boq.actual_usage), 0) as actual_usage,
+                COALESCE(SUM(boq.actual_quantity), 0) as boq_actual_quantity
             FROM materials m
             LEFT JOIN categories c ON m.category_id = c.id
-            LEFT JOIN sub_projects sp ON m.sub_project_id = sp.id  
+            LEFT JOIN sub_projects sp ON m.sub_project_id = sp.id
             LEFT JOIN projects p ON sp.project_id = p.id
             LEFT JOIN transaction_details td ON m.id = td.material_id
             LEFT JOIN transactions t ON td.transaction_id = t.id AND t.type = 'penerimaan'
             LEFT JOIN boq_actuals boq ON m.id = boq.material_id
             {$whereClause}
-            GROUP BY 
+            GROUP BY
                 m.id, m.name, m.unit, c.name, p.name, sp.name,
                 t.cluster, t.delivery_note_no, boq.cluster, boq.dn_number
-            HAVING (COALESCE(SUM(td.quantity), 0) + COALESCE(SUM(boq.actual_quantity), 0)) > 0
+            HAVING (COALESCE(SUM(td.quantity), 0) + COALESCE(SUM(boq.actual_usage), 0) + COALESCE(SUM(boq.actual_quantity), 0)) > 0
             ORDER BY p.name, sp.name, m.name
         ";
-        
+
         $results = DB::select($sql, $bindings);
-        
+
         // Transform to array format for better performance
         $summaryData = [];
         foreach ($results as $result) {
             $receivedQuantity = (float) $result->received_quantity;
             $actualUsage = (float) $result->actual_usage;
+            $boqActualQuantity = (float) $result->boq_actual_quantity;
             $remainingStock = $receivedQuantity - $actualUsage;
 
             $summaryData[] = [
@@ -703,10 +711,11 @@ class BOQActualController extends Controller
                 'dn_number' => $result->dn_number,
                 'received_quantity' => $receivedQuantity,
                 'actual_usage' => $actualUsage,
+                'boq_actual_quantity' => $boqActualQuantity,
                 'remaining_stock' => $remainingStock
             ];
         }
-        
+
         return $summaryData;
     }
 
@@ -729,6 +738,7 @@ class BOQActualController extends Controller
                 'dn_number' => sanitizeForSpreadsheet($item['dn_number'] ?? ''),
                 'received_quantity' => is_numeric($item['received_quantity'] ?? 0) ? (float)$item['received_quantity'] : 0,
                 'actual_usage' => is_numeric($item['actual_usage'] ?? 0) ? (float)$item['actual_usage'] : 0,
+                'boq_actual_quantity' => is_numeric($item['boq_actual_quantity'] ?? 0) ? (float)$item['boq_actual_quantity'] : 0,
                 'remaining_stock' => is_numeric($item['remaining_stock'] ?? 0) ? (float)$item['remaining_stock'] : 0
             ];
         }, array_filter($summaryData, function($item) {
@@ -739,42 +749,35 @@ class BOQActualController extends Controller
     }
 
     /**
-     * Sanitize UTF-8 encoding for Excel export
+     * Update actual usage for a BOQ Actual record
      */
-    private function sanitizeUtf8($string)
+    public function updateUsage(Request $request, BOQActual $boqActual)
     {
-        if (empty($string) || is_null($string)) {
-            return '';
+        $validator = Validator::make($request->all(), [
+            'actual_usage' => 'required|numeric|min:0',
+            'usage_notes' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Data tidak valid: ' . $validator->errors()->first()
+            ], 422);
         }
-        
-        // Convert to string if not already
-        $string = (string) $string;
-        
-        // First, try to detect and fix encoding
-        $encoding = mb_detect_encoding($string, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
-        if ($encoding && $encoding !== 'UTF-8') {
-            $string = mb_convert_encoding($string, 'UTF-8', $encoding);
+
+        try {
+            $boqActual->update([
+                'actual_usage' => $request->actual_usage,
+                'notes' => $request->usage_notes ?: $boqActual->notes
+            ]);
+
+            return response()->json([
+                'message' => 'Pemakaian material berhasil diperbarui!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Remove any problematic bytes that could cause coordinate issues
-        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/', '', $string);
-        
-        // Remove specific problematic UTF-8 sequences that PhpSpreadsheet doesn't like
-        $string = preg_replace('/[\xCE\x89]/', '', $string);
-        $string = preg_replace('/[\x80-\xFF][\x80-\xBF]*/', '', $string);
-        
-        // Clean up any remaining non-printable characters
-        $string = filter_var($string, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-        
-        // Final UTF-8 validation and cleanup
-        if (!mb_check_encoding($string, 'UTF-8')) {
-            $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
-        }
-        
-        // Replace any remaining problematic characters with safe alternatives
-        $string = str_replace(['�', '�'], '', $string);
-        
-        return trim($string);
     }
-    
+
 }
