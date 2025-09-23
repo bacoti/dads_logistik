@@ -1,0 +1,43 @@
+digraph UseCase {
+	rankdir=LR
+	graph [fontname=Arial fontsize=16 nodesep=1 ranksep=1.2]
+	node [fontname=Arial fontsize=12]
+	edge [fontname=Arial fontsize=10]
+	subgraph cluster_0 {
+		color="#e3e3e3" fontsize=14 label=Actors style="rounded,filled"
+		User [label=User fillcolor="#f9f9f9" shape=rect style=filled]
+		Admin [label=Admin fillcolor="#f9f9f9" shape=rect style=filled]
+		Warehouse [label="Warehouse Staff" fillcolor="#f9f9f9" shape=rect style=filled]
+		Manager [label=Manager fillcolor="#f9f9f9" shape=rect style=filled]
+	}
+	subgraph cluster_1 {
+		color="#d0e6fa" fontsize=14 label="Use Cases" style="rounded,filled"
+		Login [label=Login fillcolor="#eaf6ff" shape=ellipse style=filled]
+		ViewDashboard [label="View Dashboard" fillcolor="#eaf6ff" shape=ellipse style=filled]
+		ManageInventory [label="Manage Inventory" fillcolor="#eaf6ff" shape=ellipse style=filled]
+		ApprovePO [label="Approve Purchase Order" fillcolor="#eaf6ff" shape=ellipse style=filled]
+		TrackShipment [label="Track Shipment" fillcolor="#eaf6ff" shape=ellipse style=filled]
+		GenerateReport [label="Generate Report" fillcolor="#eaf6ff" shape=ellipse style=filled]
+		ExportExcel [label="Export to Excel" fillcolor="#eaf6ff" shape=ellipse style=filled]
+		UploadDocument [label="Upload Document" fillcolor="#eaf6ff" shape=ellipse style=filled]
+	}
+	User -> Login
+	User -> ViewDashboard
+	User -> TrackShipment
+	User -> UploadDocument
+	Admin -> Login
+	Admin -> ViewDashboard
+	Admin -> ManageInventory
+	Admin -> ApprovePO
+	Admin -> GenerateReport
+	Admin -> ExportExcel
+	Warehouse -> Login
+	Warehouse -> ManageInventory
+	Warehouse -> TrackShipment
+	Warehouse -> UploadDocument
+	Manager -> Login
+	Manager -> ViewDashboard
+	Manager -> ApprovePO
+	Manager -> GenerateReport
+	Manager -> ExportExcel
+}

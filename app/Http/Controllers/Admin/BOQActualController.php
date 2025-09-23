@@ -655,7 +655,8 @@ class BOQActualController extends Controller
         }
 
         if ($request->filled('cluster')) {
-            $whereConditions[] = "(t.cluster = ? OR boq.cluster = ?)";
+            $whereConditions[] = "(t.cluster = ? OR boq.cluster = ? OR tpu.cluster = ?)";
+            $bindings[] = $request->cluster;
             $bindings[] = $request->cluster;
             $bindings[] = $request->cluster;
         }
@@ -671,10 +672,10 @@ class BOQActualController extends Controller
                 c.name as category_name,
                 p.name as project_name,
                 sp.name as sub_project_name,
-                COALESCE(t.cluster, boq.cluster, 'No Cluster') as cluster,
-                COALESCE(t.delivery_note_no, boq.dn_number, 'No DN') as dn_number,
+                COALESCE(t.cluster, boq.cluster, tpu.cluster, 'No Cluster') as cluster,
+                COALESCE(t.delivery_note_no, boq.dn_number, tpu.delivery_note_no, 'No DN') as dn_number,
                 COALESCE(SUM(td.quantity), 0) as received_quantity,
-                COALESCE(SUM(boq.actual_usage), 0) as actual_usage,
+                COALESCE(SUM(tp.quantity), 0) as actual_usage,
                 COALESCE(SUM(boq.actual_quantity), 0) as boq_actual_quantity
             FROM materials m
             LEFT JOIN categories c ON m.category_id = c.id
@@ -682,12 +683,14 @@ class BOQActualController extends Controller
             LEFT JOIN projects p ON sp.project_id = p.id
             LEFT JOIN transaction_details td ON m.id = td.material_id
             LEFT JOIN transactions t ON td.transaction_id = t.id AND t.type = 'penerimaan'
+            LEFT JOIN transaction_details tp ON m.id = tp.material_id
+            LEFT JOIN transactions tpu ON tp.transaction_id = tpu.id AND tpu.type = 'pemakaian'
             LEFT JOIN boq_actuals boq ON m.id = boq.material_id
             {$whereClause}
             GROUP BY
                 m.id, m.name, m.unit, c.name, p.name, sp.name,
-                t.cluster, t.delivery_note_no, boq.cluster, boq.dn_number
-            HAVING (COALESCE(SUM(td.quantity), 0) + COALESCE(SUM(boq.actual_usage), 0) + COALESCE(SUM(boq.actual_quantity), 0)) > 0
+                t.cluster, t.delivery_note_no, boq.cluster, boq.dn_number, tpu.cluster, tpu.delivery_note_no
+            HAVING (COALESCE(SUM(td.quantity), 0) + COALESCE(SUM(tp.quantity), 0) + COALESCE(SUM(boq.actual_quantity), 0)) > 0
             ORDER BY p.name, sp.name, m.name
         ";
 

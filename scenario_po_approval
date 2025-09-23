@@ -1,0 +1,22 @@
+digraph Scenario {
+	fontname=Arial fontsize=16 nodesep=0.7 rankdir=TB ranksep=0.7
+	node [fillcolor="#eaf6ff" fontname=Arial fontsize=12 shape=box style="rounded,filled"]
+	edge [fontname=Arial fontsize=10]
+	start [label=Start fillcolor="#b3e6b3" shape=circle]
+	login [label="User/Admin Login"]
+	input_po [label="Input Purchase Order"]
+	submit_po [label="Submit PO for Approval"]
+	notif_mgr [label="Manager Gets Notification"]
+	review_mgr [label="Manager Reviews PO"]
+	approve_mgr [label="Manager Approves/Rejects PO"]
+	notif_user [label="User Gets Result Notification"]
+	end [label=End fillcolor="#b3e6b3" shape=doublecircle]
+	start -> login
+	login -> input_po
+	input_po -> submit_po
+	submit_po -> notif_mgr
+	notif_mgr -> review_mgr
+	review_mgr -> approve_mgr
+	approve_mgr -> notif_user
+	notif_user -> end
+}

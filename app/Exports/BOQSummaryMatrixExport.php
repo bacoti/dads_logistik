@@ -17,7 +17,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 // Load performance helper functions
-require_once app_path('Helpers/ExportHelper.php');
+require_once __DIR__ . '/../Helpers/ExportHelper.php';
 
 class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithEvents, ShouldAutoSize, WithChunkReading
 {
@@ -51,6 +51,7 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
                 'dn_number' => sanitizeForSpreadsheet($item['dn_number'] ?? ''),
                 'received_quantity' => (float)($item['received_quantity'] ?? 0),
                 'actual_usage' => (float)($item['actual_usage'] ?? 0),
+                'boq_actual_quantity' => (float)($item['boq_actual_quantity'] ?? 0),
                 'remaining_stock' => (float)($item['remaining_stock'] ?? 0)
             ];
         }, $summaryData);
@@ -64,10 +65,10 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
         // Use associative arrays for O(1) lookups
         $dnMap = [];
         $materialMap = [];
-        
+
         foreach ($this->summaryData as $item) {
             $dnKey = $item['cluster'] . '|' . $item['dn_number'];
-            
+
             if (!isset($dnMap[$dnKey])) {
                 $dnMap[$dnKey] = [
                     'dn_number' => $item['dn_number'],
@@ -77,19 +78,19 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
                     'key' => $dnKey
                 ];
             }
-            
+
             if (!isset($materialMap[$item['material_name']])) {
                 $materialMap[$item['material_name']] = true;
             }
         }
-        
+
         $this->dnList = array_values($dnMap);
         $this->materialList = array_keys($materialMap);
-        
+
         // Sort for consistent output
         sort($this->materialList);
         usort($this->dnList, function($a, $b) {
-            return strcmp($a['project_name'] . $a['cluster'] . $a['dn_number'], 
+            return strcmp($a['project_name'] . $a['cluster'] . $a['dn_number'],
                          $b['project_name'] . $b['cluster'] . $b['dn_number']);
         });
     }
@@ -105,21 +106,21 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
             $key = $item['material_name'] . '|' . $item['cluster'] . '|' . $item['dn_number'];
             $dataLookup[$key] = $item;
         }
-        
+
         $this->dataMatrix = [];
-        
+
         foreach ($this->materialList as $index => $material) {
             $row = [($index + 1), $material]; // No and Material name
-            
+
             foreach ($this->dnList as $dn) {
                 $lookupKey = $material . '|' . $dn['cluster'] . '|' . $dn['dn_number'];
-                
+
                 if (isset($dataLookup[$lookupKey])) {
                     $data = $dataLookup[$lookupKey];
-                    $row[] = $data['received_quantity'] > 0 ? $data['received_quantity'] : 0;
-                    $row[] = $data['actual_usage'] > 0 ? $data['actual_usage'] : 0;
-                    $row[] = $data['actual_usage'] > 0 ? $data['actual_usage'] : 0; // BOQ Actual same as actual usage
-                    $row[] = $data['remaining_stock'] != 0 ? $data['remaining_stock'] : 0;
+                    $row[] = $data['received_quantity'];
+                    $row[] = $data['actual_usage'];
+                    $row[] = $data['boq_actual_quantity']; // BOQ Actual quantity
+                    $row[] = $data['remaining_stock'];
                 } else {
                     $row[] = 0;
                     $row[] = 0;
@@ -127,7 +128,7 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
                     $row[] = 0;
                 }
             }
-            
+
             $this->dataMatrix[] = $row;
         }
     }
@@ -147,11 +148,11 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
     {
         // Pre-calculated headers for maximum speed
         static $cachedHeaders = null;
-        
+
         if ($cachedHeaders === null) {
             $cachedHeaders = $this->generateOptimizedHeaders();
         }
-        
+
         return $cachedHeaders;
     }
 
@@ -161,12 +162,12 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
     private function generateOptimizedHeaders(): array
     {
         $dnCount = count($this->dnList);
-        
+
         // Row 1: Year header (pre-allocated array for speed)
         $yearHeaders = array_fill(0, 2 + ($dnCount * 4), '2024');
         $yearHeaders[0] = '2024';
         $yearHeaders[1] = '';
-        
+
         // Row 2: Project headers
         $projectHeaders = ['', ''];
         $projectName = 'DONE CLR PROJECT OPNAME'; // From screenshot
@@ -176,7 +177,7 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
             $projectHeaders[] = '';
             $projectHeaders[] = '';
         }
-        
+
         // Row 3: DN with Cluster headers (optimized concatenation)
         $dnHeaders = ['No', 'Nama Material'];
         foreach ($this->dnList as $dn) {
@@ -185,27 +186,27 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
             $dnHeaders[] = '';
             $dnHeaders[] = '';
         }
-        
+
         // Row 4: Sub-column headers (pre-filled array)
         $subHeaders = ['', ''];
         $subColumns = ['DO', 'Terpakai', 'BOQ Actual', 'Sisa'];
         for ($i = 0; $i < $dnCount; $i++) {
             $subHeaders = array_merge($subHeaders, $subColumns);
         }
-        
+
         return [$yearHeaders, $projectHeaders, $dnHeaders, $subHeaders];
     }
 
     public function columnWidths(): array
     {
         static $cachedWidths = null;
-        
+
         if ($cachedWidths === null) {
             $cachedWidths = [
                 'A' => 5,  // No column
                 'B' => 25  // Material name column
             ];
-            
+
             // Pre-calculate column letters for DN columns using column indexes
             $columnIndex = 3; // C = 3 (1-based)
             $dnCount = count($this->dnList);
@@ -217,7 +218,7 @@ class BOQSummaryMatrixExport implements FromArray, WithHeadings, WithStyles, Wit
                 }
             }
         }
-        
+
         return $cachedWidths;
     }
 

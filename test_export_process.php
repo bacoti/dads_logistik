@@ -23,6 +23,7 @@ try {
             'dn_number' => 'DN001',
             'received_quantity' => 100,
             'actual_usage' => 80,
+            'boq_actual_quantity' => 90,
             'remaining_stock' => 20
         ],
         [
@@ -35,6 +36,7 @@ try {
             'dn_number' => 'DN002',
             'received_quantity' => 200,
             'actual_usage' => 150,
+            'boq_actual_quantity' => 180,
             'remaining_stock' => 50
         ]
     ];
