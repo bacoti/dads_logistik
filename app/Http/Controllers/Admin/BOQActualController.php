@@ -10,6 +10,7 @@ use App\Models\Material;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Exports\BOQSummaryMatrixExport;
+use App\Exports\BOQCompleteExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -632,7 +633,7 @@ class BOQActualController extends Controller
             'data_processed' => count($summaryData)
         ]));
 
-        return Excel::download(new BOQSummaryMatrixExport($summaryData), $filename);
+        return Excel::download(new BOQCompleteExport($summaryData), $filename);
     }
 
     /**
